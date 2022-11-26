@@ -1,6 +1,5 @@
-Config = {}
+Config = Config or {}
 
--- **** IMPORTANT ****
 -- UseTarget should only be set to true when using qb-target
 Config.UseTarget = GetConvar('UseTarget', 'false') == 'true'
 Config.Targets = {}
@@ -18,7 +17,7 @@ Config.MaxStatusValues = {
     ["axle"] = 100,
     ["brakes"] = 100,
     ["clutch"] = 100,
-    ["fuel"] = 100,
+    ["fuel"] = 100
 }
 
 Config.ValuesLabels = {
@@ -28,7 +27,7 @@ Config.ValuesLabels = {
     ["axle"] = Lang:t('labels.axle'),
     ["brakes"] = Lang:t('labels.brakes'),
     ["clutch"] = Lang:t('labels.clutch'),
-    ["fuel"] = Lang:t('labels.fuel'),
+    ["fuel"] = Lang:t('labels.fuel')
 }
 
 Config.RepairCost = {
@@ -37,79 +36,77 @@ Config.RepairCost = {
     ["axle"] = "steel",
     ["brakes"] = "iron",
     ["clutch"] = "aluminum",
-    ["fuel"] = "plastic",
+    ["fuel"] = "plastic"
 }
 
 Config.RepairCostAmount = {
     ["engine"] = {
         item = "metalscrap",
-        costs = 2,
+        costs = 2
     },
     ["body"] = {
         item = "plastic",
-        costs = 3,
+        costs = 3
     },
     ["radiator"] = {
         item = "steel",
-        costs = 5,
+        costs = 5
     },
     ["axle"] = {
         item = "aluminum",
-        costs = 7,
+        costs = 7
     },
     ["brakes"] = {
         item = "copper",
-        costs = 5,
+        costs = 5
     },
     ["clutch"] = {
         item = "copper",
-        costs = 6,
+        costs = 6
     },
     ["fuel"] = {
         item = "plastic",
-        costs = 5,
-    },
+        costs = 5
+    }
 }
 
 Config.Businesses = {
-    "Auto Repair",
+    "Auto Repair"
 }
 
 Config.Plates = {
     [1] = {
-        coords = vector4(-340.95, -128.24, 39, 160.0),
+        coords = vec4(-340.95, -128.24, 39, 160.0),
         boxData = {
             heading = 340,
             length = 5,
-            width = 2.5,
-            debugPoly = false
+            width = 2.5
         },
-        AttachedVehicle = nil,
+        AttachedVehicle = nil
     },
     [2] = {
-        coords = vector4(-327.91, -144.34, 38.86, 70.34),
+        coords = vec4(-327.91, -144.34, 38.86, 70.34),
         boxData = {
             heading = 249,
             length = 6.5,
-            width = 5,
-            debugPoly = false
+            width = 5
         },
-        AttachedVehicle = nil,
-    },
+        AttachedVehicle = nil
+    }
 }
 
 Config.Locations = {
-    ["exit"] = vector3(-339.04, -135.53, 39),
-    ["duty"] = vector3(-323.39, -129.6, 39.01),
-    ["stash"] = vector3(-319.49, -131.9, 38.98),
-    ["vehicle"] = vector4(-370.51, -107.88, 38.35, 72.56),
+    ["exit"] = vec3(-339.04, -135.53, 39),
+    ["duty"] = vec3(-323.39, -129.6, 39.01),
+    ["stash"] = vec3(-319.49, -131.9, 38.98),
+    ["vehicle"] = vec4(-370.51, -107.88, 38.35, 72.56)
 }
 
 Config.Vehicles = {
     ["flatbed"] = "Flatbed",
     ["towtruck"] = "Towtruck",
     ["minivan"] = "Minivan (Rental Car)",
-    ["blista"] = "Blista",
+    ["blista"] = "Blista"
 }
 
 Config.MinimalMetersForDamage = {
@@ -118,7 +115,7 @@ Config.MinimalMetersForDamage = {
         max = 12000,
         multiplier = {
             min = 1,
-            max = 8,
+            max = 8
         }
     },
     [2] = {
@@ -126,7 +123,7 @@ Config.MinimalMetersForDamage = {
         max = 16000,
         multiplier = {
             min = 8,
-            max = 16,
+            max = 16
         }
     },
     [3] = {
@@ -134,9 +131,9 @@ Config.MinimalMetersForDamage = {
         max = 16000,
         multiplier = {
             min = 16,
-            max = 24,
+            max = 24
         }
-    },
+    }
 }
 
 Config.Damages = {
@@ -144,5 +141,5 @@ Config.Damages = {
     ["axle"] = "Drive Shaft",
     ["brakes"] = "Brakes",
     ["clutch"] = "Clutch",
-    ["fuel"] = "Fuel Tank",
+    ["fuel"] = "Fuel Tank"
 }
