@@ -9,16 +9,15 @@ local Translations = {
         fuel = 'Fuel tank',
         sign_in = 'Sign In',
         sign_off = 'Sign Off',
-        o_stash = '[E] Open Stash',
-        h_vehicle = '[E] Hide Vehicle',
-        g_vehicle = '[E] Get Vehicle',
-        o_menu = '[E] Open Menu',
-        work_v = '[E] Work On Vehicle',
+        o_stash = '[E] - Open Stash',
+        h_vehicle = '[E] - Hide Vehicle',
+        g_vehicle = '[E] - Get Vehicle',
+        o_menu = '[E] - Open Menu',
+        work_v = '[E] - Work On Vehicle',
         progress_bar = 'Repairing...',
         veh_status = 'Vehicle Status:',
-        job_blip = 'Autocare Mechanic',
+        job_blip = 'Autocare Mechanic'
     },
-
     lift_menu = {
         header_menu = 'Vehicle Options',
         header_vehdc = 'Disconnect Vehicle',
@@ -26,26 +25,21 @@ local Translations = {
         header_stats = 'Check Status',
         desc_stats = 'Check Vehicle Status',
         header_parts = 'Vehicle Parts',
-        desc_parts = 'Repair Vehicle Parts',
-        c_menu = '⬅ Close Menu'
+        desc_parts = 'Repair Vehicle Parts'
     },
-
     parts_menu = {
         status = 'Status: ',
         menu_header = 'Part Menu',
         repair_op = 'Repair:',
         b_menu = '⬅ Back Menu',
-        d_menu = 'Back to parts menu',
-        c_menu = '⬅ Close Menu'
+        d_menu = 'Back to parts menu'
     },
-
     nodamage_menu = {
         header = 'No Damage',
         bh_menu = 'Back Menu',
         bd_menu = 'There Is No Damage To This Part!',
         c_menu = '⬅ Close Menu'
     },
-
     notifications = {
         not_enough = 'You don\'t Have Enough',
         not_have = 'You don\'t have',
@@ -62,7 +56,7 @@ local Translations = {
         progress_bar = 'Repairing vehicle..',
         process_canceled = 'Proccess canceled',
         not_part = 'Not a valid part',
-        partrep ='The %{value} Is Repaired!',
+        partrep ='The %{value} Is Repaired!'
     }
 }
 

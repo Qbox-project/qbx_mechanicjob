@@ -1,7 +1,10 @@
-local vehiclemeters = -1
-local previousvehiclepos = nil
-local CheckDone = false
-DrivingDistance = {}
+local drivingDistance = {}
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    QBCore.Functions.TriggerCallback('qb-vehicletuning:server:GetDrivingDistances', function(retval)
+        drivingDistance = retval
+    end)
+end)
 
 -- Functions
 local function round(num, numDecimalPlaces)
@@ -41,128 +44,125 @@ end
 
 -- Events
 RegisterNetEvent('qb-vehicletuning:client:UpdateDrivingDistance', function(amount, plate)
-    DrivingDistance[plate] = amount
+    drivingDistance[plate] = amount
 end)
 
 -- Threads
 CreateThread(function()
-    Wait(500)
+    local vehicleMeters = -1
+    local previousVehiclePos = nil
+    local checkDone = false
 
     while true do
-        local invehicle = IsPedInAnyVehicle(cache.ped, true)
-
-        if invehicle then
-            local veh = GetVehiclePedIsIn(cache.ped)
-            local seat = GetPedInVehicleSeat(veh, -1)
+        if cache.vehicle then
+            local seat = GetPedInVehicleSeat(cache.vehicle, -1)
             local pos = GetEntityCoords(cache.ped)
-            local plate = trim(GetVehicleNumberPlateText(veh))
+            local plate = trim(GetVehicleNumberPlateText(cache.vehicle))
 
-            if plate ~= nil then
-                if seat == cache.ped then
-                    if not CheckDone then
-                        if vehiclemeters == -1 then
-                            CheckDone = true
+            if seat == cache.ped then
+                if not checkDone then
+                    if vehicleMeters == -1 then
+                        checkDone = true
 
-                            QBCore.Functions.TriggerCallback('qb-vehicletuning:server:IsVehicleOwned', function(IsOwned)
-                                if IsOwned then
-                                    if DrivingDistance[plate] ~= nil then
-                                        vehiclemeters = DrivingDistance[plate]
-                                    else
-                                        DrivingDistance[plate] = 0
-                                        vehiclemeters = DrivingDistance[plate]
-                                    end
+                        QBCore.Functions.TriggerCallback('qb-vehicletuning:server:IsVehicleOwned', function(IsOwned)
+                            if IsOwned then
+                                if drivingDistance[plate] then
+                                    vehicleMeters = drivingDistance[plate]
                                 else
-                                    if DrivingDistance[plate] ~= nil then
-                                        vehiclemeters = DrivingDistance[plate]
-                                    else
-                                        DrivingDistance[plate] = math.random(111111, 999999)
-                                        vehiclemeters = DrivingDistance[plate]
-                                    end
+                                    drivingDistance[plate] = 0
+                                    vehicleMeters = drivingDistance[plate]
                                 end
-                            end, plate)
+                            else
+                                if drivingDistance[plate] then
+                                    vehicleMeters = drivingDistance[plate]
+                                else
+                                    drivingDistance[plate] = math.random(111111, 999999)
+                                    vehicleMeters = drivingDistance[plate]
+                                end
+                            end
+                        end, plate)
+                    end
+                end
+            else
+                if vehicleMeters == -1 then
+                    if drivingDistance[plate] ~= nil then
+                        vehicleMeters = drivingDistance[plate]
+                    end
+                end
+            end
+
+            if vehicleMeters ~= -1 then
+                if seat == cache.ped then
+                    if previousVehiclePos ~= nil then
+                        local Distance = #(pos - previousVehiclePos)
+                        local DamageKey = GetDamageMultiplier(vehicleMeters)
+
+                        vehicleMeters = vehicleMeters + ((Distance / 100) * 325)
+                        drivingDistance[plate] = vehicleMeters
+
+                        if DamageKey ~= nil then
+                            local DamageData = Config.MinimalMetersForDamage[DamageKey]
+                            local chance = math.random(3)
+                            local odd = math.random(3)
+                            local CurrentData = VehicleStatus[plate]
+
+                            if chance == odd then
+                                for k, _ in pairs(Config.Damages) do
+                                    local randmultiplier = (math.random(DamageData.multiplier.min, DamageData.multiplier.max) / 100)
+                                    local newDamage = 0
+
+                                    if CurrentData[k] - randmultiplier >= 0 then
+                                        newDamage = CurrentData[k] - randmultiplier
+                                    end
+
+                                    TriggerServerEvent('qb-vehicletuning:server:SetPartLevel', plate, k, newDamage)
+                                end
+                            end
                         end
+
+                        local amount = round(drivingDistance[plate] / 1000, -2)
+
+                        TriggerEvent('hud:client:UpdateDrivingMeters', true, amount)
+                        TriggerServerEvent('qb-vehicletuning:server:UpdateDrivingDistance', drivingDistance[plate], plate)
                     end
                 else
-                    if vehiclemeters == -1 then
-                        if DrivingDistance[plate] ~= nil then
-                            vehiclemeters = DrivingDistance[plate]
-                        end
-                    end
-                end
-
-                if vehiclemeters ~= -1 then
-                    if seat == cache.ped then
-                        if previousvehiclepos ~= nil then
-                            local Distance = #(pos - previousvehiclepos)
-                            local DamageKey = GetDamageMultiplier(vehiclemeters)
-
-                            vehiclemeters = vehiclemeters + ((Distance / 100) * 325)
-                            DrivingDistance[plate] = vehiclemeters
-
-                            if DamageKey ~= nil then
-                                local DamageData = Config.MinimalMetersForDamage[DamageKey]
-                                local chance = math.random(3)
-                                local odd = math.random(3)
-                                local CurrentData = VehicleStatus[plate]
-
-                                if chance == odd then
-                                    for k, _ in pairs(Config.Damages) do
-                                        local randmultiplier = (math.random(DamageData.multiplier.min, DamageData.multiplier.max) / 100)
-                                        local newDamage = 0
-
-                                        if CurrentData[k] - randmultiplier >= 0 then
-                                            newDamage = CurrentData[k] - randmultiplier
-                                        end
-
-                                        TriggerServerEvent('qb-vehicletuning:server:SetPartLevel', plate, k, newDamage)
-                                    end
-                                end
-                            end
-
-                            local amount = round(DrivingDistance[plate] / 1000, -2)
+                    if cache.vehicle then
+                        if drivingDistance[plate] ~= nil then
+                            local amount = round(drivingDistance[plate] / 1000, -2)
 
                             TriggerEvent('hud:client:UpdateDrivingMeters', true, amount)
-                            TriggerServerEvent('qb-vehicletuning:server:UpdateDrivingDistance', DrivingDistance[plate], plate)
                         end
                     else
-                        if invehicle then
-                            if DrivingDistance[plate] ~= nil then
-                                local amount = round(DrivingDistance[plate] / 1000, -2)
+                        if vehicleMeters ~= -1 then
+                            vehicleMeters = -1
+                        end
 
-                                TriggerEvent('hud:client:UpdateDrivingMeters', true, amount)
-                            end
-                        else
-                            if vehiclemeters ~= -1 then
-                                vehiclemeters = -1
-                            end
-
-                            if CheckDone then
-                                CheckDone = false
-                            end
+                        if checkDone then
+                            checkDone = false
                         end
                     end
                 end
-
-                previousvehiclepos = pos
-            end
-        else
-            if vehiclemeters ~= -1 then
-                vehiclemeters = -1
             end
 
-            if CheckDone then
-                CheckDone = false
-            end
+            previousVehiclePos = pos
 
-            if previousvehiclepos ~= nil then
-                previousvehiclepos = nil
-            end
-        end
-
-        if invehicle then
             Wait(2000)
         else
+            if vehicleMeters ~= -1 then
+                vehicleMeters = -1
+            end
+
+            if checkDone then
+                checkDone = false
+            end
+
+            if previousVehiclePos ~= nil then
+                previousVehiclePos = nil
+            end
+
             Wait(500)
         end
+
+        Wait(0)
     end
 end)

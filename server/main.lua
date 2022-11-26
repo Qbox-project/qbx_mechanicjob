@@ -17,25 +17,12 @@ end
 
 function GetVehicleStatus(plate)
     local retval = nil
-    local result = MySQL.query.await('SELECT status FROM player_vehicles WHERE plate = ?', {
+    local result = MySQL.single.await('SELECT status FROM player_vehicles WHERE plate = ?', {
         plate
     })
 
-    if result[1] ~= nil then
-        retval = result[1].status ~= nil and json.decode(result[1].status) or nil
-    end
-
-    return retval
-end
-
-function IsAuthorized(CitizenId)
-    local retval = false
-
-    for _, cid in pairs(Config.AuthorizedIds) do
-        if cid == CitizenId then
-            retval = true
-            break
-        end
+    if result then
+        retval = result.status ~= nil and json.decode(result.status) or nil
     end
 
     return retval
@@ -145,11 +132,11 @@ RegisterNetEvent('qb-vehicletuning:server:UpdateDrivingDistance', function(amoun
 
     TriggerClientEvent('qb-vehicletuning:client:UpdateDrivingDistance', -1, VehicleDrivingDistance[plate], plate)
 
-    local result = MySQL.query.await('SELECT plate FROM player_vehicles WHERE plate = ?', {
+    local result = MySQL.single.await('SELECT plate FROM player_vehicles WHERE plate = ?', {
         plate
     })
 
-    if result[1] ~= nil then
+    if result then
         MySQL.update('UPDATE player_vehicles SET drivingdistance = ? WHERE plate = ?', {
             amount,
             plate
@@ -215,12 +202,12 @@ RegisterNetEvent('vehiclemod:server:saveStatus', function(plate)
 end)
 
 RegisterNetEvent('qb-vehicletuning:server:SetAttachedVehicle', function(veh, k)
-    if veh ~= false then
-        Config.Plates[k].AttachedVehicle = veh
+    if veh then
+        Config.Plates[k].attachedVehicle = veh
 
         TriggerClientEvent('qb-vehicletuning:client:SetAttachedVehicle', -1, veh, k)
     else
-        Config.Plates[k].AttachedVehicle = nil
+        Config.Plates[k].attachedVehicle = nil
 
         TriggerClientEvent('qb-vehicletuning:client:SetAttachedVehicle', -1, false, k)
     end
@@ -253,71 +240,18 @@ RegisterNetEvent('qb-mechanicjob:server:removePart', function(part, amount)
 end)
 
 -- Commands
-QBCore.Commands.Add("setvehiclestatus", "Set Vehicle Status", {{
-    name = "part",
-    help = "Type The Part You Want To Edit"
-}, {
-    name = "amount",
-    help = "The Percentage Fixed"
-}}, true, function(source, args)
+QBCore.Commands.Add("setvehiclestatus", "Set Vehicle Status", {
+    {name = "part", help = "Type The Part You Want To Edit"},
+    {name = "amount", help = "The Percentage Fixed"}
+}, true, function(source, args)
     local part = args[1]:lower()
     local level = tonumber(args[2])
 
     TriggerClientEvent("vehiclemod:client:setPartLevel", source, part, level)
 end, "god")
 
-QBCore.Commands.Add("setmechanic", "Give Someone The Mechanic job", {{
-    name = "id",
-    help = "ID Of The Player"
-}}, false, function(source, args)
-    local Player = QBCore.Functions.GetPlayer(source)
-
-    if IsAuthorized(Player.PlayerData.citizenid) then
-        local TargetId = tonumber(args[1])
-
-        if TargetId ~= nil then
-            local TargetData = QBCore.Functions.GetPlayer(TargetId)
-
-            if TargetData ~= nil then
-                TargetData.Functions.SetJob("mechanic")
-
-                TriggerClientEvent('QBCore:Notify', TargetData.PlayerData.source, "You Were Hired As An Autocare Employee!")
-                TriggerClientEvent('QBCore:Notify', source, "You have (" .. TargetData.PlayerData.charinfo.firstname .. ") Hired As An Autocare Employee!")
-            end
-        else
-            TriggerClientEvent('QBCore:Notify', source, "You Must Provide A Player ID!")
-        end
-    else
-        TriggerClientEvent('QBCore:Notify', source, "You Cannot Do This!", "error")
-    end
-end)
-
-QBCore.Commands.Add("firemechanic", "Fire A Mechanic", {{
-    name = "id",
-    help = "ID Of The Player"
-}}, false, function(source, args)
-    local Player = QBCore.Functions.GetPlayer(source)
-
-    if IsAuthorized(Player.PlayerData.citizenid) then
-        local TargetId = tonumber(args[1])
-
-        if TargetId ~= nil then
-            local TargetData = QBCore.Functions.GetPlayer(TargetId)
-
-            if TargetData ~= nil then
-                if TargetData.PlayerData.job.name == "mechanic" then
-                    TargetData.Functions.SetJob("unemployed")
-
-                    TriggerClientEvent('QBCore:Notify', TargetData.PlayerData.source, "You Were Fired As An Autocare Employee!")
-                    TriggerClientEvent('QBCore:Notify', source, "You have (" .. TargetData.PlayerData.charinfo.firstname .. ") Fired As Autocare Employee!")
-                else
-                    TriggerClientEvent('QBCore:Notify', source, "Youre Not An Employee of Autocare!", "error")
-                end
-            end
-        else
-            TriggerClientEvent('QBCore:Notify', source, "You Must Provide A Player ID!", "error")
-        end
-    else
-        TriggerClientEvent('QBCore:Notify', source, "You Cannot Do This!", "error")
+AddEventHandler('onServerResourceStart', function(resourceName)
+    if resourceName == 'ox_inventory' or resourceName == GetCurrentResourceName() then
+        exports.ox_inventory:RegisterStash('stash_mechanic', "Stash: Mechanic", 500, 4000000, false)
     end
 end)

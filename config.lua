@@ -2,13 +2,6 @@ Config = Config or {}
 
 -- UseTarget should only be set to true when using qb-target
 Config.UseTarget = GetConvar('UseTarget', 'false') == 'true'
-Config.Targets = {}
-
-Config.AttachedVehicle = nil
-
-Config.AuthorizedIds = {
-    -- "insertcitizenidhere",
-}
 
 Config.MaxStatusValues = {
     ["engine"] = 1000.0,
@@ -70,36 +63,30 @@ Config.RepairCostAmount = {
     }
 }
 
-Config.Businesses = {
-    "Auto Repair"
-}
-
 Config.Plates = {
-    [1] = {
-        coords = vec4(-340.95, -128.24, 39, 160.0),
-        boxData = {
-            heading = 340,
-            length = 5,
-            width = 2.5
+    {
+        zone = {
+            coords = vec3(-340.85, -128.15, 39.0),
+            size = vec3(2.5, 5.5, 2.0),
+            rotation = 340.0
         },
-        AttachedVehicle = nil
-    },
-    [2] = {
-        coords = vec4(-327.91, -144.34, 38.86, 70.34),
-        boxData = {
-            heading = 249,
-            length = 6.5,
-            width = 5
-        },
-        AttachedVehicle = nil
+        heading = 339.3
     }
 }
 
 Config.Locations = {
-    ["exit"] = vec3(-339.04, -135.53, 39),
-    ["duty"] = vec3(-323.39, -129.6, 39.01),
-    ["stash"] = vec3(-319.49, -131.9, 38.98),
-    ["vehicle"] = vec4(-370.51, -107.88, 38.35, 72.56)
+    exit = vec3(-339.04, -135.53, 39),
+    duty = {
+        coords = vec3(-323.5, -129.0, 39.0),
+        size = vec3(3, 2, 2),
+        rotation = 340.0
+    },
+    stash = {
+        coords = vec3(-319.0, -132.0, 39.0),
+        size = vec3(2, 2.0, 2.0),
+        rotation = 340.0
+    },
+    vehicle = vec4(-370.51, -107.88, 38.35, 72.56)
 }
 
 Config.Vehicles = {
