@@ -216,9 +216,9 @@ end
 
 function RegisterVehiclePlateZone(id, plate)
     plateZones[id] = lib.zones.box({
-        coords = plate.coords,
-        size = plate.size,
-        rotation = plate.rotation,
+        coords = plate.zone.coords,
+        size = plate.zone.size,
+        rotation = plate.zone.rotation,
         onEnter = function(_)
             if onDuty then
                 if plate.attachedVehicle then
@@ -259,12 +259,12 @@ local function SetClosestPlate()
 
     for id,_ in pairs(Config.Plates) do
         if current ~= nil then
-            if #(pos - vec3(Config.Plates[id].coords.x, Config.Plates[id].coords.y, Config.Plates[id].coords.z)) < dist then
+            if #(pos - vec3(Config.Plates[id].zone.coords.x, Config.Plates[id].zone.coords.y, Config.Plates[id].zone.coords.z)) < dist then
                 current = id
-                dist = #(pos - vec3(Config.Plates[id].coords.x, Config.Plates[id].coords.y, Config.Plates[id].coords.z))
+                dist = #(pos - vec3(Config.Plates[id].zone.coords.x, Config.Plates[id].zone.coords.y, Config.Plates[id].zone.coords.z))
             end
         else
-            dist = #(pos - vec3(Config.Plates[id].coords.x, Config.Plates[id].coords.y, Config.Plates[id].coords.z))
+            dist = #(pos - vec3(Config.Plates[id].zone.coords.x, Config.Plates[id].zone.coords.y, Config.Plates[id].zone.coords.z))
             current = id
         end
     end
@@ -616,8 +616,8 @@ local function UnattachVehicle()
     Wait(150)
 
     FreezeEntityPosition(Config.Plates[ClosestPlate].attachedVehicle, false)
-    SetEntityCoords(Config.Plates[ClosestPlate].attachedVehicle, Config.Plates[ClosestPlate].coords.x, Config.Plates[ClosestPlate].coords.y, Config.Plates[ClosestPlate].coords.z)
-    SetEntityHeading(Config.Plates[ClosestPlate].attachedVehicle, Config.Plates[ClosestPlate].coords.w)
+    SetEntityCoords(Config.Plates[ClosestPlate].attachedVehicle, Config.Plates[ClosestPlate].zone.coords.x, Config.Plates[ClosestPlate].zone.coords.y, Config.Plates[ClosestPlate].zone.coords.z)
+    SetEntityHeading(Config.Plates[ClosestPlate].attachedVehicle, Config.Plates[ClosestPlate].heading)
     TaskWarpPedIntoVehicle(cache.ped, Config.Plates[ClosestPlate].attachedVehicle, -1)
 
     Wait(500)
