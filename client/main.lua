@@ -293,6 +293,7 @@ local function ScrapAnim(time)
                 openingDoor = false
 
                 StopAnimTask(cache.ped, "mp_car_bomb", "car_bomb_mechanic", 1.0)
+                RemoveAnimDict("mp_car_bomb")
             end
         end
     end)

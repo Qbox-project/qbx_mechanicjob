@@ -1,6 +1,6 @@
 Config = Config or {}
 
--- UseTarget should only be set to true when using qb-target
+-- UseTarget should only be set to true when using ox_target
 Config.UseTarget = GetConvar('UseTarget', 'false') == 'true'
 
 Config.MaxStatusValues = {
