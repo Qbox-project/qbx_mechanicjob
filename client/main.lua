@@ -21,7 +21,7 @@ local stashTargetBoxID = 'stashTarget'
 local function GetVehicleStatusList(plate)
     local retval = nil
 
-    if VehicleStatus[plate] ~= nil then
+    if VehicleStatus[plate] then
         retval = VehicleStatus[plate]
     end
 
@@ -32,7 +32,7 @@ exports('GetVehicleStatusList', GetVehicleStatusList)
 local function GetVehicleStatus(plate, part)
     local retval = nil
 
-    if VehicleStatus[plate] ~= nil then
+    if VehicleStatus[plate] then
         retval = VehicleStatus[plate][part]
     end
 
@@ -257,14 +257,14 @@ local function SetClosestPlate()
     local current = nil
     local dist = nil
 
-    for id,_ in pairs(Config.Plates) do
-        if current ~= nil then
-            if #(pos - vec3(Config.Plates[id].zone.coords.x, Config.Plates[id].zone.coords.y, Config.Plates[id].zone.coords.z)) < dist then
+    for id, data in pairs(Config.Plates) do
+        if current then
+            if #(pos - data.zone.coords) < dist then
                 current = id
-                dist = #(pos - vec3(Config.Plates[id].zone.coords.x, Config.Plates[id].zone.coords.y, Config.Plates[id].zone.coords.z))
+                dist = #(pos - data.zone.coords)
             end
         else
-            dist = #(pos - vec3(Config.Plates[id].zone.coords.x, Config.Plates[id].zone.coords.y, Config.Plates[id].zone.coords.z))
+            dist = #(pos - data.zone.coords)
             current = id
         end
     end
@@ -303,7 +303,7 @@ local function ApplyEffects(vehicle)
     local plate = QBCore.Functions.GetPlate(vehicle)
 
     if GetVehicleClass(vehicle) ~= 13 and GetVehicleClass(vehicle) ~= 21 and GetVehicleClass(vehicle) ~= 16 and GetVehicleClass(vehicle) ~= 15 and GetVehicleClass(vehicle) ~= 14 then
-        if VehicleStatus[plate] ~= nil then
+        if VehicleStatus[plate] then
             local chance = math.random(1, 100)
 
             if VehicleStatus[plate]["radiator"] <= 80 and (chance >= 1 and chance <= 20) then
@@ -471,12 +471,29 @@ local function round(num, numDecimalPlaces)
 end
 
 local function SendStatusMessage(statusList)
-    if statusList ~= nil then
-        TriggerEvent('chat:addMessage', {
-            template = '<div class="chat-message normal"><div class="chat-message-body"><strong>{0}:</strong><br><br> <strong>'.. Config.ValuesLabels["engine"] ..' (engine):</strong> {1} <br><strong>'.. Config.ValuesLabels["body"] ..' (body):</strong> {2} <br><strong>'.. Config.ValuesLabels["radiator"] ..' (radiator):</strong> {3} <br><strong>'.. Config.ValuesLabels["axle"] ..' (axle):</strong> {4}<br><strong>'.. Config.ValuesLabels["brakes"] ..' (brakes):</strong> {5}<br><strong>'.. Config.ValuesLabels["clutch"] ..' (clutch):</strong> {6}<br><strong>'.. Config.ValuesLabels["fuel"] ..' (fuel):</strong> {7}</div></div>',
-            args = {Lang:t('labels.veh_status'), round(statusList["engine"]) .. "/" .. Config.MaxStatusValues["engine"] .. " ("..QBCore.Shared.Items["advancedrepairkit"]["label"]..")", round(statusList["body"]) .. "/" .. Config.MaxStatusValues["body"] .. " ("..QBCore.Shared.Items[Config.RepairCost["body"]]["label"]..")", round(statusList["radiator"]) .. "/" .. Config.MaxStatusValues["radiator"] .. ".0 ("..QBCore.Shared.Items[Config.RepairCost["radiator"]]["label"]..")", round(statusList["axle"]) .. "/" .. Config.MaxStatusValues["axle"] .. ".0 ("..QBCore.Shared.Items[Config.RepairCost["axle"]]["label"]..")", round(statusList["brakes"]) .. "/" .. Config.MaxStatusValues["brakes"] .. ".0 ("..QBCore.Shared.Items[Config.RepairCost["brakes"]]["label"]..")", round(statusList["clutch"]) .. "/" .. Config.MaxStatusValues["clutch"] .. ".0 ("..QBCore.Shared.Items[Config.RepairCost["clutch"]]["label"]..")", round(statusList["fuel"]) .. "/" .. Config.MaxStatusValues["fuel"] .. ".0 ("..QBCore.Shared.Items[Config.RepairCost["fuel"]]["label"]..")"}
-        })
+    if not statusList then
+        return
     end
+
+    local options = {}
+
+    for _, v in pairs(Config.Parts) do
+        options[#options + 1] = {
+            title = v.label,
+            description = round(statusList["engine"]) .. "/" .. v.maxValue,
+            metadata = {
+                {label = 'Item', value = QBCore.Shared.Items[v.repair.item].label},
+                {label = 'Cost', value = v.repair.cost}
+            }
+        }
+    end
+
+    lib.registerContext({
+        id = 'open_mechanicStatus',
+        title = 'Status',
+        options = options
+    })
+    lib.showContext('open_mechanicStatus')
 end
 
 local function OpenMenu()
@@ -486,24 +503,27 @@ local function OpenMenu()
         options = {
             {
                 title = Lang:t('lift_menu.header_vehdc'),
+                icon = "fa-solid fa-square",
                 description = Lang:t('lift_menu.desc_vehdc'),
                 event = "qb-mechanicjob:client:UnattachVehicle"
             },
             {
                 title = Lang:t('lift_menu.header_stats'),
+                icon = "fa-solid fa-square",
                 description = Lang:t('lift_menu.desc_stats'),
                 event = "qb-mechanicjob:client:CheckStatus",
-                args = {number = 1}
+                args = {
+                    number = 1
+                }
             },
             {
                 title = Lang:t('lift_menu.header_parts'),
+                icon = "fa-solid fa-square",
                 description = Lang:t('lift_menu.desc_parts'),
                 event = "qb-mechanicjob:client:PartsMenu",
-                args = {number = 1}
-            },
-            {
-                title = Lang:t('lift_menu.c_menu'),
-                event = "qb-mechanicjob:client:target:CloseMenu"
+                args = {
+                    number = 1
+                }
             }
         }
     })
@@ -513,11 +533,11 @@ end
 local function PartsMenu()
     local plate = QBCore.Functions.GetPlate(Config.Plates[ClosestPlate].attachedVehicle)
 
-    if VehicleStatus[plate] ~= nil then
+    if VehicleStatus[plate] then
         local vehicleMenu = {}
 
-        for k,v in pairs(Config.ValuesLabels) do
-            if math.ceil(VehicleStatus[plate][k]) ~= Config.MaxStatusValues[k] then
+        for k, v in pairs(Config.Parts) do
+            if math.ceil(VehicleStatus[plate][k]) ~= v.maxValue then
                 local percentage = math.ceil(VehicleStatus[plate][k])
 
                 if percentage > 100 then
@@ -525,32 +545,28 @@ local function PartsMenu()
                 end
 
                 vehicleMenu[#vehicleMenu + 1] = {
-                    title = v,
+                    title = v.label,
                     description = "Status: " .. percentage .. ".0% / 100.0%",
                     event = "qb-mechanicjob:client:PartMenu",
-                    args = {name = v, parts = k}
+                    args = {
+                        name = v.label,
+                        parts = k
+                    }
                 }
             else
-                local percentage = math.ceil(Config.MaxStatusValues[k])
+                local percentage = math.ceil(v.maxValue)
 
                 if percentage > 100 then
-                    percentage = math.ceil(Config.MaxStatusValues[k]) / 10
+                    percentage = math.ceil(v.maxValue) / 10
                 end
 
                 vehicleMenu[#vehicleMenu + 1] = {
-                    title = v,
+                    title = v.label,
                     description = Lang:t('parts_menu.status') .. percentage .. ".0% / 100.0%",
                     event = "qb-mechanicjob:client:NoDamage"
                 }
             end
         end
-
-        vehicleMenu[#vehicleMenu + 1] = {
-            title = Lang:t('lift_menu.c_menu'),
-            onSelect = function(args)
-                lib.hideContext()
-            end
-        }
 
         lib.registerContext({
             id = 'open_mechanicParts',
@@ -562,7 +578,6 @@ local function PartsMenu()
 end
 
 local function PartMenu(data)
-    local partName = data.name
     local part = data.parts
 
     lib.registerContext({
@@ -570,21 +585,19 @@ local function PartMenu(data)
         title = Lang:t('parts_menu.menu_header'),
         options = {
             {
-                title = partName,
-                description = Lang:t('parts_menu.repair_op')..QBCore.Shared.Items[Config.RepairCostAmount[part].item]["label"].." "..Config.RepairCostAmount[part].costs.."x",
+                title = data.name,
+                icon = "fa-solid fa-screwdriver-wrench",
+                description = Lang:t('parts_menu.repair_op') .. QBCore.Shared.Items[Config.Parts[part].repair.item].label .. " " .. Config.Parts[part].repair.cost .. "x",
                 event = "qb-mechanicjob:client:RepairPart",
-                args = {part = part}
+                args = {
+                    part = part
+                }
             },
             {
                 title = Lang:t('parts_menu.b_menu'),
+                icon = "fa-solid fa-arrow-left",
                 description = Lang:t('parts_menu.d_menu'),
                 event = "qb-mechanicjob:client:PartsMenu"
-            },
-            {
-                title = Lang:t('parts_menu.c_menu'),
-                onSelect = function(args)
-                    lib.hideContext()
-                end
             }
         }
     })
@@ -598,14 +611,9 @@ local function NoDamage()
         options = {
             {
                 title = Lang:t('nodamage_menu.bh_menu'),
+                icon = "fa-solid fa-screwdriver-wrench",
                 description = Lang:t('nodamage_menu.bd_menu'),
                 event = "qb-mechanicjob:client:PartsMenu"
-            },
-            {
-                title = Lang:t('nodamage_menu.c_menu'),
-                onSelect = function(args)
-                    lib.hideContext()
-                end
             }
         }
     })
@@ -653,7 +661,6 @@ local function VehicleList()
     for k, v in pairs(Config.Vehicles) do
         vehicleMenu[#vehicleMenu + 1] = {
             title = v,
-            description = "Vehicle: " .. v,
             event = "qb-mechanicjob:client:SpawnListVehicle",
             args = {
                 headername = v,
@@ -683,7 +690,7 @@ local function RepairPart(part)
     if count >= PartData.costs then
         TriggerEvent('animations:client:EmoteCommandStart', {"mechanic"})
 
-        QBCore.Functions.Progressbar("repair_part", Lang:t('labels.progress_bar') .. Config.ValuesLabels[part], math.random(5000, 10000), false, true, {
+        QBCore.Functions.Progressbar("repair_part", Lang:t('labels.progress_bar') .. Config.Parts[part].label, math.random(5000, 10000), false, true, {
             disableMovement = true,
             disableCarMovement = true,
             disableMouse = false,
@@ -704,33 +711,33 @@ local function RepairPart(part)
 end
 
 -- Events
-RegisterNetEvent("qb-mechanicjob:client:UnattachVehicle",function()
+RegisterNetEvent("qb-mechanicjob:client:UnattachVehicle", function()
     UnattachVehicle()
 end)
 
-RegisterNetEvent("qb-mechanicjob:client:PartsMenu",function()
+RegisterNetEvent("qb-mechanicjob:client:PartsMenu", function()
     PartsMenu()
 end)
 
-RegisterNetEvent("qb-mechanicjob:client:PartMenu",function(data)
+RegisterNetEvent("qb-mechanicjob:client:PartMenu", function(data)
     PartMenu(data)
 end)
 
-RegisterNetEvent("qb-mechanicjob:client:NoDamage",function()
+RegisterNetEvent("qb-mechanicjob:client:NoDamage", function()
     NoDamage()
 end)
 
-RegisterNetEvent("qb-mechanicjob:client:CheckStatus",function()
+RegisterNetEvent("qb-mechanicjob:client:CheckStatus", function()
     CheckStatus()
 end)
 
-RegisterNetEvent("qb-mechanicjob:client:SpawnListVehicle",function(data)
+RegisterNetEvent("qb-mechanicjob:client:SpawnListVehicle", function(data)
     local vehicleSpawnName = data.spawnName
 
     SpawnListVehicle(vehicleSpawnName)
 end)
 
-RegisterNetEvent("qb-mechanicjob:client:RepairPart",function(data)
+RegisterNetEvent("qb-mechanicjob:client:RepairPart", function(data)
     local partData = data.part
 
     RepairPart(partData)
@@ -792,15 +799,15 @@ RegisterNetEvent('qb-vehicletuning:client:RepaireeePart', function(part)
     local plate = QBCore.Functions.GetPlate(veh)
 
     if part == "engine" then
-        SetVehicleEngineHealth(veh, Config.MaxStatusValues[part])
-        TriggerServerEvent("vehiclemod:server:updatePart", plate, "engine", Config.MaxStatusValues[part])
+        SetVehicleEngineHealth(veh, Config.Parts[part].maxValue)
+        TriggerServerEvent("vehiclemod:server:updatePart", plate, "engine", Config.Parts[part].maxValue)
     elseif part == "body" then
         local enhealth = GetVehicleEngineHealth(veh)
         local realFuel = GetVehicleFuelLevel(veh)
 
-        SetVehicleBodyHealth(veh, Config.MaxStatusValues[part])
+        SetVehicleBodyHealth(veh, Config.Parts[part].maxValue)
 
-        TriggerServerEvent("vehiclemod:server:updatePart", plate, "body", Config.MaxStatusValues[part])
+        TriggerServerEvent("vehiclemod:server:updatePart", plate, "body", Config.Parts[part].maxValue)
 
         SetVehicleFixed(veh)
         SetVehicleEngineHealth(veh, enhealth)
@@ -809,10 +816,12 @@ RegisterNetEvent('qb-vehicletuning:client:RepaireeePart', function(part)
             SetVehicleFuelLevel(veh, realFuel)
         end
     else
-        TriggerServerEvent("vehiclemod:server:updatePart", plate, part, Config.MaxStatusValues[part])
+        TriggerServerEvent("vehiclemod:server:updatePart", plate, part, Config.Parts[part].maxValue)
     end
 
-    QBCore.Functions.Notify(Lang:t('notifications.partrep', {value = Config.ValuesLabels[part]}))
+    QBCore.Functions.Notify(Lang:t('notifications.partrep', {
+        value = Config.Parts[part].maxValue
+    }))
 end)
 
 RegisterNetEvent('vehiclemod:client:setVehicleStatus', function(plate, status)
@@ -823,7 +832,7 @@ RegisterNetEvent('vehiclemod:client:getVehicleStatus', function()
     if not (IsPedInAnyVehicle(cache.ped, false)) then
         local veh = GetVehiclePedIsIn(cache.ped, true)
 
-        if veh ~= nil and veh ~= 0 then
+        if veh and veh ~= 0 then
             local vehpos = GetEntityCoords(veh)
             local pos = GetEntityCoords(cache.ped)
 
@@ -831,7 +840,7 @@ RegisterNetEvent('vehiclemod:client:getVehicleStatus', function()
                 if not IsThisModelABicycle(GetEntityModel(veh)) then
                     local plate = QBCore.Functions.GetPlate(veh)
 
-                    if VehicleStatus[plate] ~= nil then
+                    if VehicleStatus[plate] then
                         SendStatusMessage(VehicleStatus[plate])
                     else
                         QBCore.Functions.Notify(Lang:t('notifications.uknown'), "error")
@@ -894,7 +903,7 @@ RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmoun
     if not IsPedInAnyVehicle(cache.ped, false) then
         local veh = GetVehiclePedIsIn(cache.ped, true)
 
-        if veh ~= nil and veh ~= 0 then
+        if veh and veh ~= 0 then
             local vehpos = GetEntityCoords(veh)
             local pos = GetEntityCoords(cache.ped)
 
@@ -902,7 +911,7 @@ RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmoun
                 if not IsThisModelABicycle(GetEntityModel(veh)) then
                     local plate = QBCore.Functions.GetPlate(veh)
 
-                    if VehicleStatus[plate] ~= nil and VehicleStatus[plate][part] ~= nil then
+                    if VehicleStatus[plate] and VehicleStatus[plate][part] then
                         local lockpickTime = (1000 * level)
 
                         if part == "body" then
@@ -1091,7 +1100,7 @@ CreateThread(function()
                 local bodyHealth = GetVehicleBodyHealth(cache.vehicle)
                 local plate = QBCore.Functions.GetPlate(cache.vehicle)
 
-                if VehicleStatus[plate] == nil then
+                if not VehicleStatus[plate] then
                     TriggerServerEvent("vehiclemod:server:setupVehicleStatus", plate, engineHealth, bodyHealth)
                 else
                     TriggerServerEvent("vehiclemod:server:updatePart", plate, "engine", engineHealth)

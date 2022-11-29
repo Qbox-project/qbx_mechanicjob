@@ -22,7 +22,7 @@ function GetVehicleStatus(plate)
     })
 
     if result then
-        retval = result.status ~= nil and json.decode(result.status) or nil
+        retval = result.status and json.decode(result.status) or nil
     end
 
     return retval
@@ -56,7 +56,7 @@ QBCore.Functions.CreateCallback('qb-vehicletuning:server:IsMechanicAvailable', f
     for _, v in pairs(QBCore.Functions.GetPlayers()) do
         local Player = QBCore.Functions.GetPlayer(v)
 
-        if Player ~= nil then
+        if Player then
             if Player.PlayerData.job.name == "mechanic" and Player.PlayerData.job.onduty then
                 amount = amount + 1
             end
@@ -67,7 +67,7 @@ QBCore.Functions.CreateCallback('qb-vehicletuning:server:IsMechanicAvailable', f
 end)
 
 QBCore.Functions.CreateCallback('qb-vehicletuning:server:GetStatus', function(_, cb, plate)
-    if VehicleStatus[plate] ~= nil and next(VehicleStatus[plate]) ~= nil then
+    if VehicleStatus[plate] and next(VehicleStatus[plate]) then
         cb(VehicleStatus[plate])
     else
         cb(nil)
@@ -85,14 +85,14 @@ RegisterNetEvent('qb-vehicletuning:server:SaveVehicleProps', function(vehiclePro
 end)
 
 RegisterNetEvent('vehiclemod:server:setupVehicleStatus', function(plate, engineHealth, bodyHealth)
-    engineHealth = engineHealth ~= nil and engineHealth or 1000.0
-    bodyHealth = bodyHealth ~= nil and bodyHealth or 1000.0
+    engineHealth = engineHealth or 1000.0
+    bodyHealth = bodyHealth or 1000.0
 
-    if VehicleStatus[plate] == nil then
+    if not VehicleStatus[plate] then
         if IsVehicleOwned(plate) then
             local statusInfo = GetVehicleStatus(plate)
 
-            if statusInfo == nil then
+            if not statusInfo then
                 statusInfo = {
                     ["engine"] = engineHealth,
                     ["body"] = bodyHealth,
@@ -151,7 +151,7 @@ RegisterNetEvent('qb-vehicletuning:server:LoadStatus', function(veh, plate)
 end)
 
 RegisterNetEvent('vehiclemod:server:updatePart', function(plate, part, level)
-    if VehicleStatus[plate] ~= nil then
+    if VehicleStatus[plate] then
         if part == "engine" or part == "body" then
             VehicleStatus[plate][part] = level
 
@@ -175,7 +175,7 @@ RegisterNetEvent('vehiclemod:server:updatePart', function(plate, part, level)
 end)
 
 RegisterNetEvent('qb-vehicletuning:server:SetPartLevel', function(plate, part, level)
-    if VehicleStatus[plate] ~= nil then
+    if VehicleStatus[plate] then
         VehicleStatus[plate][part] = level
 
         TriggerClientEvent("vehiclemod:client:setVehicleStatus", -1, plate, VehicleStatus[plate])
@@ -183,7 +183,7 @@ RegisterNetEvent('qb-vehicletuning:server:SetPartLevel', function(plate, part, l
 end)
 
 RegisterNetEvent('vehiclemod:server:fixEverything', function(plate)
-    if VehicleStatus[plate] ~= nil then
+    if VehicleStatus[plate] then
         for k, v in pairs(Config.MaxStatusValues) do
             VehicleStatus[plate][k] = v
         end
@@ -193,7 +193,7 @@ RegisterNetEvent('vehiclemod:server:fixEverything', function(plate)
 end)
 
 RegisterNetEvent('vehiclemod:server:saveStatus', function(plate)
-    if VehicleStatus[plate] ~= nil then
+    if VehicleStatus[plate] then
         MySQL.update('UPDATE player_vehicles SET status = ? WHERE plate = ?', {
             json.encode(VehicleStatus[plate]),
             plate
@@ -218,7 +218,7 @@ RegisterNetEvent('qb-vehicletuning:server:CheckForItems', function(part)
     local Player = QBCore.Functions.GetPlayer(src)
     local RepairPart = Player.Functions.GetItemByName(Config.RepairCostAmount[part].item)
 
-    if RepairPart ~= nil then
+    if RepairPart then
         if RepairPart.amount >= Config.RepairCostAmount[part].costs then
             TriggerClientEvent('qb-vehicletuning:client:RepaireeePart', src, part)
 

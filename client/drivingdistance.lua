@@ -85,7 +85,7 @@ CreateThread(function()
                 end
             else
                 if vehicleMeters == -1 then
-                    if drivingDistance[plate] ~= nil then
+                    if drivingDistance[plate] then
                         vehicleMeters = drivingDistance[plate]
                     end
                 end
@@ -93,21 +93,25 @@ CreateThread(function()
 
             if vehicleMeters ~= -1 then
                 if seat == cache.ped then
-                    if previousVehiclePos ~= nil then
+                    if previousVehiclePos then
                         local Distance = #(pos - previousVehiclePos)
                         local DamageKey = GetDamageMultiplier(vehicleMeters)
 
                         vehicleMeters = vehicleMeters + ((Distance / 100) * 325)
                         drivingDistance[plate] = vehicleMeters
 
-                        if DamageKey ~= nil then
+                        if DamageKey then
                             local DamageData = Config.MinimalMetersForDamage[DamageKey]
                             local chance = math.random(3)
                             local odd = math.random(3)
                             local CurrentData = VehicleStatus[plate]
 
                             if chance == odd then
-                                for k, _ in pairs(Config.Damages) do
+                                for k, v in pairs(Config.Parts) do
+                                    if not v.canDamage then
+                                        return
+                                    end
+
                                     local randmultiplier = (math.random(DamageData.multiplier.min, DamageData.multiplier.max) / 100)
                                     local newDamage = 0
 
@@ -127,7 +131,7 @@ CreateThread(function()
                     end
                 else
                     if cache.vehicle then
-                        if drivingDistance[plate] ~= nil then
+                        if drivingDistance[plate] then
                             local amount = round(drivingDistance[plate] / 1000, -2)
 
                             TriggerEvent('hud:client:UpdateDrivingMeters', true, amount)
@@ -156,7 +160,7 @@ CreateThread(function()
                 checkDone = false
             end
 
-            if previousVehiclePos ~= nil then
+            if previousVehiclePos then
                 previousVehiclePos = nil
             end
 

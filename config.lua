@@ -3,63 +3,69 @@ Config = Config or {}
 -- UseTarget should only be set to true when using ox_target
 Config.UseTarget = GetConvar('UseTarget', 'false') == 'true'
 
-Config.MaxStatusValues = {
-    ["engine"] = 1000.0,
-    ["body"] = 1000.0,
-    ["radiator"] = 100,
-    ["axle"] = 100,
-    ["brakes"] = 100,
-    ["clutch"] = 100,
-    ["fuel"] = 100
-}
-
-Config.ValuesLabels = {
-    ["engine"] = Lang:t('labels.engine'),
-    ["body"] = Lang:t('labels.bodsy'),
-    ["radiator"] = Lang:t('labels.radiator'),
-    ["axle"] = Lang:t('labels.axle'),
-    ["brakes"] = Lang:t('labels.brakes'),
-    ["clutch"] = Lang:t('labels.clutch'),
-    ["fuel"] = Lang:t('labels.fuel')
-}
-
-Config.RepairCost = {
-    ["body"] = "plastic",
-    ["radiator"] = "plastic",
-    ["axle"] = "steel",
-    ["brakes"] = "iron",
-    ["clutch"] = "aluminum",
-    ["fuel"] = "plastic"
-}
-
-Config.RepairCostAmount = {
+Config.Parts = {
     ["engine"] = {
-        item = "metalscrap",
-        costs = 2
+        label = 'Motor',
+        maxValue = 1000.0,
+        canDamage = false,
+        repair = {
+            item = "metalscrap",
+            cost = 2
+        }
     },
     ["body"] = {
-        item = "plastic",
-        costs = 3
+        label = 'Body',
+        maxValue = 1000.0,
+        canDamage = false,
+        repair = {
+            item = "plastic",
+            cost = 3
+        }
     },
     ["radiator"] = {
-        item = "steel",
-        costs = 5
+        label = 'Radiator',
+        maxValue = 100,
+        canDamage = true,
+        repair = {
+            item = "steel",
+            cost = 5
+        }
     },
     ["axle"] = {
-        item = "aluminum",
-        costs = 7
+        label = 'Drive Shaft',
+        maxValue = 100,
+        canDamage = true,
+        repair = {
+            item = "aluminum",
+            cost = 7
+        }
     },
     ["brakes"] = {
-        item = "copper",
-        costs = 5
+        label = 'Brakes',
+        maxValue = 100,
+        canDamage = true,
+        repair = {
+            item = "copper",
+            cost = 5
+        }
     },
     ["clutch"] = {
-        item = "copper",
-        costs = 6
+        label = 'Clutch',
+        maxValue = 100,
+        canDamage = true,
+        repair = {
+            item = "copper",
+            cost = 6
+        }
     },
     ["fuel"] = {
-        item = "plastic",
-        costs = 5
+        label = 'Fuel tank',
+        maxValue = 100,
+        canDamage = true,
+        repair = {
+            item = "plastic",
+            cost = 5
+        }
     }
 }
 
@@ -121,12 +127,4 @@ Config.MinimalMetersForDamage = {
             max = 24
         }
     }
-}
-
-Config.Damages = {
-    ["radiator"] = "Radiator",
-    ["axle"] = "Drive Shaft",
-    ["brakes"] = "Brakes",
-    ["clutch"] = "Clutch",
-    ["fuel"] = "Fuel Tank"
 }

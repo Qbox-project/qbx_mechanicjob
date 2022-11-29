@@ -1,12 +1,5 @@
 local Translations = {
     labels = {
-        engine = 'Motor',
-        bodsy = 'Body',
-        radiator = 'Radiator',
-        axle = 'Drive Shaft',
-        brakes = 'Brakes',
-        clutch = 'Clutch',
-        fuel = 'Fuel tank',
         sign_in = 'Sign In',
         sign_off = 'Sign Off',
         o_stash = '[E] - Open Stash',
