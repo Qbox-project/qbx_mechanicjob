@@ -224,10 +224,16 @@ RegisterNetEvent('qb-vehicletuning:server:CheckForItems', function(part)
 
             Player.Functions.RemoveItem(Config.RepairCostAmount[part].item, Config.RepairCostAmount[part].costs)
         else
-            TriggerClientEvent('QBCore:Notify', src, Lang:t('notifications.not_enough') .. QBCore.Shared.Items[Config.RepairCostAmount[part].item]["label"] .. " (min. " .. Config.RepairCostAmount[part].costs .. "x)", "error")
+            TriggerClientEvent('ox_lib:notify', src, {
+                description = Lang:t('notifications.not_enough') .. QBCore.Shared.Items[Config.RepairCostAmount[part].item].label .. " (min. " .. Config.RepairCostAmount[part].costs .. "x)",
+                type = 'error'
+            })
         end
     else
-        TriggerClientEvent('QBCore:Notify', src, Lang:t('notifications.not_have') .. QBCore.Shared.Items[Config.RepairCostAmount[part].item]["label"], "error")
+        TriggerClientEvent('ox_lib:notify', src, {
+            description = Lang:t('notifications.not_have') .. QBCore.Shared.Items[Config.RepairCostAmount[part].item].label,
+            type = 'error'
+        })
     end
 end)
 
