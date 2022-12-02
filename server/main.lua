@@ -96,11 +96,11 @@ RegisterNetEvent('vehiclemod:server:setupVehicleStatus', function(plate, engineH
                 statusInfo = {
                     ["engine"] = engineHealth,
                     ["body"] = bodyHealth,
-                    ["radiator"] = Config.MaxStatusValues["radiator"],
-                    ["axle"] = Config.MaxStatusValues["axle"],
-                    ["brakes"] = Config.MaxStatusValues["brakes"],
-                    ["clutch"] = Config.MaxStatusValues["clutch"],
-                    ["fuel"] = Config.MaxStatusValues["fuel"]
+                    ["radiator"] = Config.Parts["radiator"].maxValue,
+                    ["axle"] = Config.Parts["axle"].maxValue,
+                    ["brakes"] = Config.Parts["brakes"].maxValue,
+                    ["clutch"] = Config.Parts["clutch"].maxValue,
+                    ["fuel"] = Config.Parts["fuel"].maxValue
                 }
             end
 
@@ -111,11 +111,11 @@ RegisterNetEvent('vehiclemod:server:setupVehicleStatus', function(plate, engineH
             local statusInfo = {
                 ["engine"] = engineHealth,
                 ["body"] = bodyHealth,
-                ["radiator"] = Config.MaxStatusValues["radiator"],
-                ["axle"] = Config.MaxStatusValues["axle"],
-                ["brakes"] = Config.MaxStatusValues["brakes"],
-                ["clutch"] = Config.MaxStatusValues["clutch"],
-                ["fuel"] = Config.MaxStatusValues["fuel"]
+                ["radiator"] = Config.Parts["radiator"].maxValue,
+                ["axle"] = Config.Parts["axle"].maxValue,
+                ["brakes"] = Config.Parts["brakes"].maxValue,
+                ["clutch"] = Config.Parts["clutch"].maxValue,
+                ["fuel"] = Config.Parts["fuel"].maxValue
             }
 
             VehicleStatus[plate] = statusInfo
@@ -184,8 +184,8 @@ end)
 
 RegisterNetEvent('vehiclemod:server:fixEverything', function(plate)
     if VehicleStatus[plate] then
-        for k, v in pairs(Config.MaxStatusValues) do
-            VehicleStatus[plate][k] = v
+        for k, v in pairs(Config.Parts) do
+            VehicleStatus[plate][k] = v.maxValue
         end
 
         TriggerClientEvent("vehiclemod:client:setVehicleStatus", -1, plate, VehicleStatus[plate])

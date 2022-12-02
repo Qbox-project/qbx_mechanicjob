@@ -161,7 +161,7 @@ local function RegisterStashTarget()
             size = stashData.size,
             rotation = stashData.rotation,
             onEnter = function(_)
-                lib.showTextUI(Lang:t('labels.o_stash'))
+                lib.showTextUI("[E] - " .. Lang:t('labels.o_stash'))
 
                 isInsideStashZone = true
             end,
@@ -512,30 +512,39 @@ local function round(num, numDecimalPlaces)
     return tonumber(string.format("%." .. (numDecimalPlaces or 1) .. "f", num))
 end
 
-local function SendStatusMessage(statusList)
-    if not statusList then
-        return
-    end
-
+local function PartsMenu()
+    local plate = QBCore.Functions.GetPlate(Config.Plates[ClosestPlate].attachedVehicle)
     local options = {}
 
-    for _, v in pairs(Config.Parts) do
-        options[#options + 1] = {
+    for k, v in pairs(Config.Parts) do
+        local canRepair = VehicleStatus[plate][k] < v.maxValue
+        local optionId = #options + 1
+
+        options[optionId] = {
             title = v.label,
-            description = round(statusList.engine) .. "/" .. v.maxValue,
+            icon = "fa-solid fa-toolbox",
+            iconColor = canRepair and "#E53E3E" or "#38A169",
+            description = round(VehicleStatus[plate][k]) .. "% / " .. v.maxValue .. "%",
             metadata = {
                 {label = 'Item', value = QBCore.Shared.Items[v.repair.item].label},
                 {label = 'Cost', value = v.repair.cost}
             }
         }
+
+        if canRepair then
+            options[optionId].event = "qb-mechanicjob:client:RepairPart"
+            options[optionId].args = {
+                part = k
+            }
+        end
     end
 
     lib.registerContext({
-        id = 'open_mechanicStatus',
-        title = 'Status',
+        id = 'open_mechanicParts',
+        title = 'Parts',
         options = options
     })
-    lib.showContext('open_mechanicStatus')
+    lib.showContext('open_mechanicParts')
 end
 
 local function OpenMenu()
@@ -545,121 +554,19 @@ local function OpenMenu()
         options = {
             {
                 title = Lang:t('lift_menu.header_vehdc'),
-                icon = "fa-solid fa-square",
+                icon = "fa-solid fa-link-slash",
                 description = Lang:t('lift_menu.desc_vehdc'),
                 event = "qb-mechanicjob:client:UnattachVehicle"
             },
             {
-                title = Lang:t('lift_menu.header_stats'),
-                icon = "fa-solid fa-square",
-                description = Lang:t('lift_menu.desc_stats'),
-                event = "qb-mechanicjob:client:CheckStatus",
-                args = {
-                    number = 1
-                }
-            },
-            {
                 title = Lang:t('lift_menu.header_parts'),
-                icon = "fa-solid fa-square",
+                icon = "fa-solid fa-car-battery",
                 description = Lang:t('lift_menu.desc_parts'),
-                event = "qb-mechanicjob:client:PartsMenu",
-                args = {
-                    number = 1
-                }
+                event = "qb-mechanicjob:client:PartsMenu"
             }
         }
     })
     lib.showContext('open_mechanicLiftMenu')
-end
-
-local function PartsMenu()
-    local plate = QBCore.Functions.GetPlate(Config.Plates[ClosestPlate].attachedVehicle)
-
-    if VehicleStatus[plate] then
-        local vehicleMenu = {}
-
-        for k, v in pairs(Config.Parts) do
-            if math.ceil(VehicleStatus[plate][k]) ~= v.maxValue then
-                local percentage = math.ceil(VehicleStatus[plate][k])
-
-                if percentage > 100 then
-                    percentage = math.ceil(VehicleStatus[plate][k]) / 10
-                end
-
-                vehicleMenu[#vehicleMenu + 1] = {
-                    title = v.label,
-                    description = "Status: " .. percentage .. ".0% / 100.0%",
-                    event = "qb-mechanicjob:client:PartMenu",
-                    args = {
-                        name = v.label,
-                        parts = k
-                    }
-                }
-            else
-                local percentage = math.ceil(v.maxValue)
-
-                if percentage > 100 then
-                    percentage = math.ceil(v.maxValue) / 10
-                end
-
-                vehicleMenu[#vehicleMenu + 1] = {
-                    title = v.label,
-                    description = Lang:t('parts_menu.status') .. percentage .. ".0% / 100.0%",
-                    event = "qb-mechanicjob:client:NoDamage"
-                }
-            end
-        end
-
-        lib.registerContext({
-            id = 'open_mechanicParts',
-            title = "Status",
-            options = vehicleMenu
-        })
-        lib.showContext('open_mechanicParts')
-    end
-end
-
-local function PartMenu(data)
-    local part = data.parts
-
-    lib.registerContext({
-        id = 'open_mechanicPartMenu',
-        title = Lang:t('parts_menu.menu_header'),
-        options = {
-            {
-                title = data.name,
-                icon = "fa-solid fa-screwdriver-wrench",
-                description = Lang:t('parts_menu.repair_op') .. QBCore.Shared.Items[Config.Parts[part].repair.item].label .. " " .. Config.Parts[part].repair.cost .. "x",
-                event = "qb-mechanicjob:client:RepairPart",
-                args = {
-                    part = part
-                }
-            },
-            {
-                title = Lang:t('parts_menu.b_menu'),
-                icon = "fa-solid fa-arrow-left",
-                description = Lang:t('parts_menu.d_menu'),
-                event = "qb-mechanicjob:client:PartsMenu"
-            }
-        }
-    })
-    lib.showContext('open_mechanicPartMenu')
-end
-
-local function NoDamage()
-    lib.registerContext({
-        id = 'open_mechanicNoDamage',
-        title = Lang:t('nodamage_menu.header'),
-        options = {
-            {
-                title = Lang:t('nodamage_menu.bh_menu'),
-                icon = "fa-solid fa-screwdriver-wrench",
-                description = Lang:t('nodamage_menu.bd_menu'),
-                event = "qb-mechanicjob:client:PartsMenu"
-            }
-        }
-    })
-    lib.showContext('open_mechanicNoDamage')
 end
 
 local function UnattachVehicle()
@@ -719,22 +626,16 @@ local function VehicleList()
     lib.showContext('open_mechanicVehicleList')
 end
 
-local function CheckStatus()
-    local plate = QBCore.Functions.GetPlate(Config.Plates[ClosestPlate].attachedVehicle)
-
-    SendStatusMessage(VehicleStatus[plate])
-end
-
 local function RepairPart(part)
-    local PartData = Config.RepairCostAmount[part]
-    local count = exports.ox_inventory:Search('count', PartData.item)
+    local PartData = Config.Parts[part]
+    local count = exports.ox_inventory:Search('count', PartData.repair.item)
 
-    if count >= PartData.costs then
+    if count >= PartData.repair.cost then
         TriggerEvent('animations:client:EmoteCommandStart', {"mechanic"})
 
         if lib.progressBar({
             duration = math.random(5000, 10000),
-            label = Lang:t('labels.progress_bar') .. Config.Parts[part].label,
+            label = Lang:t('labels.progress_bar') .. PartData.label,
             useWhileDead = false,
             canCancel = true,
             disable = {
@@ -764,18 +665,6 @@ end)
 
 RegisterNetEvent("qb-mechanicjob:client:PartsMenu", function()
     PartsMenu()
-end)
-
-RegisterNetEvent("qb-mechanicjob:client:PartMenu", function(data)
-    PartMenu(data)
-end)
-
-RegisterNetEvent("qb-mechanicjob:client:NoDamage", function()
-    NoDamage()
-end)
-
-RegisterNetEvent("qb-mechanicjob:client:CheckStatus", function()
-    CheckStatus()
 end)
 
 RegisterNetEvent("qb-mechanicjob:client:SpawnListVehicle", function(data)
@@ -873,37 +762,6 @@ end)
 
 RegisterNetEvent('vehiclemod:client:setVehicleStatus', function(plate, status)
     VehicleStatus[plate] = status
-end)
-
-RegisterNetEvent('vehiclemod:client:getVehicleStatus', function()
-    if not (cache.vehicle) then
-        local veh = GetVehiclePedIsIn(cache.ped, true)
-
-        if veh and veh ~= 0 then
-            local vehpos = GetEntityCoords(veh)
-            local pos = GetEntityCoords(cache.ped)
-
-            if #(pos - vehpos) < 5.0 then
-                if not IsThisModelABicycle(GetEntityModel(veh)) then
-                    local plate = QBCore.Functions.GetPlate(veh)
-
-                    if VehicleStatus[plate] then
-                        SendStatusMessage(VehicleStatus[plate])
-                    else
-                        QBCore.Functions.Notify(Lang:t('notifications.uknown'), "error")
-                    end
-                else
-                    QBCore.Functions.Notify(Lang:t('notifications.not_valid'), "error")
-                end
-            else
-                QBCore.Functions.Notify(Lang:t('notifications.not_close'), "error")
-            end
-        else
-            QBCore.Functions.Notify(Lang:t('notifications.veh_first'), "error")
-        end
-    else
-        QBCore.Functions.Notify(Lang:t('notifications.outside'), "error")
-    end
 end)
 
 RegisterNetEvent('vehiclemod:client:fixEverything', function()
@@ -1107,7 +965,7 @@ CreateThread(function()
                     wait = 0
 
                     local attachedVehicle = Config.Plates[ClosestPlate].attachedVehicle
-                    local coords = Config.Plates[ClosestPlate].coords
+                    local zoneData = Config.Plates[ClosestPlate].zone
 
                     if attachedVehicle then
                         if IsControlJustPressed(0, 38) then
@@ -1122,8 +980,8 @@ CreateThread(function()
 
                             Config.Plates[ClosestPlate].attachedVehicle = cache.vehicle
 
-                            SetEntityCoords(cache.vehicle, coords)
-                            SetEntityHeading(cache.vehicle, coords.w)
+                            SetEntityCoords(cache.vehicle, zoneData.coords)
+                            SetEntityHeading(cache.vehicle, zoneData.rotation)
                             FreezeEntityPosition(cache.vehicle, true)
 
                             Wait(500)

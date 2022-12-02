@@ -24,7 +24,7 @@ Config.Parts = {
     },
     ["radiator"] = {
         label = 'Radiator',
-        maxValue = 100,
+        maxValue = 100.0,
         canDamage = true,
         repair = {
             item = "steel",
@@ -33,7 +33,7 @@ Config.Parts = {
     },
     ["axle"] = {
         label = 'Drive Shaft',
-        maxValue = 100,
+        maxValue = 100.0,
         canDamage = true,
         repair = {
             item = "aluminum",
@@ -42,7 +42,7 @@ Config.Parts = {
     },
     ["brakes"] = {
         label = 'Brakes',
-        maxValue = 100,
+        maxValue = 100.0,
         canDamage = true,
         repair = {
             item = "copper",
@@ -51,7 +51,7 @@ Config.Parts = {
     },
     ["clutch"] = {
         label = 'Clutch',
-        maxValue = 100,
+        maxValue = 100.0,
         canDamage = true,
         repair = {
             item = "copper",
@@ -60,7 +60,7 @@ Config.Parts = {
     },
     ["fuel"] = {
         label = 'Fuel tank',
-        maxValue = 100,
+        maxValue = 100.0,
         canDamage = true,
         repair = {
             item = "plastic",

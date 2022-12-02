@@ -1,18 +1,18 @@
 # qb-mechanicjob
-Mechanic Job for QB-Core Framework :mechanic:
+Mechanic Job for Qbox Framework :mechanic:
 
 ## Dependencies
 - [qb-core](https://github.com/Qbox-project/qb-core)
+- [ox_lib](https://github.com/overextended/ox_lib)
 
 ## Screenshots
-![Platform](https://imgur.com/KzmXIaY.png)
-![Vehicle Spawner](https://imgur.com/bDYiFoG.png)
-![Stash](https://imgur.com/8fvy9FA.png)
-![On Duty/Off Duty](https://i.imgur.com/CM34EsL.png)
+![Vehicle Spawner](https://i.imgur.com/c4fHOtd.png)
+![Stash](https://i.imgur.com/i0CfH2m.png)
+![On/Off Duty](https://i.imgur.com/KxeIuRQ.png)
+![Mechanic Menu](https://i.imgur.com/6vrvD10.png)
+![Parts Menu](https://i.imgur.com/PxLXL8T.png)
 
-## Features
-- /setmechanic - Sets someone mechanic
-- /firemechanic - Fires a mechanic worker
+## Featuresr
 - On Duty/Off Duty
 - Placing vehicles to platform for repairing it part by part.
 - Towtruck, Blista, Minivan, Flatbed for workers.
