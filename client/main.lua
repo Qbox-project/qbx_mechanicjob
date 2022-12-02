@@ -548,6 +548,9 @@ local function PartsMenu()
 end
 
 local function OpenMenu()
+    local plate = trim(GetVehicleNumberPlateText(Config.Plates[ClosestPlate].attachedVehicle))
+    local amount = round(drivingDistance[plate] / 1000, 2)
+
     lib.registerContext({
         id = 'open_mechanicLiftMenu',
         title = Lang:t('lift_menu.header_menu'),
@@ -563,6 +566,15 @@ local function OpenMenu()
                 icon = "fa-solid fa-car-battery",
                 description = Lang:t('lift_menu.desc_parts'),
                 event = "qb-mechanicjob:client:PartsMenu"
+            },
+            {
+                title = "Driving distance",
+                icon = "fa-solid fa-tachograph-digital",
+                description = "Check driving distance",
+                event = "ox_lib:notify",
+                args = {
+                    description = "Driving distance: " .. amount .. " meters"
+                }
             }
         }
     })

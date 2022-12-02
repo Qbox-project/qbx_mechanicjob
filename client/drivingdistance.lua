@@ -1,4 +1,9 @@
-local drivingDistance = {}
+drivingDistance = {}
+local inVehicle = false
+local currentSeat = false
+local vehicleMeters = -1
+local previousVehiclePos = nil
+local owned = false
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     QBCore.Functions.TriggerCallback('qb-vehicletuning:server:GetDrivingDistances', function(retval)
@@ -8,17 +13,11 @@ end)
 
 -- Functions
 local function round(num, numDecimalPlaces)
-    if numDecimalPlaces and numDecimalPlaces>0 then
-        local mult = 10 ^ numDecimalPlaces
-
-        return math.floor(num * mult + 0.5) / mult
-    end
-
-    return math.floor(num + 0.5)
+    return tonumber(string.format("%." .. (numDecimalPlaces or 1) .. "f", num))
 end
 
 local function GetDamageMultiplier(meters)
-    local check = round(meters / 1000, -2)
+    local check = round(meters / 1000, 2)
     local retval = nil
 
     for k, v in pairs(Config.MinimalMetersForDamage) do
@@ -34,7 +33,7 @@ local function GetDamageMultiplier(meters)
     return retval
 end
 
-local function trim(plate)
+function trim(plate)
     if not plate then
         return nil
     end
@@ -47,126 +46,104 @@ RegisterNetEvent('qb-vehicletuning:client:UpdateDrivingDistance', function(amoun
     drivingDistance[plate] = amount
 end)
 
--- Threads
-CreateThread(function()
-    local vehicleMeters = -1
-    local previousVehiclePos = nil
-    local checkDone = false
+lib.onCache('vehicle', function(value)
+    if value then
+        inVehicle = true
 
-    while true do
-        if cache.vehicle then
-            local seat = GetPedInVehicleSeat(cache.vehicle, -1)
-            local pos = GetEntityCoords(cache.ped)
-            local plate = trim(GetVehicleNumberPlateText(cache.vehicle))
+        local seat = GetPedInVehicleSeat(value, -1)
 
-            if seat == cache.ped then
-                if not checkDone then
-                    if vehicleMeters == -1 then
-                        checkDone = true
-
-                        QBCore.Functions.TriggerCallback('qb-vehicletuning:server:IsVehicleOwned', function(IsOwned)
-                            if IsOwned then
-                                if drivingDistance[plate] then
-                                    vehicleMeters = drivingDistance[plate]
-                                else
-                                    drivingDistance[plate] = 0
-                                    vehicleMeters = drivingDistance[plate]
-                                end
-                            else
-                                if drivingDistance[plate] then
-                                    vehicleMeters = drivingDistance[plate]
-                                else
-                                    drivingDistance[plate] = math.random(111111, 999999)
-                                    vehicleMeters = drivingDistance[plate]
-                                end
-                            end
-                        end, plate)
-                    end
-                end
-            else
-                if vehicleMeters == -1 then
-                    if drivingDistance[plate] then
-                        vehicleMeters = drivingDistance[plate]
-                    end
-                end
-            end
-
-            if vehicleMeters ~= -1 then
-                if seat == cache.ped then
-                    if previousVehiclePos then
-                        local Distance = #(pos - previousVehiclePos)
-                        local DamageKey = GetDamageMultiplier(vehicleMeters)
-
-                        vehicleMeters = vehicleMeters + ((Distance / 100) * 325)
-                        drivingDistance[plate] = vehicleMeters
-
-                        if DamageKey then
-                            local DamageData = Config.MinimalMetersForDamage[DamageKey]
-                            local chance = math.random(3)
-                            local odd = math.random(3)
-                            local CurrentData = VehicleStatus[plate]
-
-                            if chance == odd then
-                                for k, v in pairs(Config.Parts) do
-                                    if not v.canDamage then
-                                        return
-                                    end
-
-                                    local randmultiplier = (math.random(DamageData.multiplier.min, DamageData.multiplier.max) / 100)
-                                    local newDamage = 0
-
-                                    if CurrentData[k] - randmultiplier >= 0 then
-                                        newDamage = CurrentData[k] - randmultiplier
-                                    end
-
-                                    TriggerServerEvent('qb-vehicletuning:server:SetPartLevel', plate, k, newDamage)
-                                end
-                            end
-                        end
-
-                        local amount = round(drivingDistance[plate] / 1000, -2)
-
-                        TriggerEvent('hud:client:UpdateDrivingMeters', true, amount)
-                        TriggerServerEvent('qb-vehicletuning:server:UpdateDrivingDistance', drivingDistance[plate], plate)
-                    end
-                else
-                    if cache.vehicle then
-                        if drivingDistance[plate] then
-                            local amount = round(drivingDistance[plate] / 1000, -2)
-
-                            TriggerEvent('hud:client:UpdateDrivingMeters', true, amount)
-                        end
-                    else
-                        if vehicleMeters ~= -1 then
-                            vehicleMeters = -1
-                        end
-
-                        if checkDone then
-                            checkDone = false
-                        end
-                    end
-                end
-            end
-
-            previousVehiclePos = pos
-
-            Wait(2000)
-        else
-            if vehicleMeters ~= -1 then
-                vehicleMeters = -1
-            end
-
-            if checkDone then
-                checkDone = false
-            end
-
-            if previousVehiclePos then
-                previousVehiclePos = nil
-            end
-
-            Wait(500)
+        if seat ~= cache.ped then
+            return
         end
 
-        Wait(0)
+        calcDistance(vehicle)
+    else
+        inVehicle = false
+        vehicleMeters = -1
+        previousVehiclePos = nil
     end
 end)
+
+lib.onCache('seat', function(value)
+    currentSeat = value
+
+    if value ~= -1 then
+        return
+    end
+
+    calcDistance(cache.vehicle)
+end)
+
+function calcDistance(vehicle)
+    local plate = trim(GetVehicleNumberPlateText(vehicle))
+
+    QBCore.Functions.TriggerCallback('qb-vehicletuning:server:IsVehicleOwned', function(isOwned)
+        owned = isOwned
+
+        if isOwned then
+            if drivingDistance[plate] then
+                vehicleMeters = drivingDistance[plate]
+            else
+                drivingDistance[plate] = 0
+                vehicleMeters = drivingDistance[plate]
+            end
+        else
+            if drivingDistance[plate] then
+                vehicleMeters = drivingDistance[plate]
+            else
+                drivingDistance[plate] = math.random(111111, 999999)
+                vehicleMeters = drivingDistance[plate]
+            end
+        end
+    end, plate)
+
+    previousVehiclePos = nil
+
+    while inVehicle and currentSeat == -1 do
+        local pos = GetEntityCoords(cache.ped)
+
+        if previousVehiclePos then
+            local Distance = #(pos - previousVehiclePos)
+            local DamageKey = GetDamageMultiplier(vehicleMeters)
+
+            vehicleMeters = vehicleMeters + ((Distance / 100) * 325)
+            drivingDistance[plate] = vehicleMeters
+
+            if DamageKey then
+                local DamageData = Config.MinimalMetersForDamage[DamageKey]
+                local chance = math.random(3)
+                local odd = math.random(3)
+                local CurrentData = VehicleStatus[plate]
+
+                if chance == odd then
+                    for k, v in pairs(Config.Parts) do
+                        if not v.canDamage then
+                            return
+                        end
+
+                        local randmultiplier = (math.random(DamageData.multiplier.min, DamageData.multiplier.max) / 100)
+                        local newDamage = 0
+
+                        if CurrentData[k] - randmultiplier >= 0 then
+                            newDamage = CurrentData[k] - randmultiplier
+                        end
+
+                        TriggerServerEvent('qb-vehicletuning:server:SetPartLevel', plate, k, newDamage)
+                    end
+                end
+            end
+
+            local amount = round(drivingDistance[plate] / 1000, 2)
+
+            TriggerEvent('hud:client:UpdateDrivingMeters', true, amount)
+
+            if owned then
+                TriggerServerEvent('qb-vehicletuning:server:UpdateDrivingDistance', drivingDistance[plate], plate)
+            end
+        end
+
+        previousVehiclePos = pos
+
+        Citizen.Wait(2000)
+    end
+end

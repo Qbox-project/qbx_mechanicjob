@@ -9,7 +9,7 @@ Mechanic Job for Qbox Framework :mechanic:
 ![Vehicle Spawner](https://i.imgur.com/c4fHOtd.png)
 ![Stash](https://i.imgur.com/i0CfH2m.png)
 ![On/Off Duty](https://i.imgur.com/KxeIuRQ.png)
-![Mechanic Menu](https://i.imgur.com/6vrvD10.png)
+![Mechanic Menu](https://i.imgur.com/HJ4b0SC.png)
 ![Parts Menu](https://i.imgur.com/PxLXL8T.png)
 
 ## Featuresr
