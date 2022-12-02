@@ -88,7 +88,7 @@ local function RegisterDutyTarget()
                 {
                     name = 'qb-mechanicjob:duty',
                     serverEvent = 'QBCore:ToggleDuty',
-                    icon = 'fa-solid fa-cube',
+                    icon = "fa-solid fa-right-to-bracket",
                     label = label,
                     distance = 2.0
                 }
@@ -144,7 +144,7 @@ local function RegisterStashTarget()
                 {
                     name = 'qb-mechanicjob:stash',
                     event = 'qb-mechanicjob:client:target:OpenStash',
-                    icon = 'fa-solid fa-cube',
+                    icon = "fa-solid fa-box-open",
                     label = Lang:t('labels.o_stash'),
                     distance = 2.0
                 }
@@ -301,46 +301,47 @@ end
 
 local function ApplyEffects(vehicle)
     local plate = QBCore.Functions.GetPlate(vehicle)
+    local vehicleClass = GetVehicleClass(vehicle)
 
-    if GetVehicleClass(vehicle) ~= 13 and GetVehicleClass(vehicle) ~= 21 and GetVehicleClass(vehicle) ~= 16 and GetVehicleClass(vehicle) ~= 15 and GetVehicleClass(vehicle) ~= 14 then
+    if vehicleClass ~= 13 and vehicleClass ~= 21 and vehicleClass ~= 16 and vehicleClass ~= 15 and vehicleClass ~= 14 then
         if VehicleStatus[plate] then
             local chance = math.random(1, 100)
 
-            if VehicleStatus[plate]["radiator"] <= 80 and (chance >= 1 and chance <= 20) then
+            if VehicleStatus[plate].radiator <= 80 and (chance >= 1 and chance <= 20) then
                 local engineHealth = GetVehicleEngineHealth(vehicle)
 
-                if VehicleStatus[plate]["radiator"] <= 80 and VehicleStatus[plate]["radiator"] >= 60 then
+                if VehicleStatus[plate].radiator <= 80 and VehicleStatus[plate].radiator >= 60 then
                     SetVehicleEngineHealth(vehicle, engineHealth - math.random(10, 15))
-                elseif VehicleStatus[plate]["radiator"] <= 59 and VehicleStatus[plate]["radiator"] >= 40 then
+                elseif VehicleStatus[plate].radiator <= 59 and VehicleStatus[plate].radiator >= 40 then
                     SetVehicleEngineHealth(vehicle, engineHealth - math.random(15, 20))
-                elseif VehicleStatus[plate]["radiator"] <= 39 and VehicleStatus[plate]["radiator"] >= 20 then
+                elseif VehicleStatus[plate].radiator <= 39 and VehicleStatus[plate].radiator >= 20 then
                     SetVehicleEngineHealth(vehicle, engineHealth - math.random(20, 30))
-                elseif VehicleStatus[plate]["radiator"] <= 19 and VehicleStatus[plate]["radiator"] >= 6 then
+                elseif VehicleStatus[plate].radiator <= 19 and VehicleStatus[plate].radiator >= 6 then
                     SetVehicleEngineHealth(vehicle, engineHealth - math.random(30, 40))
                 else
                     SetVehicleEngineHealth(vehicle, engineHealth - math.random(40, 50))
                 end
             end
 
-            if VehicleStatus[plate]["axle"] <= 80 and (chance >= 21 and chance <= 40) then
-                if VehicleStatus[plate]["axle"] <= 80 and VehicleStatus[plate]["axle"] >= 60 then
+            if VehicleStatus[plate].axle <= 80 and (chance >= 21 and chance <= 40) then
+                if VehicleStatus[plate].axle <= 80 and VehicleStatus[plate].axle >= 60 then
                     for i = 0, 360 do
                         SetVehicleSteeringScale(vehicle, i)
 
                         Wait(0)
                     end
-                elseif VehicleStatus[plate]["axle"] <= 59 and VehicleStatus[plate]["axle"] >= 40 then
+                elseif VehicleStatus[plate].axle <= 59 and VehicleStatus[plate].axle >= 40 then
                     for i = 0, 360 do
                         Wait(10)
 
                         SetVehicleSteeringScale(vehicle, i)
                     end
-                elseif VehicleStatus[plate]["axle"] <= 39 and VehicleStatus[plate]["axle"] >= 20 then
+                elseif VehicleStatus[plate].axle <= 39 and VehicleStatus[plate].axle >= 20 then
                     for i = 0, 360 do
                         Wait(15)
                         SetVehicleSteeringScale(vehicle,i)
                     end
-                elseif VehicleStatus[plate]["axle"] <= 19 and VehicleStatus[plate]["axle"] >= 6 then
+                elseif VehicleStatus[plate].axle <= 19 and VehicleStatus[plate].axle >= 6 then
                     for i = 0, 360 do
                         Wait(20)
 
@@ -355,108 +356,149 @@ local function ApplyEffects(vehicle)
                 end
             end
 
-            if VehicleStatus[plate]["brakes"] <= 80 and (chance >= 41 and chance <= 60) then
-                if VehicleStatus[plate]["brakes"] <= 80 and VehicleStatus[plate]["brakes"] >= 60 then
+            if VehicleStatus[plate].brakes <= 80 and (chance >= 41 and chance <= 60) then
+                if VehicleStatus[plate].brakes <= 80 and VehicleStatus[plate].brakes >= 60 then
                     SetVehicleHandbrake(vehicle, true)
+
                     Wait(1000)
+
                     SetVehicleHandbrake(vehicle, false)
-                elseif VehicleStatus[plate]["brakes"] <= 59 and VehicleStatus[plate]["brakes"] >= 40 then
+                elseif VehicleStatus[plate].brakes <= 59 and VehicleStatus[plate].brakes >= 40 then
                     SetVehicleHandbrake(vehicle, true)
+
                     Wait(3000)
+
                     SetVehicleHandbrake(vehicle, false)
-                elseif VehicleStatus[plate]["brakes"] <= 39 and VehicleStatus[plate]["brakes"] >= 20 then
+                elseif VehicleStatus[plate].brakes <= 39 and VehicleStatus[plate].brakes >= 20 then
                     SetVehicleHandbrake(vehicle, true)
+
                     Wait(5000)
+
                     SetVehicleHandbrake(vehicle, false)
-                elseif VehicleStatus[plate]["brakes"] <= 19 and VehicleStatus[plate]["brakes"] >= 6 then
+                elseif VehicleStatus[plate].brakes <= 19 and VehicleStatus[plate].brakes >= 6 then
                     SetVehicleHandbrake(vehicle, true)
+
                     Wait(7000)
+
                     SetVehicleHandbrake(vehicle, false)
                 else
                     SetVehicleHandbrake(vehicle, true)
+
                     Wait(9000)
+
                     SetVehicleHandbrake(vehicle, false)
                 end
             end
 
-            if VehicleStatus[plate]["clutch"] <= 80 and (chance >= 61 and chance <= 80) then
-                if VehicleStatus[plate]["clutch"] <= 80 and VehicleStatus[plate]["clutch"] >= 60 then
+            if VehicleStatus[plate].clutch <= 80 and (chance >= 61 and chance <= 80) then
+                if VehicleStatus[plate].clutch <= 80 and VehicleStatus[plate].clutch >= 60 then
                     SetVehicleHandbrake(vehicle, true)
-                    SetVehicleEngineOn(vehicle,0,0,1)
-                    SetVehicleUndriveable(vehicle,true)
+                    SetVehicleEngineOn(vehicle, 0, 0, 1)
+                    SetVehicleUndriveable(vehicle, true)
+
                     Wait(50)
-                    SetVehicleEngineOn(vehicle,1,0,1)
-                    SetVehicleUndriveable(vehicle,false)
-                    for i=1,360 do
+
+                    SetVehicleEngineOn(vehicle, 1, 0, 1)
+                    SetVehicleUndriveable(vehicle, false)
+
+                    for i = 1, 360 do
                         SetVehicleSteeringScale(vehicle, i)
+
                         Wait(0)
                     end
+
                     Wait(500)
+
                     SetVehicleHandbrake(vehicle, false)
-                elseif VehicleStatus[plate]["clutch"] <= 59 and VehicleStatus[plate]["clutch"] >= 40 then
+                elseif VehicleStatus[plate].clutch <= 59 and VehicleStatus[plate].clutch >= 40 then
                     SetVehicleHandbrake(vehicle, true)
-                    SetVehicleEngineOn(vehicle,0,0,1)
-                    SetVehicleUndriveable(vehicle,true)
+                    SetVehicleEngineOn(vehicle, 0, 0, 1)
+                    SetVehicleUndriveable(vehicle, true)
+
                     Wait(100)
-                    SetVehicleEngineOn(vehicle,1,0,1)
-                    SetVehicleUndriveable(vehicle,false)
-                    for i=1,360 do
+
+                    SetVehicleEngineOn(vehicle, 1, 0, 1)
+                    SetVehicleUndriveable(vehicle, false)
+
+                    for i = 1, 360 do
                         SetVehicleSteeringScale(vehicle, i)
+
                         Wait(0)
                     end
+
                     Wait(750)
+
                     SetVehicleHandbrake(vehicle, false)
-                elseif VehicleStatus[plate]["clutch"] <= 39 and VehicleStatus[plate]["clutch"] >= 20 then
+                elseif VehicleStatus[plate].clutch <= 39 and VehicleStatus[plate].clutch >= 20 then
                     SetVehicleHandbrake(vehicle, true)
-                    SetVehicleEngineOn(vehicle,0,0,1)
-                    SetVehicleUndriveable(vehicle,true)
+                    SetVehicleEngineOn(vehicle, 0, 0, 1)
+                    SetVehicleUndriveable(vehicle, true)
+
                     Wait(150)
-                    SetVehicleEngineOn(vehicle,1,0,1)
-                    SetVehicleUndriveable(vehicle,false)
-                    for i=1,360 do
+
+                    SetVehicleEngineOn(vehicle, 1, 0, 1)
+                    SetVehicleUndriveable(vehicle, false)
+
+                    for i = 1, 360 do
                         SetVehicleSteeringScale(vehicle, i)
+
                         Wait(0)
                     end
+
                     Wait(1000)
+
                     SetVehicleHandbrake(vehicle, false)
-                elseif VehicleStatus[plate]["clutch"] <= 19 and VehicleStatus[plate]["clutch"] >= 6 then
+                elseif VehicleStatus[plate].clutch <= 19 and VehicleStatus[plate].clutch >= 6 then
                     SetVehicleHandbrake(vehicle, true)
-                    SetVehicleEngineOn(vehicle,0,0,1)
-                    SetVehicleUndriveable(vehicle,true)
+                    SetVehicleEngineOn(vehicle, 0, 0, 1)
+                    SetVehicleUndriveable(vehicle, true)
+
                     Wait(200)
-                    SetVehicleEngineOn(vehicle,1,0,1)
-                    SetVehicleUndriveable(vehicle,false)
-                    for i=1,360 do
+
+                    SetVehicleEngineOn(vehicle, 1, 0, 1)
+                    SetVehicleUndriveable(vehicle, false)
+
+                    for i = 1, 360 do
                         SetVehicleSteeringScale(vehicle, i)
+
                         Wait(0)
                     end
+
                     Wait(1250)
+
                     SetVehicleHandbrake(vehicle, false)
                 else
                     SetVehicleHandbrake(vehicle, true)
-                    SetVehicleEngineOn(vehicle,0,0,1)
-                    SetVehicleUndriveable(vehicle,true)
+                    SetVehicleEngineOn(vehicle, 0, 0, 1)
+                    SetVehicleUndriveable(vehicle, true)
+
                     Wait(250)
-                    SetVehicleEngineOn(vehicle,1,0,1)
-                    SetVehicleUndriveable(vehicle,false)
-                    for i=1,360 do
+
+                    SetVehicleEngineOn(vehicle, 1, 0, 1)
+                    SetVehicleUndriveable(vehicle, false)
+
+                    for i = 1, 360 do
                         SetVehicleSteeringScale(vehicle, i)
+
                         Wait(0)
                     end
+
                     Wait(1500)
+
                     SetVehicleHandbrake(vehicle, false)
                 end
             end
 
-            if VehicleStatus[plate]["fuel"] <= 80 and (chance >= 81 and chance <= 100) then
+            if VehicleStatus[plate].fuel <= 80 and (chance >= 81 and chance <= 100) then
                 local fuel = GetVehicleFuelLevel(vehicle)
-                if VehicleStatus[plate]["fuel"] <= 80 and VehicleStatus[plate]["fuel"] >= 60 then
+
+                if VehicleStatus[plate].fuel <= 80 and VehicleStatus[plate].fuel >= 60 then
                     SetVehicleFuelLevel(vehicle, fuel - 2.0)
-                elseif VehicleStatus[plate]["fuel"] <= 59 and VehicleStatus[plate]["fuel"] >= 40 then
+                elseif VehicleStatus[plate].fuel <= 59 and VehicleStatus[plate].fuel >= 40 then
                     SetVehicleFuelLevel(vehicle, fuel - 4.0)
-                elseif VehicleStatus[plate]["fuel"] <= 39 and VehicleStatus[plate]["fuel"] >= 20 then
+                elseif VehicleStatus[plate].fuel <= 39 and VehicleStatus[plate].fuel >= 20 then
                     SetVehicleFuelLevel(vehicle, fuel - 6.0)
-                elseif VehicleStatus[plate]["fuel"] <= 19 and VehicleStatus[plate]["fuel"] >= 6 then
+                elseif VehicleStatus[plate].fuel <= 19 and VehicleStatus[plate].fuel >= 6 then
                     SetVehicleFuelLevel(vehicle, fuel - 8.0)
                 else
                     SetVehicleFuelLevel(vehicle, fuel - 10.0)
@@ -480,7 +522,7 @@ local function SendStatusMessage(statusList)
     for _, v in pairs(Config.Parts) do
         options[#options + 1] = {
             title = v.label,
-            description = round(statusList["engine"]) .. "/" .. v.maxValue,
+            description = round(statusList.engine) .. "/" .. v.maxValue,
             metadata = {
                 {label = 'Item', value = QBCore.Shared.Items[v.repair.item].label},
                 {label = 'Cost', value = v.repair.cost}
@@ -645,14 +687,14 @@ local function SpawnListVehicle(model)
         local veh = NetToVeh(netId)
 
         SetVehicleNumberPlateText(veh, "MECH" .. tostring(math.random(1000, 9999)))
-        SetEntityHeading(veh, Config.Locations["vehicle"].w)
+        SetEntityHeading(veh, Config.Locations.vehicle.w)
         SetVehicleFuelLevel(veh, 100.0)
         TaskWarpPedIntoVehicle(cache.ped, veh, -1)
 
         TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
 
         SetVehicleEngineOn(veh, true, true)
-    end, model, Config.Locations["vehicle"], true)
+    end, model, Config.Locations.vehicle, true)
 end
 
 local function VehicleList()
@@ -690,21 +732,26 @@ local function RepairPart(part)
     if count >= PartData.costs then
         TriggerEvent('animations:client:EmoteCommandStart', {"mechanic"})
 
-        QBCore.Functions.Progressbar("repair_part", Lang:t('labels.progress_bar') .. Config.Parts[part].label, math.random(5000, 10000), false, true, {
-            disableMovement = true,
-            disableCarMovement = true,
-            disableMouse = false,
-            disableCombat = true
-        }, {}, {}, {}, function() -- Done
+        if lib.progressBar({
+            duration = math.random(5000, 10000),
+            label = Lang:t('labels.progress_bar') .. Config.Parts[part].label,
+            useWhileDead = false,
+            canCancel = true,
+            disable = {
+                move = true,
+                car = true,
+                combat = true
+            }
+        }) then
             TriggerEvent('animations:client:EmoteCommandStart', {"c"})
             TriggerEvent('qb-vehicletuning:client:RepaireeePart', part)
 
             SetTimeout(250, function()
                 PartsMenu()
             end)
-        end, function()
+        else
             QBCore.Functions.Notify(Lang:t('notifications.rep_canceled'), "error")
-        end)
+        end
     else
         QBCore.Functions.Notify(Lang:t('notifications.not_materials'), 'error')
     end
@@ -829,7 +876,7 @@ RegisterNetEvent('vehiclemod:client:setVehicleStatus', function(plate, status)
 end)
 
 RegisterNetEvent('vehiclemod:client:getVehicleStatus', function()
-    if not (IsPedInAnyVehicle(cache.ped, false)) then
+    if not (cache.vehicle) then
         local veh = GetVehiclePedIsIn(cache.ped, true)
 
         if veh and veh ~= 0 then
@@ -860,7 +907,7 @@ RegisterNetEvent('vehiclemod:client:getVehicleStatus', function()
 end)
 
 RegisterNetEvent('vehiclemod:client:fixEverything', function()
-    if IsPedInAnyVehicle(cache.ped, false) then
+    if cache.vehicle then
         if not IsThisModelABicycle(GetEntityModel(cache.vehicle)) and GetPedInVehicleSeat(cache.vehicle, -1) == cache.ped then
             local plate = QBCore.Functions.GetPlate(cache.vehicle)
 
@@ -874,7 +921,7 @@ RegisterNetEvent('vehiclemod:client:fixEverything', function()
 end)
 
 RegisterNetEvent('vehiclemod:client:setPartLevel', function(part, level)
-    if (IsPedInAnyVehicle(cache.ped, false)) then
+    if (cache.vehicle) then
         local veh = GetVehiclePedIsIn(cache.ped,false)
 
         if not IsThisModelABicycle(GetEntityModel(veh)) and GetPedInVehicleSeat(veh, -1) == cache.ped then
@@ -900,7 +947,7 @@ RegisterNetEvent('vehiclemod:client:setPartLevel', function(part, level)
 end)
 
 RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmount)
-    if not IsPedInAnyVehicle(cache.ped, false) then
+    if not cache.vehicle then
         local veh = GetVehiclePedIsIn(cache.ped, true)
 
         if veh and veh ~= 0 then
@@ -917,19 +964,25 @@ RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmoun
                         if part == "body" then
                             lockpickTime = lockpickTime / 10
                         end
-                        
+
                         ScrapAnim(lockpickTime)
 
-                        QBCore.Functions.Progressbar("repair_advanced", Lang:t('notifications.progress_bar'), lockpickTime, false, true, {
-                            disableMovement = true,
-                            disableCarMovement = true,
-                            disableMouse = false,
-                            disableCombat = true,
-                        }, {
-                            animDict = "mp_car_bomb",
-                            anim = "car_bomb_mechanic",
-                            flags = 16
-                        }, {}, {}, function() -- Done
+                        if lib.progressBar({
+                            duration = lockpickTime,
+                            label = Lang:t('notifications.progress_bar'),
+                            useWhileDead = false,
+                            canCancel = true,
+                            disable = {
+                                move = true,
+                                car = true,
+                                combat = true
+                            },
+                            anim = {
+                                dict = 'mp_car_bomb',
+                                clip = 'car_bomb_mechanic',
+                                flag = 16
+                            }
+                        }) then
                             openingDoor = false
 
                             ClearPedTasks(cache.ped)
@@ -947,13 +1000,13 @@ RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmoun
                                 TriggerServerEvent("vehiclemod:server:updatePart", plate, part, GetVehicleStatus(plate, part) + level)
                                 TriggerServerEvent("qb-mechanicjob:server:removePart", part, level)
                             end
-                        end, function() -- Cancel
+                        else
                             openingDoor = false
 
                             ClearPedTasks(cache.ped)
 
                             QBCore.Functions.Notify(Lang:t('notifications.process_canceled'), "error")
-                        end)
+                        end
                     else
                         QBCore.Functions.Notify(Lang:t('notifications.not_part'), "error")
                     end
@@ -991,7 +1044,7 @@ CreateThread(function()
         Wait(wait)
     end
 
-    local Blip = AddBlipForCoord(Config.Locations["exit"].x, Config.Locations["exit"].y, Config.Locations["exit"].z)
+    local Blip = AddBlipForCoord(Config.Locations.exit.x, Config.Locations.exit.y, Config.Locations.exit.z)
 
     SetBlipSprite(Blip, 446)
     SetBlipDisplay(Blip, 4)
@@ -1094,7 +1147,7 @@ CreateThread(function()
     while true do
         Wait(1000)
 
-        if IsPedInAnyVehicle(cache.ped, false) then
+        if cache.vehicle then
             if not IsThisModelABicycle(GetEntityModel(cache.vehicle)) and GetPedInVehicleSeat(cache.vehicle, -1) == cache.ped then
                 local engineHealth = GetVehicleEngineHealth(cache.vehicle)
                 local bodyHealth = GetVehicleBodyHealth(cache.vehicle)
