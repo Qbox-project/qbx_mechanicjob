@@ -1,4 +1,4 @@
-QBCore = exports['qb-core']:GetCoreObject()
+QBCore = exports['qbx-core']:GetCoreObject()
 VehicleStatus = {}
 
 local ClosestPlate = nil
@@ -103,9 +103,9 @@ local function RegisterDutyTarget()
         })
         zone:onPlayerInOut(function (isPointInside)
             if isPointInside then
-                exports['qb-core']:DrawText("[E] " .. label, 'left')
+                exports['qbx-core']:DrawText("[E] " .. label, 'left')
             else
-                exports['qb-core']:HideText()
+                exports['qbx-core']:HideText()
             end
 
             isInsideDutyZone = isPointInside
@@ -154,9 +154,9 @@ local function RegisterStashTarget()
         })
         zone:onPlayerInOut(function (isPointInside)
             if isPointInside then
-                exports['qb-core']:DrawText(Lang:t('labels.o_stash'), 'left')
+                exports['qbx-core']:DrawText(Lang:t('labels.o_stash'), 'left')
             else
-                exports['qb-core']:HideText()
+                exports['qbx-core']:HideText()
             end
 
             isInsideStashZone = isPointInside
@@ -180,12 +180,12 @@ local function RegisterGarageZone()
         if isPointInside and onDuty then
             local inVehicle = IsPedInAnyVehicle(PlayerPedId())
             if inVehicle then
-                exports['qb-core']:DrawText(Lang:t('labels.h_vehicle'), 'left')
+                exports['qbx-core']:DrawText(Lang:t('labels.h_vehicle'), 'left')
             else
-                exports['qb-core']:DrawText(Lang:t('labels.g_vehicle'), 'left')
+                exports['qbx-core']:DrawText(Lang:t('labels.g_vehicle'), 'left')
             end
         else
-            exports['qb-core']:HideText()
+            exports['qbx-core']:HideText()
         end
 
         isInsideGarageZone = isPointInside
@@ -215,14 +215,14 @@ function RegisterVehiclePlateZone(id, plate)
     plateZone:onPlayerInOut(function (isPointInside)
         if isPointInside and onDuty then
             if plate.AttachedVehicle then
-                exports['qb-core']:DrawText(Lang:t('labels.o_menu'), 'left')
+                exports['qbx-core']:DrawText(Lang:t('labels.o_menu'), 'left')
             else
                 if IsPedInAnyVehicle(PlayerPedId()) then
-                    exports['qb-core']:DrawText(Lang:t('labels.work_v'), 'left')
+                    exports['qbx-core']:DrawText(Lang:t('labels.work_v'), 'left')
                 end
             end
         else
-            exports['qb-core']:HideText()
+            exports['qbx-core']:HideText()
         end
 
         isInsideVehiclePlateZone = isPointInside
@@ -1029,10 +1029,10 @@ CreateThread(function()
                     if IsControlJustPressed(0, 38) then
                         if inVehicle then
                             DeleteVehicle(GetVehiclePedIsIn(PlayerPedId()))
-                            exports['qb-core']:HideText()
+                            exports['qbx-core']:HideText()
                         else
                             VehicleList()
-                            exports['qb-core']:HideText()
+                            exports['qbx-core']:HideText()
                         end
                     end
                 end
@@ -1043,7 +1043,7 @@ CreateThread(function()
                     local coords = Config.Plates[ClosestPlate].coords
                     if attachedVehicle then
                         if IsControlJustPressed(0, 38) then
-                            exports['qb-core']:HideText()
+                            exports['qbx-core']:HideText()
                             OpenMenu()
                         end
                     else
