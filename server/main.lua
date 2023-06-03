@@ -37,45 +37,22 @@ end
 
 -- Callbacks
 
-QBCore.Functions.CreateCallback('qb-vehicletuning:server:GetDrivingDistances', function(_, cb)
-    cb(VehicleDrivingDistance)
+lib.callback.register('qb-vehicletuning:server:GetDrivingDistances', function()
+    return VehicleDrivingDistance
 end)
 
-QBCore.Functions.CreateCallback('qb-vehicletuning:server:IsVehicleOwned', function(_, cb, plate)
-    local retval = false
+lib.callback.register('qb-vehicletuning:server:IsVehicleOwned', function(_, plate)
     local result = MySQL.scalar.await('SELECT 1 from player_vehicles WHERE plate = ?', {plate})
     if result then
-        retval = true
+        return true
     end
-    cb(retval)
+    return false
 end)
 
 
-QBCore.Functions.CreateCallback('qb-vehicletuning:server:GetAttachedVehicle', function(_, cb)
-    cb(Config.Plates)
+lib.callback.register('qb-vehicletuning:server:GetAttachedVehicle', function()
+    return Config.Plates
 end)
-
-QBCore.Functions.CreateCallback('qb-vehicletuning:server:IsMechanicAvailable', function(_, cb)
-    local amount = 0
-    for _, v in pairs(QBCore.Functions.GetPlayers()) do
-        local Player = QBCore.Functions.GetPlayer(v)
-        if Player ~= nil then
-            if (Player.PlayerData.job.name == "mechanic" and Player.PlayerData.job.onduty) then
-                amount = amount + 1
-            end
-        end
-    end
-    cb(amount)
-end)
-
-QBCore.Functions.CreateCallback('qb-vehicletuning:server:GetStatus', function(_, cb, plate)
-    if VehicleStatus[plate] ~= nil and next(VehicleStatus[plate]) ~= nil then
-        cb(VehicleStatus[plate])
-    else
-        cb(nil)
-    end
-end)
-
 
 -- Events
 
