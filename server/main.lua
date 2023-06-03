@@ -194,27 +194,19 @@ end)
 
 RegisterNetEvent('qb-vehicletuning:server:CheckForItems', function(part)
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    local RepairPart = Player.Functions.GetItemByName(Config.RepairCostAmount[part].item)
+    local player = QBCore.Functions.GetPlayer(src)
+    local itemName = Config.RepairCostAmount[part].item
+    local amountRequired = Config.RepairCostAmount[part].costs
+    local amount = exports.ox_inventory:Search(src, 'count', itemName)
 
-    if RepairPart ~= nil then
-        if RepairPart.amount >= Config.RepairCostAmount[part].costs then
-            TriggerClientEvent('qb-vehicletuning:client:RepaireeePart', src, part)
-            Player.Functions.RemoveItem(Config.RepairCostAmount[part].item, Config.RepairCostAmount[part].costs)
-
-            for _ = 1, Config.RepairCostAmount[part].costs, 1 do
-                TriggerClientEvent('inventory:client:ItemBox', src,
-                    QBCore.Shared.Items[Config.RepairCostAmount[part].item], "remove")
-                Wait(500)
-            end
-        else
-            TriggerClientEvent('QBCore:Notify', src, Lang:t('notifications.not_enough') .. QBCore.Shared.Items[Config.RepairCostAmount[part].item]["label"] .. " (min. " ..
-                    Config.RepairCostAmount[part].costs .. "x)", "error")
-        end
-    else
-        TriggerClientEvent('QBCore:Notify', src, Lang:t('notifications.not_have') ..
-            QBCore.Shared.Items[Config.RepairCostAmount[part].item]["label"], "error")
+    if amount < amountRequired then
+        TriggerClientEvent('QBCore:Notify', src, Lang:t('notifications.not_enough') .. exports.ox_inventory:Items()[itemName].label .. " (min. " ..
+        amountRequired .. "x)", "error")
+        return
     end
+
+    TriggerClientEvent('qb-vehicletuning:client:RepaireeePart', src, part)
+    player.Functions.RemoveItem(itemName, amountRequired)
 end)
 
 RegisterNetEvent('qb-mechanicjob:server:removePart', function(part, amount)
