@@ -23,18 +23,6 @@ function GetVehicleStatus(plate)
     return retval
 end
 
-function IsAuthorized(CitizenId)
-    local retval = false
-    for _, cid in pairs(Config.AuthorizedIds) do
-        if cid == CitizenId then
-            retval = true
-            break
-        end
-    end
-    return retval
-end
-
-
 -- Callbacks
 
 QBCore.Functions.CreateCallback('qb-vehicletuning:server:GetDrivingDistances', function(_, cb)
@@ -238,57 +226,3 @@ QBCore.Commands.Add("setvehiclestatus", "Set Vehicle Status", {{
     local level = tonumber(args[2])
     TriggerClientEvent("vehiclemod:client:setPartLevel", source, part, level)
 end, "god")
-
-QBCore.Commands.Add("setmechanic", "Give Someone The Mechanic job", {{
-    name = "id",
-    help = "ID Of The Player"
-}}, false, function(source, args)
-    local Player = QBCore.Functions.GetPlayer(source)
-
-    if IsAuthorized(Player.PlayerData.citizenid) then
-        local TargetId = tonumber(args[1])
-        if TargetId ~= nil then
-            local TargetData = QBCore.Functions.GetPlayer(TargetId)
-            if TargetData ~= nil then
-                TargetData.Functions.SetJob("mechanic")
-                TriggerClientEvent('QBCore:Notify', TargetData.PlayerData.source,
-                    "You Were Hired As An Autocare Employee!")
-                TriggerClientEvent('QBCore:Notify', source, "You have (" .. TargetData.PlayerData.charinfo.firstname ..
-                    ") Hired As An Autocare Employee!")
-            end
-        else
-            TriggerClientEvent('QBCore:Notify', source, "You Must Provide A Player ID!")
-        end
-    else
-        TriggerClientEvent('QBCore:Notify', source, "You Cannot Do This!", "error")
-    end
-end)
-
-QBCore.Commands.Add("firemechanic", "Fire A Mechanic", {{
-    name = "id",
-    help = "ID Of The Player"
-}}, false, function(source, args)
-    local Player = QBCore.Functions.GetPlayer(source)
-
-    if IsAuthorized(Player.PlayerData.citizenid) then
-        local TargetId = tonumber(args[1])
-        if TargetId ~= nil then
-            local TargetData = QBCore.Functions.GetPlayer(TargetId)
-            if TargetData ~= nil then
-                if TargetData.PlayerData.job.name == "mechanic" then
-                    TargetData.Functions.SetJob("unemployed")
-                    TriggerClientEvent('QBCore:Notify', TargetData.PlayerData.source,
-                        "You Were Fired As An Autocare Employee!")
-                    TriggerClientEvent('QBCore:Notify', source,
-                        "You have (" .. TargetData.PlayerData.charinfo.firstname .. ") Fired As Autocare Employee!")
-                else
-                    TriggerClientEvent('QBCore:Notify', source, "Youre Not An Employee of Autocare!", "error")
-                end
-            end
-        else
-            TriggerClientEvent('QBCore:Notify', source, "You Must Provide A Player ID!", "error")
-        end
-    else
-        TriggerClientEvent('QBCore:Notify', source, "You Cannot Do This!", "error")
-    end
-end)
