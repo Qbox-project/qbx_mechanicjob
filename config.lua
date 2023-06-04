@@ -108,8 +108,10 @@ Config.Vehicles = {
     ["blista"] = "Blista",
 }
 
+---@alias Range {min: integer, max: integer}
+---@type {min: integer, max: integer, multiplier: Range}[]
 Config.MinimalMetersForDamage = {
-    [1] = {
+    {
         min = 8000,
         max = 12000,
         multiplier = {
@@ -117,7 +119,7 @@ Config.MinimalMetersForDamage = {
             max = 8,
         }
     },
-    [2] = {
+    {
         min = 12000,
         max = 16000,
         multiplier = {
@@ -125,7 +127,7 @@ Config.MinimalMetersForDamage = {
             max = 16,
         }
     },
-    [3] = {
+    {
         min = 12000,
         max = 16000,
         multiplier = {
@@ -135,10 +137,10 @@ Config.MinimalMetersForDamage = {
     },
 }
 
-Config.Damages = {
-    ["radiator"] = "Radiator",
-    ["axle"] = "Drive Shaft",
-    ["brakes"] = "Brakes",
-    ["clutch"] = "Clutch",
-    ["fuel"] = "Fuel Tank",
+Config.DamageableParts = {
+    "radiator",
+    "axle",
+    "brakes",
+    "clutch",
+    "fuel",
 }

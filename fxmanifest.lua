@@ -7,7 +7,8 @@ version '2.0.1'
 shared_scripts {
 	'@qb-core/shared/locale.lua',
 	'locales/en.lua', -- Edit this for your language.
-	'config.lua'
+	'config.lua',
+    '@ox_lib/init.lua',
 }
 
 client_scripts {
