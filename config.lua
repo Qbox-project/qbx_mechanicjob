@@ -17,14 +17,14 @@ Config.MaxStatusValues = {
     ["fuel"] = 100,
 }
 
-Config.ValuesLabels = {
-    ["engine"] = Lang:t('labels.engine'),
-    ["body"] = Lang:t('labels.bodsy'),
-    ["radiator"] = Lang:t('labels.radiator'),
-    ["axle"] = Lang:t('labels.axle'),
-    ["brakes"] = Lang:t('labels.brakes'),
-    ["clutch"] = Lang:t('labels.clutch'),
-    ["fuel"] = Lang:t('labels.fuel'),
+Config.PartLabels = {
+    engine = Lang:t('labels.engine'),
+    body = Lang:t('labels.bodsy'),
+    radiator = Lang:t('labels.radiator'),
+    axle = Lang:t('labels.axle'),
+    brakes = Lang:t('labels.brakes'),
+    clutch = Lang:t('labels.clutch'),
+    fuel = Lang:t('labels.fuel'),
 }
 
 Config.RepairCost = {
@@ -71,8 +71,10 @@ Config.Businesses = {
     "Auto Repair",
 }
 
+---@alias Plate {coords: vector4, boxData: {heading: number, length: number, width: number, debugPoly: boolean}, AttachedVehicle: number?}
+---@type Plate[] 
 Config.Plates = {
-    [1] = {
+    {
         coords = vector4(-340.95, -128.24, 39, 160.0),
         boxData = {
             heading = 340,
@@ -82,7 +84,7 @@ Config.Plates = {
         },
         AttachedVehicle = nil,
     },
-    [2] = {
+    {
         coords = vector4(-327.91, -144.34, 38.86, 70.34),
         boxData = {
             heading = 249,
