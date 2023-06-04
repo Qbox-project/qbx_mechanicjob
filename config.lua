@@ -7,10 +7,6 @@ Config.Targets = {}
 
 Config.AttachedVehicle = nil
 
-Config.AuthorizedIds = {
-    -- "insertcitizenidhere",
-}
-
 Config.MaxStatusValues = {
     ["engine"] = 1000.0,
     ["body"] = 1000.0,

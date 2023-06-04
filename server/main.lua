@@ -26,7 +26,6 @@ local function isAuthorized(citizenId)
     return false
 end
 
-
 -- Callbacks
 
 lib.callback.register('qb-vehicletuning:server:GetDrivingDistances', function()
