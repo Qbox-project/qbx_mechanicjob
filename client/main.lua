@@ -1,4 +1,3 @@
---- TODO: change qb-menu to ox_lib
 --- TODO: change qb-target to ox_target
 --- TODO: change qb-inventory stash to ox_inventory stash
 --- TODO: replace qb progress bar with ox_lib progress bar
@@ -285,159 +284,6 @@ local function sendStatusMessage(statusList)
     })
 end
 
-local function openMenu()
-    local menu = {
-        {
-            header = Lang:t('lift_menu.header_menu'),
-            isMenuHeader = true
-        }, {
-            header = Lang:t('lift_menu.header_vehdc'),
-            txt = Lang:t('lift_menu.desc_vehdc'),
-            params = {
-                event = "qb-mechanicjob:client:UnattachVehicle",
-            }
-        }, {
-            header = Lang:t('lift_menu.header_stats'),
-            txt = Lang:t('lift_menu.desc_stats'),
-            params = {
-                event = "qb-mechanicjob:client:CheckStatus",
-                args = {
-                    number = 1,
-                }
-            }
-        }, {
-            header = Lang:t('lift_menu.header_parts'),
-            txt = Lang:t('lift_menu.desc_parts'),
-            params = {
-                event = "qb-mechanicjob:client:PartsMenu",
-                args = {
-                    number = 1,
-                }
-            }
-        }, {
-            header = Lang:t('lift_menu.c_menu'),
-            txt = "",
-            params = {
-                event = "qb-mechanicjob:client:target:CloseMenu",
-            }
-        },
-    }
-    exports['qb-menu']:openMenu(menu)
-end
-
-local function openVehicleStatusMenu()
-    local plate = QBCore.Functions.GetPlate(Config.Plates[closestPlate].AttachedVehicle)
-    if not VehicleStatus[plate] then return end
-
-    local vehicleMenu = {
-        {
-            header = "Status",
-            isMenuHeader = true
-        }
-    }
-    for partName, label in pairs(Config.PartLabels) do
-        if math.ceil(VehicleStatus[plate][partName]) ~= Config.MaxStatusValues[partName] then
-            local percentage = math.ceil(VehicleStatus[plate][partName])
-            if percentage > 100 then
-                percentage = math.ceil(VehicleStatus[plate][partName]) / 10
-            end
-            vehicleMenu[#vehicleMenu+1] = {
-                header = label,
-                txt = "Status: " .. percentage .. ".0% / 100.0%",
-                params = {
-                    event = "qb-mechanicjob:client:PartMenu",
-                    args = {
-                        name = label,
-                        parts = partName
-                    }
-                }
-            }
-        else
-            local percentage = math.ceil(Config.MaxStatusValues[partName])
-            if percentage > 100 then
-                percentage = math.ceil(Config.MaxStatusValues[partName]) / 10
-            end
-            vehicleMenu[#vehicleMenu+1] = {
-                header = label,
-                txt = Lang:t('parts_menu.status') .. percentage .. ".0% / 100.0%",
-                params = {
-                    event = "qb-mechanicjob:client:NoDamage",
-                }
-            }
-        end
-    end
-
-    vehicleMenu[#vehicleMenu+1] = {
-        header = Lang:t('lift_menu.c_menu'),
-        txt = "",
-        params = {
-            event = "qb-menu:client:closeMenu"
-        }
-    }
-    exports['qb-menu']:openMenu(vehicleMenu)
-end
-
-local function openPartMenu(data)
-    local partName = data.name
-    local part = data.parts
-    local TestMenu1 = {
-        {
-            header = Lang:t('parts_menu.menu_header'),
-            isMenuHeader = true
-        },
-        {
-            header = ""..partName.."",
-            txt = Lang:t('parts_menu.repair_op')..exports.ox_inventory:Items()[Config.RepairCostAmount[part].item].label.." "..Config.RepairCostAmount[part].costs.."x",
-            params = {
-                event = "qb-mechanicjob:client:RepairPart",
-                args = {
-                    part = part,
-                }
-            }
-        },
-        {
-            header = Lang:t('parts_menu.b_menu'),
-            txt = Lang:t('parts_menu.d_menu'),
-            params = {
-                event = "qb-mechanicjob:client:PartsMenu",
-            }
-        },
-        {
-            header = Lang:t('parts_menu.c_menu'),
-            txt = "",
-            params = {
-                event = "qb-menu:client:closeMenu",
-            }
-        },
-    }
-
-    exports['qb-menu']:openMenu(TestMenu1)
-end
-
-local function openNoDamageMenu()
-    local noDamage = {
-        {
-            header = Lang:t('nodamage_menu.header'),
-            isMenuHeader = true
-        },
-        {
-            header = Lang:t('nodamage_menu.bh_menu'),
-            txt = Lang:t('nodamage_menu.bd_menu'),
-            params = {
-                event = "qb-mechanicjob:client:PartsMenu",
-            }
-        },
-        {
-            header = Lang:t('nodamage_menu.c_menu'),
-            txt = "",
-            params = {
-                event = "qb-menu:client:closeMenu",
-            }
-        },
-    }
-    exports['qb-menu']:openMenu(noDamage)
-end
-
 local function unattachVehicle()
     DoScreenFadeOut(150)
     Wait(150)
@@ -453,56 +299,6 @@ local function unattachVehicle()
 
     destroyVehiclePlateZone(closestPlate)
     registerVehiclePlateZone(closestPlate, plate)
-end
-
-local function spawnListVehicle(model)
-    local coords = {
-        x = Config.Locations.vehicle.x,
-        y = Config.Locations.vehicle.y,
-        z = Config.Locations.vehicle.z,
-        w = Config.Locations.vehicle.w,
-    }
-
-    QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
-        local veh = NetToVeh(netId)
-        SetVehicleNumberPlateText(veh, "ACBV"..tostring(math.random(1000, 9999)))
-        SetEntityHeading(veh, coords.w)
-        exports['LegacyFuel']:SetFuel(veh, 100.0)
-        TaskWarpPedIntoVehicle(cache.ped, veh, -1)
-        TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
-        SetVehicleEngineOn(veh, true, true)
-    end, model, coords, true)
-end
-
-local function openVehicleListMenu()
-    local vehicleMenu = {
-        {
-            header = "Vehicle List",
-            isMenuHeader = true
-        }
-    }
-    for k,v in pairs(Config.Vehicles) do
-        vehicleMenu[#vehicleMenu+1] = {
-            header = v,
-            txt = "Vehicle: "..v.."",
-            params = {
-                event = "qb-mechanicjob:client:SpawnListVehicle",
-                args = {
-                    headername = v,
-                    spawnName = k
-                }
-            }
-        }
-    end
-    vehicleMenu[#vehicleMenu+1] = {
-        header = "⬅ Close Menu",
-        txt = "",
-        params = {
-            event = "qb-menu:client:closeMenu"
-        }
-
-    }
-    exports['qb-menu']:openMenu(vehicleMenu)
 end
 
 local function checkStatus()
@@ -554,39 +350,100 @@ local function repairPart(part)
     end, "mechanicstash")
 end
 
+local function openPartMenu(data)
+    local partName = data.name
+    local part = data.parts
+    local options = {
+        {
+            title = partName,
+            description = Lang:t('parts_menu.repair_op')..exports.ox_inventory:Items()[Config.RepairCostAmount[part].item].label.." "..Config.RepairCostAmount[part].costs.."x",
+            onSelect = function()
+                repairPart(part)
+            end,
+        },
+    }
+
+    lib.registerContext({
+        id = 'part',
+        title = Lang:t('parts_menu.menu_header'),
+        options = options,
+        menu = 'vehicleStatus',
+    })
+
+    lib.showContext('part')
+end
+
+function OpenVehicleStatusMenu()
+    local plate = QBCore.Functions.GetPlate(Config.Plates[closestPlate].AttachedVehicle)
+    if not VehicleStatus[plate] then return end
+
+    local options = {}
+
+    for partName, label in pairs(Config.PartLabels) do
+        if math.ceil(VehicleStatus[plate][partName]) ~= Config.MaxStatusValues[partName] then
+            local percentage = math.ceil(VehicleStatus[plate][partName])
+            if percentage > 100 then
+                percentage = math.ceil(VehicleStatus[plate][partName]) / 10
+            end
+            options[#options+1] = {
+                title = label,
+                description = "Status: " .. percentage .. ".0% / 100.0%",
+                onSelect = function()
+                    openPartMenu({
+                        name = label,
+                        parts = partName
+                    })
+                end,
+                arrow = true,
+            }
+        else
+            local percentage = math.ceil(Config.MaxStatusValues[partName])
+            if percentage > 100 then
+                percentage = math.ceil(Config.MaxStatusValues[partName]) / 10
+            end
+            options[#options+1] = {
+                title = label,
+                description = Lang:t('parts_menu.status') .. percentage .. ".0% / 100.0%",
+                onSelect = OpenVehicleStatusMenu,
+                arrow = true,
+            }
+        end
+    end
+
+    lib.registerContext({
+        id = 'vehicleStatus',
+        title = 'Status',
+        options = options,
+    })
+
+    lib.showContext('vehicleStatus')
+end
+
+local function resetClosestVehiclePlate()
+    destroyVehiclePlateZone(closestPlate)
+    registerVehiclePlateZone(closestPlate, Config.Plates[closestPlate])
+end
+
+local function spawnListVehicle(model)
+    local coords = {
+        x = Config.Locations.vehicle.x,
+        y = Config.Locations.vehicle.y,
+        z = Config.Locations.vehicle.z,
+        w = Config.Locations.vehicle.w,
+    }
+
+    QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
+        local veh = NetToVeh(netId)
+        SetVehicleNumberPlateText(veh, "ACBV"..tostring(math.random(1000, 9999)))
+        SetEntityHeading(veh, coords.w)
+        exports['LegacyFuel']:SetFuel(veh, 100.0)
+        TaskWarpPedIntoVehicle(cache.ped, veh, -1)
+        TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
+        SetVehicleEngineOn(veh, true, true)
+    end, model, coords, true)
+end
 
 -- Events
--- TODO: replace event handlers called from menus with local functions to reduce scope.
-
-AddEventHandler("qb-mechanicjob:client:UnattachVehicle",function()
-    unattachVehicle()
-end)
-
-AddEventHandler("qb-mechanicjob:client:PartsMenu",function()
-    openVehicleStatusMenu()
-end)
-
-AddEventHandler("qb-mechanicjob:client:PartMenu",function(data)
-    openPartMenu(data)
-end)
-
-AddEventHandler("qb-mechanicjob:client:NoDamage",function()
-    openNoDamageMenu()
-end)
-
-AddEventHandler("qb-mechanicjob:client:CheckStatus",function()
-    checkStatus()
-end)
-
-AddEventHandler("qb-mechanicjob:client:SpawnListVehicle",function(data)
-    local vehicleSpawnName = data.spawnName
-    spawnListVehicle(vehicleSpawnName)
-end)
-
-AddEventHandler("qb-mechanicjob:client:RepairPart",function(data)
-    local partData = data.part
-    repairPart(partData)
-end)
 
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     QBCore.Functions.GetPlayerData(function(PlayerData)
@@ -809,15 +666,6 @@ AddEventHandler('qb-mechanicjob:client:target:OpenStash', function ()
     })
 end)
 
----TODO: replace with local function
-AddEventHandler('qb-mechanicjob:client:target:CloseMenu', function()
-    destroyVehiclePlateZone(closestPlate)
-    registerVehiclePlateZone(closestPlate, Config.Plates[closestPlate])
-
-    TriggerEvent('qb-menu:client:closeMenu')
-end)
-
-
 -- Threads
 
 local function listenForInteractions()
@@ -848,7 +696,7 @@ local function listenForInteractions()
                 DeleteVehicle(veh)
                 exports['qbx-core']:HideText()
             else
-                openVehicleListMenu()
+                lib.showContext('mechanicVehicles')
                 exports['qbx-core']:HideText()
             end
         end
@@ -861,7 +709,7 @@ local function listenForInteractions()
         if attachedVehicle then
             if IsControlJustPressed(0, 38) then
                 exports['qbx-core']:HideText()
-                openMenu()
+                lib.showContext('lift')
             end
         elseif IsControlJustPressed(0, 38) and veh then
             DoScreenFadeOut(150)
@@ -920,3 +768,55 @@ CreateThread(function()
         Wait(wait)
     end
 end)
+
+
+--- STATIC MENUS
+
+local function registerLiftMenu()
+    local options = {
+        {
+            title = Lang:t('lift_menu.header_vehdc'),
+            description = Lang:t('lift_menu.desc_vehdc'),
+            onSelect = unattachVehicle,
+        },
+        {
+            title = Lang:t('lift_menu.header_stats'),
+            description = Lang:t('lift_menu.desc_stats'),
+            onSelect = checkStatus,
+        },
+        {
+            title = Lang:t('lift_menu.header_parts'),
+            description = Lang:t('lift_menu.desc_parts'),
+            arrow = true,
+            onSelect = OpenVehicleStatusMenu,
+        },
+    }
+    lib.registerContext({
+        id = 'lift',
+        title = Lang:t('lift_menu.header_menu'),
+        onExit = resetClosestVehiclePlate,
+        options = options,
+    })
+end
+
+local function registerVehicleListMenu()
+    local options = {}
+    for k,v in pairs(Config.Vehicles) do
+        options[#options+1] = {
+            title = v,
+            description = "Vehicle: "..v.."",
+            onSelect = function()
+                spawnListVehicle(k)
+            end,
+        }
+    end
+
+    lib.registerContext({
+        id = 'mechanicVehicles',
+        title = 'Vehicle List',
+        options = options,
+    })
+end
+
+registerLiftMenu()
+registerVehicleListMenu()
