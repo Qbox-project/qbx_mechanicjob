@@ -1,5 +1,4 @@
 --- TODO: change qb-target to ox_target
---- TODO: replace qb progress bar with ox_lib progress bar
 --- TODO: replace notify calls with NotifyV2 calls
 
 QBCore = exports['qbx-core']:GetCoreObject()
@@ -307,20 +306,26 @@ end
 
 local function repairPart(part)
     TriggerEvent('animations:client:EmoteCommandStart', {"mechanic"})
-    QBCore.Functions.Progressbar("repair_part", Lang:t('labels.progress_bar') ..Config.PartLabels[part], math.random(5000, 10000), false, true, {
-        disableMovement = true,
-        disableCarMovement = true,
-        disableMouse = false,
-        disableCombat = true,
-    }, {}, {}, {}, function() -- Done
+    if lib.progressBar({
+        duration = math.random(5000, 10000),
+        label = Lang:t('labels.progress_bar') ..Config.PartLabels[part],
+        canCancel = true,
+        disable = {
+            move = true,
+            car = true,
+            combat = true,
+            mouse = false,
+        }
+    }) then
         TriggerEvent('animations:client:EmoteCommandStart', {"c"})
         TriggerServerEvent('qb-vehicletuning:server:CheckForItems', part)
         SetTimeout(250, function()
             OpenVehicleStatusMenu()
         end)
-    end, function()
+    else
+        TriggerEvent('animations:client:EmoteCommandStart', {"c"})
         QBCore.Functions.Notify(Lang:t('notifications.rep_canceled'), "error")
-    end)
+    end
 end
 
 local function openPartMenu(data)
@@ -600,16 +605,16 @@ RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmoun
         lockpickTime = lockpickTime / 10
     end
     scrapAnim(lockpickTime)
-    QBCore.Functions.Progressbar("repair_advanced", Lang:t('notifications.progress_bar'), lockpickTime, false, true, {
-        disableMovement = true,
-        disableCarMovement = true,
-        disableMouse = false,
-        disableCombat = true,
-    }, {
-        animDict = "mp_car_bomb",
-        anim = "car_bomb_mechanic",
-        flags = 16,
-    }, {}, {}, function() -- Done
+    if lib.progressBar({
+        duration = lockpickTime,
+        label = Lang:t('notifications.progress_bar'),
+        canCancel = true,
+        anim = {
+            dict = 'mp_car_bomb',
+            clip = 'car_bomb_mechanic',
+            flag = 16,
+        }
+    }) then
         openingDoor = false
         ClearPedTasks(cache.ped)
         if part == "body" then
@@ -623,11 +628,11 @@ RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmoun
             TriggerServerEvent("vehiclemod:server:updatePart", plate, part, getVehicleStatus(plate, part) + level)
             TriggerServerEvent("qb-mechanicjob:server:removePart", part, level)
         end
-    end, function() -- Cancel
+    else
         openingDoor = false
         ClearPedTasks(cache.ped)
         QBCore.Functions.Notify(Lang:t('notifications.process_canceled'), "error")
-    end)
+    end
 end)
 
 ---TODO: replace with ox_inventory stash
