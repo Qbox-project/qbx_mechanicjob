@@ -2,7 +2,6 @@ local QBCore = exports['qbx-core']:GetCoreObject()
 local vehicleStatus = {}
 local vehicleDrivingDistance = {}
 
-
 -- Functions
 
 local function isVehicleOwned(plate)
@@ -33,11 +32,7 @@ lib.callback.register('qb-vehicletuning:server:GetDrivingDistances', function()
 end)
 
 lib.callback.register('qb-vehicletuning:server:IsVehicleOwned', function(_, plate)
-    local result = MySQL.scalar.await('SELECT 1 from player_vehicles WHERE plate = ?', {plate})
-    if result then
-        return true
-    end
-    return false
+    return MySQL.scalar.await('SELECT 1 from player_vehicles WHERE plate = ?', {plate})
 end)
 
 lib.callback.register('qb-vehicletuning:server:GetAttachedVehicle', function()
@@ -48,15 +43,14 @@ end)
 
 RegisterNetEvent('qb-vehicletuning:server:SaveVehicleProps', function(vehicleProps)
     if isVehicleOwned(vehicleProps.plate) then
-        MySQL.update('UPDATE player_vehicles SET mods = ? WHERE plate = ?',
-            {json.encode(vehicleProps), vehicleProps.plate})
+        MySQL.update('UPDATE player_vehicles SET mods = ? WHERE plate = ?', {json.encode(vehicleProps), vehicleProps.plate})
     end
 end)
 
 RegisterNetEvent('vehiclemod:server:setupVehicleStatus', function(plate, engineHealth, bodyHealth)
     engineHealth = engineHealth or 1000.0
     bodyHealth = bodyHealth or 1000.0
-        
+
     local statusInfo = vehicleStatus[plate] or getVehicleStatus(plate) or
         {
             engine = engineHealth,
@@ -88,7 +82,7 @@ end)
 
 RegisterNetEvent('vehiclemod:server:updatePart', function(plate, part, level)
     if vehicleStatus[plate] == nil then return end
-    
+
     local maxLevel = (part == "engine" or part == "body") and 1000 or 100
     if level < 0 then
         level = 0
@@ -117,9 +111,7 @@ end)
 
 RegisterNetEvent('vehiclemod:server:saveStatus', function(plate)
     if vehicleStatus[plate] ~= nil then
-        MySQL.update('UPDATE player_vehicles SET status = ? WHERE plate = ?',
-            { json.encode(vehicleStatus[plate]), plate }
-        )
+        MySQL.update('UPDATE player_vehicles SET status = ? WHERE plate = ?', { json.encode(vehicleStatus[plate]), plate })
     end
 end)
 
