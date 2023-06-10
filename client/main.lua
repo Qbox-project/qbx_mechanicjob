@@ -19,7 +19,6 @@ local plateTargetBoxId = 'plateTarget_'
 local dutyTargetBoxId = 'dutyTarget'
 local stashTargetBoxId = 'stashTarget'
 
-
 -- Exports
 
 ---@param plate string
@@ -259,7 +258,7 @@ local function scrapAnim(time)
     openingDoor = true
     CreateThread(function()
         repeat
-            TaskPlayAnim(cache.ped, "mp_car_bomb", "car_bomb_mechanic", 3.0, 3.0, -1, 16, 0, 0, 0, 0)
+            TaskPlayAnim(cache.ped, "mp_car_bomb", "car_bomb_mechanic", 3.0, 3.0, -1, 16, 0, false, false, false)
             Wait(2000)
             time -= 2
             if time <= 0 then
@@ -287,7 +286,7 @@ local function unattachVehicle()
     Wait(150)
     local plate = Config.Plates[closestPlate]
     FreezeEntityPosition(plate.AttachedVehicle, false)
-    SetEntityCoords(plate.AttachedVehicle, plate.coords.x, plate.coords.y, plate.coords.z)
+    SetEntityCoords(plate.AttachedVehicle, plate.coords.x, plate.coords.y, plate.coords.z, false, false, false, false)
     SetEntityHeading(plate.AttachedVehicle, plate.coords.w)
     TaskWarpPedIntoVehicle(cache.ped, plate.AttachedVehicle, -1)
     Wait(500)
@@ -414,10 +413,10 @@ local function spawnListVehicle(model)
         local veh = NetToVeh(netId)
         SetVehicleNumberPlateText(veh, "ACBV"..tostring(math.random(1000, 9999)))
         SetEntityHeading(veh, coords.w)
-        exports['LegacyFuel']:SetFuel(veh, 100.0)
+        SetVehicleFuelLevel(veh, 100.0)
         TaskWarpPedIntoVehicle(cache.ped, veh, -1)
         TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
-        SetVehicleEngineOn(veh, true, true)
+        SetVehicleEngineOn(veh, true, true, false)
     end, model, coords, true)
 end
 
@@ -542,7 +541,7 @@ RegisterNetEvent('vehiclemod:client:fixEverything', function()
     if IsThisModelABicycle(GetEntityModel(veh)) or cache.seat ~= -1 then
         QBCore.Functions.Notify(Lang:t('notifications.wrong_seat'), "error")
     end
-    
+
     local plate = QBCore.Functions.GetPlate(veh)
     TriggerServerEvent("vehiclemod:server:fixEverything", plate)
 end)
@@ -599,7 +598,7 @@ RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmoun
         QBCore.Functions.Notify(Lang:t('notifications.not_part'), "error")
         return
     end
-      
+
     local lockpickTime = (1000 * level)
     if part == "body" then
         lockpickTime = lockpickTime / 10
@@ -693,7 +692,7 @@ local function listenForInteractions()
             DoScreenFadeOut(150)
             Wait(150)
             Config.Plates[closestPlate].AttachedVehicle = veh
-            SetEntityCoords(veh, coords)
+            SetEntityCoords(veh, coords.x, coords.y, coords.z, false, false, false, false)
             SetEntityHeading(veh, coords.w)
             FreezeEntityPosition(veh, true)
             Wait(500)
