@@ -1,22 +1,23 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'QB-MechanicJob'
-version '2.0.1'
+description 'QBX-MechanicJob'
+version '1.0.0'
 
 shared_scripts {
 	'@qb-core/shared/locale.lua',
 	'locales/en.lua', -- Edit this for your language.
 	'config.lua',
-    '@ox_lib/init.lua',
+	'@ox_lib/init.lua',
 }
 
 client_scripts {
-	'client/main.lua',
-	'client/drivingdistance.lua',
 	'@PolyZone/client.lua',
 	'@PolyZone/BoxZone.lua',
 	'@PolyZone/CircleZone.lua',
+	'client/damage-effects.lua',
+	'client/main.lua',
+	'client/drivingdistance.lua',
 }
 
 server_scripts {
@@ -24,4 +25,6 @@ server_scripts {
 	'server/main.lua'
 }
 
+provide 'qb-mechanicjob'
 lua54 'yes'
+use_experimental_fxv2_oal 'yes'
