@@ -71,8 +71,12 @@ Config.Businesses = {
     "Auto Repair",
 }
 
+Config.AuthorizedIds = {
+    'citizenid',
+}
+
 ---@alias Plate {coords: vector4, boxData: {heading: number, length: number, width: number, debugPoly: boolean}, AttachedVehicle: number?}
----@type Plate[] 
+---@type Plate[]
 Config.Plates = {
     {
         coords = vector4(-340.95, -128.24, 39, 160.0),
