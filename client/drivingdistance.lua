@@ -82,7 +82,7 @@ end
 local function trackDistance()
     local ped = cache.ped
     local veh = cache.vehicle
- 
+
     if not veh then
         vehicleMeters = -1
         checkDone = false
@@ -94,7 +94,7 @@ local function trackDistance()
     local isDriver = cache.seat == -1
     local pos = GetEntityCoords(ped)
     local plate = trim(GetVehicleNumberPlateText(veh))
-    
+
     if not plate then
         Wait(2000)
         return
@@ -104,7 +104,7 @@ local function trackDistance()
         if not checkDone then
             if vehicleMeters == -1 then
                 checkDone = true
-                QBCore.Functions.TriggerCallback('qb-vehicletuning:server:IsVehicleOwned', function(IsOwned)
+                lib.callback('qb-vehicletuning:server:IsVehicleOwned', false, function(IsOwned)
                     if not DrivingDistance[plate] then
                         DrivingDistance[plate] = IsOwned and 0 or math.random(111111, 999999)
                     end
