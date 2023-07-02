@@ -145,34 +145,46 @@ end)
 
 -- Commands
 
-QBCore.Commands.Add("setvehiclestatus", "Set Vehicle Status", {{
-    name = "part",
-    help = "Type The Part You Want To Edit"
-}, {
-    name = "amount",
-    help = "The Percentage Fixed"
-}}, true, function(source, args)
-    local part = args[1]:lower()
-    local level = tonumber(args[2])
+lib.addCommand('setvehiclestatus', {
+    help = 'Set Vehicle Status',
+    params = {
+        {
+            name = 'part',
+            type = 'string',
+            help = 'Type The Part You Want To Edit',
+        },
+        {
+            name = 'amount',
+            type = 'number',
+            help = 'The Percentage Fixed',
+        },
+    },
+    restricted = 'group.god'
+}, function(source, args)
+    local part = args.part:lower()
+    local level = args.amount
     TriggerClientEvent("vehiclemod:client:setPartLevel", source, part, level)
-end, "god")
+end)
 
-QBCore.Commands.Add("setmechanic", "Give Someone The Mechanic job", {{
-    name = "id",
-    help = "ID Of The Player"
-}}, false, function(source, args)
+lib.addCommand('setmechanic', {
+    help = 'Give Someone The Mechanic job',
+    params = {
+        {
+            name = 'target',
+            type = 'playerId',
+            help = 'ID Of The Player',
+        },
+    },
+}, function(source, args)
     local Player = QBCore.Functions.GetPlayer(source)
 
     if isAuthorized(Player.PlayerData.citizenid) then
-        local TargetId = tonumber(args[1])
-        if TargetId ~= nil then
-            local TargetData = QBCore.Functions.GetPlayer(TargetId)
-            if TargetData ~= nil then
-                TargetData.Functions.SetJob("mechanic")
-                TriggerClientEvent('QBCore:Notify', TargetData.PlayerData.source,
-                    "You Were Hired As An Autocare Employee!")
-                TriggerClientEvent('QBCore:Notify', source, "You have (" .. TargetData.PlayerData.charinfo.firstname ..
-                    ") Hired As An Autocare Employee!")
+        if args.target then
+            local targetData = QBCore.Functions.GetPlayer(args.target)
+            if targetData then
+                targetData.Functions.SetJob("mechanic")
+                TriggerClientEvent('QBCore:Notify', targetData.PlayerData.source, "You Were Hired As An Autocare Employee!")
+                TriggerClientEvent('QBCore:Notify', source, "You have (" .. targetData.PlayerData.charinfo.firstname .. ") Hired As An Autocare Employee!")
             end
         else
             TriggerClientEvent('QBCore:Notify', source, "You Must Provide A Player ID!")
@@ -182,23 +194,26 @@ QBCore.Commands.Add("setmechanic", "Give Someone The Mechanic job", {{
     end
 end)
 
-QBCore.Commands.Add("firemechanic", "Fire A Mechanic", {{
-    name = "id",
-    help = "ID Of The Player"
-}}, false, function(source, args)
+lib.addCommand('firemechanic', {
+    help = 'Fire A Mechanic',
+    params = {
+        {
+            name = 'target',
+            type = 'playerId',
+            help = 'ID Of The Player',
+        },
+    },
+}, function(source, args)
     local Player = QBCore.Functions.GetPlayer(source)
 
     if isAuthorized(Player.PlayerData.citizenid) then
-        local TargetId = tonumber(args[1])
-        if TargetId ~= nil then
-            local TargetData = QBCore.Functions.GetPlayer(TargetId)
-            if TargetData ~= nil then
+        if args.target then
+            local TargetData = QBCore.Functions.GetPlayer(args.target)
+            if TargetData then
                 if TargetData.PlayerData.job.name == "mechanic" then
                     TargetData.Functions.SetJob("unemployed")
-                    TriggerClientEvent('QBCore:Notify', TargetData.PlayerData.source,
-                        "You Were Fired As An Autocare Employee!")
-                    TriggerClientEvent('QBCore:Notify', source,
-                        "You have (" .. TargetData.PlayerData.charinfo.firstname .. ") Fired As Autocare Employee!")
+                    TriggerClientEvent('QBCore:Notify', TargetData.PlayerData.source,  "You Were Fired As An Autocare Employee!")
+                    TriggerClientEvent('QBCore:Notify', source, "You have (" .. TargetData.PlayerData.charinfo.firstname .. ") Fired As Autocare Employee!")
                 else
                     TriggerClientEvent('QBCore:Notify', source, "Youre Not An Employee of Autocare!", "error")
                 end
