@@ -180,11 +180,11 @@ lib.addCommand('setmechanic', {
 
     if isAuthorized(Player.PlayerData.citizenid) then
         if args.target then
-            local TargetData = QBCore.Functions.GetPlayer(args.target)
-            if TargetData then
-                TargetData.Functions.SetJob("mechanic")
-                TriggerClientEvent('QBCore:Notify', TargetData.PlayerData.source, "You Were Hired As An Autocare Employee!")
-                TriggerClientEvent('QBCore:Notify', source, "You have (" .. TargetData.PlayerData.charinfo.firstname .. ") Hired As An Autocare Employee!")
+            local targetData = QBCore.Functions.GetPlayer(args.target)
+            if targetData then
+                targetData.Functions.SetJob("mechanic")
+                TriggerClientEvent('QBCore:Notify', targetData.PlayerData.source, "You Were Hired As An Autocare Employee!")
+                TriggerClientEvent('QBCore:Notify', source, "You have (" .. targetData.PlayerData.charinfo.firstname .. ") Hired As An Autocare Employee!")
             end
         else
             TriggerClientEvent('QBCore:Notify', source, "You Must Provide A Player ID!")
