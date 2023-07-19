@@ -26,6 +26,10 @@ server_scripts {
 	'server/main.lua'
 }
 
+dependencies {
+    'ox_inventory',
+}
+
 provide 'qb-mechanicjob'
 lua54 'yes'
 use_experimental_fxv2_oal 'yes'
