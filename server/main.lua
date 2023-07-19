@@ -1,6 +1,15 @@
 local QBCore = exports['qbx-core']:GetCoreObject()
 local vehicleStatus = {}
 local vehicleDrivingDistance = {}
+local stash = {
+    id = 'mechanicstash',
+    label = Lang:t('labels.stash'),
+    slots = 500,
+    weight = 4000000,
+    owner = false,
+    groups = {["mechanic"] = 0},
+    coords = Config.Locations['stash']
+}
 
 -- Functions
 
@@ -40,6 +49,12 @@ lib.callback.register('qb-vehicletuning:server:GetAttachedVehicle', function()
 end)
 
 -- Events
+
+RegisterNetEvent('onResourceStart', function(resourceName)
+    if resourceName == 'ox_inventory' or resourceName == GetCurrentResourceName() then
+        exports.ox_inventory:RegisterStash(stash.id, stash.label, stash.slots, stash.weight, stash.owner, stash.groups, stash.coords)
+    end
+end)
 
 RegisterNetEvent('qb-vehicletuning:server:SaveVehicleProps', function(vehicleProps)
     if isVehicleOwned(vehicleProps.plate) then

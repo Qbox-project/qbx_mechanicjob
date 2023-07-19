@@ -5,6 +5,8 @@ Config = {}
 Config.UseTarget = GetConvar('UseTarget', 'false') == 'true'
 Config.Targets = {}
 
+Config.DebugPoly = false
+
 Config.AttachedVehicle = nil
 
 Config.MaxStatusValues = {
@@ -101,9 +103,9 @@ Config.Plates = {
 }
 
 Config.Locations = {
-    ["exit"] = vector3(-339.04, -135.53, 39),
-    ["duty"] = vector3(-323.39, -129.6, 39.01),
-    ["stash"] = vector3(-319.49, -131.9, 38.98),
+    ["exit"] = vector3(-339.04, -135.53, 39.00),
+    ["duty"] = vector3(-323.30, -128.79, 39.02),
+    ["stash"] = vector3(-319.19, -131.90, 37.98),
     ["vehicle"] = vector4(-370.51, -107.88, 38.35, 72.56),
 }
 

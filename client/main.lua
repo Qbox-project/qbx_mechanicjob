@@ -74,17 +74,18 @@ local function registerDutyTarget()
     local label = onDuty and Lang:t('labels.sign_off') or Lang:t('labels.sign_in')
 
     if Config.UseTarget then
-        exports['qb-target']:AddBoxZone(dutyTargetBoxId, coords, 1.5, 1.5, {
+        exports['qb-target']:AddBoxZone(dutyTargetBoxId, coords, 1.5, 2.5, {
             name = dutyTargetBoxId,
-            heading = 0,
-            debugPoly = false,
+            heading = 338.16,
+            debugPoly = Config.DebugPoly,
             minZ = coords.z - 1.0,
-            maxZ = coords.z + 1.0,
+            maxZ = coords.z,
         }, {
             options = {{
                 type = "server",
                 event = "QBCore:ToggleDuty",
                 label = label,
+                icon = "fa fa-sign-in"
             }},
             distance = 2.0
         })
@@ -94,7 +95,7 @@ local function registerDutyTarget()
         local zone = BoxZone:Create(coords, 1.5, 1.5, {
             name = dutyTargetBoxId,
             heading = 0,
-            debugPoly = false,
+            debugPoly = Config.DebugPoly,
             minZ = coords.z - 1.0,
             maxZ = coords.z + 1.0,
         })
@@ -125,10 +126,10 @@ local function registerStashTarget()
     end
 
     if Config.UseTarget then
-        exports['qb-target']:AddBoxZone(stashTargetBoxId, coords, 1.5, 1.5, {
+        exports['qb-target']:AddBoxZone(stashTargetBoxId, coords, 1.0, 1.5, {
             name = stashTargetBoxId,
-            heading = 0,
-            debugPoly = false,
+            heading = 248.41,
+            debugPoly = Config.DebugPoly,
             minZ = coords.z - 1.0,
             maxZ = coords.z + 1.0,
         }, {
@@ -136,6 +137,7 @@ local function registerStashTarget()
                 type = "client",
                 event = "qb-mechanicjob:client:target:OpenStash",
                 label = Lang:t('labels.o_stash'),
+                icon = 'fa fa-archive'
             }},
             distance = 2.0
         })
@@ -145,7 +147,7 @@ local function registerStashTarget()
         local zone = BoxZone:Create(coords, 1.5, 1.5, {
             name = stashTargetBoxId,
             heading = 0,
-            debugPoly = false,
+            debugPoly = Config.DebugPoly,
             minZ = coords.z - 1.0,
             maxZ = coords.z + 1.0,
         })
@@ -291,7 +293,8 @@ local function unattachVehicle()
     TaskWarpPedIntoVehicle(cache.ped, plate.AttachedVehicle, -1)
     Wait(500)
     DoScreenFadeIn(250)
-    Config.Plates[closestPlate] = nil
+
+    plate.AttachedVehicle = nil
     TriggerServerEvent('qb-vehicletuning:server:SetAttachedVehicle', false, closestPlate)
 
     destroyVehiclePlateZone(closestPlate)
@@ -634,13 +637,8 @@ RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmoun
     end
 end)
 
----TODO: replace with ox_inventory stash
 AddEventHandler('qb-mechanicjob:client:target:OpenStash', function ()
-    TriggerEvent("inventory:client:SetCurrentStash", "mechanicstash")
-    TriggerServerEvent("inventory:server:OpenInventory", "stash", "mechanicstash", {
-        maxweight = 4000000,
-        slots = 500,
-    })
+    exports.ox_inventory:openInventory('stash', {id='mechanicstash'})
 end)
 
 -- Threads
