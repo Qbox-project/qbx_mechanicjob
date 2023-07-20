@@ -307,7 +307,7 @@ local function checkStatus()
 end
 
 local function repairPart(part)
-    TriggerEvent('animations:client:EmoteCommandStart', {"mechanic"})
+    exports.scully_emotemenu:playEmoteByCommand('mechanic')
     if lib.progressBar({
         duration = math.random(5000, 10000),
         label = Lang:t('labels.progress_bar') ..Config.PartLabels[part],
@@ -319,13 +319,13 @@ local function repairPart(part)
             mouse = false,
         }
     }) then
-        TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+        exports.scully_emotemenu:cancelEmote()
         TriggerServerEvent('qb-vehicletuning:server:CheckForItems', part)
         SetTimeout(250, function()
             OpenVehicleStatusMenu()
         end)
     else
-        TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+        exports.scully_emotemenu:cancelEmote()
         QBCore.Functions.Notify(Lang:t('notifications.rep_canceled'), "error")
     end
 end
@@ -392,7 +392,7 @@ function OpenVehicleStatusMenu()
 
     lib.registerContext({
         id = 'vehicleStatus',
-        title = 'Status',
+        title = Lang:t('labels.status'),
         options = options,
     })
 
@@ -414,7 +414,7 @@ local function spawnListVehicle(model)
 
     QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
         local veh = NetToVeh(netId)
-        SetVehicleNumberPlateText(veh, "ACBV"..tostring(math.random(1000, 9999)))
+        SetVehicleNumberPlateText(veh, "MECH"..tostring(math.random(1000, 9999)))
         SetEntityHeading(veh, coords.w)
         SetVehicleFuelLevel(veh, 100.0)
         TaskWarpPedIntoVehicle(cache.ped, veh, -1)
@@ -778,7 +778,7 @@ local function registerVehicleListMenu()
     for k,v in pairs(Config.Vehicles) do
         options[#options+1] = {
             title = v,
-            description = "Vehicle: "..v.."",
+            description = Lang:t('labels.vehicle_title', {value = v}),
             onSelect = function()
                 spawnListVehicle(k)
             end,
@@ -787,7 +787,7 @@ local function registerVehicleListMenu()
 
     lib.registerContext({
         id = 'mechanicVehicles',
-        title = 'Vehicle List',
+        title = Lang:t('labels.vehicle_list'),
         options = options,
     })
 end

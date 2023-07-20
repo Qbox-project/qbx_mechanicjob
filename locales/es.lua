@@ -18,6 +18,9 @@ local Translations = {
         veh_status = 'Estado del vehículo: ',
         job_blip = 'Mecánico de LS Customs',
         stash = 'Almacén de mecánico',
+        status = 'Estado',
+        vehicle_title = "Vehículo: %{value}",
+        vehicle_list = 'Lista de vehículos',
     },
 
     lift_menu = {
