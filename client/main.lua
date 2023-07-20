@@ -310,7 +310,7 @@ local function repairPart(part)
     exports.scully_emotemenu:playEmoteByCommand('mechanic')
     if lib.progressBar({
         duration = math.random(5000, 10000),
-        label = Lang:t('labels.progress_bar') ..Config.PartLabels[part],
+        label = Lang:t('labels.progress_bar') .. string.lower(Config.PartLabels[part]),
         canCancel = true,
         disable = {
             move = true,

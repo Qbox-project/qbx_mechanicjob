@@ -14,7 +14,7 @@ local Translations = {
         g_vehicle = '[E] Obtener vehículo',
         o_menu = '[E] Abrir menú',
         work_v = '[E] Trabajar en el vehículo',
-        progress_bar = 'Reparando...',
+        progress_bar = 'Reparando... ',
         veh_status = 'Estado del vehículo: ',
         job_blip = 'Mecánico de LS Customs',
         stash = 'Almacén de mecánico',
@@ -66,7 +66,7 @@ local Translations = {
         progress_bar = 'Reparando vehículo...',
         process_canceled = 'Proceso cancelado',
         not_part = 'No es una pieza válida',
-        partrep ='¡La %{value} ha sido reparada!',
+        partrep ='El/la %{value} ha sido reparado/a',
     }
 }
 
