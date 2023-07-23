@@ -74,17 +74,18 @@ local function registerDutyTarget()
     local label = onDuty and Lang:t('labels.sign_off') or Lang:t('labels.sign_in')
 
     if Config.UseTarget then
-        exports['qb-target']:AddBoxZone(dutyTargetBoxId, coords, 1.5, 1.5, {
+        exports['qb-target']:AddBoxZone(dutyTargetBoxId, coords, 1.5, 2.5, {
             name = dutyTargetBoxId,
-            heading = 0,
-            debugPoly = false,
+            heading = 338.16,
+            debugPoly = Config.DebugPoly,
             minZ = coords.z - 1.0,
-            maxZ = coords.z + 1.0,
+            maxZ = coords.z,
         }, {
             options = {{
                 type = "server",
                 event = "QBCore:ToggleDuty",
                 label = label,
+                icon = "fa fa-sign-in"
             }},
             distance = 2.0
         })
@@ -94,7 +95,7 @@ local function registerDutyTarget()
         local zone = BoxZone:Create(coords, 1.5, 1.5, {
             name = dutyTargetBoxId,
             heading = 0,
-            debugPoly = false,
+            debugPoly = Config.DebugPoly,
             minZ = coords.z - 1.0,
             maxZ = coords.z + 1.0,
         })
@@ -125,10 +126,10 @@ local function registerStashTarget()
     end
 
     if Config.UseTarget then
-        exports['qb-target']:AddBoxZone(stashTargetBoxId, coords, 1.5, 1.5, {
+        exports['qb-target']:AddBoxZone(stashTargetBoxId, coords, 1.0, 1.5, {
             name = stashTargetBoxId,
-            heading = 0,
-            debugPoly = false,
+            heading = 248.41,
+            debugPoly = Config.DebugPoly,
             minZ = coords.z - 1.0,
             maxZ = coords.z + 1.0,
         }, {
@@ -136,6 +137,7 @@ local function registerStashTarget()
                 type = "client",
                 event = "qb-mechanicjob:client:target:OpenStash",
                 label = Lang:t('labels.o_stash'),
+                icon = 'fa fa-archive'
             }},
             distance = 2.0
         })
@@ -145,7 +147,7 @@ local function registerStashTarget()
         local zone = BoxZone:Create(coords, 1.5, 1.5, {
             name = stashTargetBoxId,
             heading = 0,
-            debugPoly = false,
+            debugPoly = Config.DebugPoly,
             minZ = coords.z - 1.0,
             maxZ = coords.z + 1.0,
         })
@@ -291,7 +293,8 @@ local function unattachVehicle()
     TaskWarpPedIntoVehicle(cache.ped, plate.AttachedVehicle, -1)
     Wait(500)
     DoScreenFadeIn(250)
-    Config.Plates[closestPlate] = nil
+
+    plate.AttachedVehicle = nil
     TriggerServerEvent('qb-vehicletuning:server:SetAttachedVehicle', false, closestPlate)
 
     destroyVehiclePlateZone(closestPlate)
@@ -304,10 +307,10 @@ local function checkStatus()
 end
 
 local function repairPart(part)
-    TriggerEvent('animations:client:EmoteCommandStart', {"mechanic"})
+    exports.scully_emotemenu:playEmoteByCommand('mechanic')
     if lib.progressBar({
         duration = math.random(5000, 10000),
-        label = Lang:t('labels.progress_bar') ..Config.PartLabels[part],
+        label = Lang:t('labels.progress_bar') .. string.lower(Config.PartLabels[part]),
         canCancel = true,
         disable = {
             move = true,
@@ -316,13 +319,13 @@ local function repairPart(part)
             mouse = false,
         }
     }) then
-        TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+        exports.scully_emotemenu:cancelEmote()
         TriggerServerEvent('qb-vehicletuning:server:CheckForItems', part)
         SetTimeout(250, function()
             OpenVehicleStatusMenu()
         end)
     else
-        TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+        exports.scully_emotemenu:cancelEmote()
         QBCore.Functions.Notify(Lang:t('notifications.rep_canceled'), "error")
     end
 end
@@ -389,7 +392,7 @@ function OpenVehicleStatusMenu()
 
     lib.registerContext({
         id = 'vehicleStatus',
-        title = 'Status',
+        title = Lang:t('labels.status'),
         options = options,
     })
 
@@ -411,7 +414,7 @@ local function spawnListVehicle(model)
 
     QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
         local veh = NetToVeh(netId)
-        SetVehicleNumberPlateText(veh, "ACBV"..tostring(math.random(1000, 9999)))
+        SetVehicleNumberPlateText(veh, "MECH"..tostring(math.random(1000, 9999)))
         SetEntityHeading(veh, coords.w)
         SetVehicleFuelLevel(veh, 100.0)
         TaskWarpPedIntoVehicle(cache.ped, veh, -1)
@@ -634,13 +637,8 @@ RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmoun
     end
 end)
 
----TODO: replace with ox_inventory stash
 AddEventHandler('qb-mechanicjob:client:target:OpenStash', function ()
-    TriggerEvent("inventory:client:SetCurrentStash", "mechanicstash")
-    TriggerServerEvent("inventory:server:OpenInventory", "stash", "mechanicstash", {
-        maxweight = 4000000,
-        slots = 500,
-    })
+    exports.ox_inventory:openInventory('stash', {id='mechanicstash'})
 end)
 
 -- Threads
@@ -708,16 +706,15 @@ local function listenForInteractions()
 end
 
 local function createBlip()
-    local Blip = AddBlipForCoord(Config.Locations.exit.x, Config.Locations.exit.y, Config.Locations.exit.z)
-    SetBlipSprite (Blip, 446)
-    SetBlipDisplay(Blip, 4)
-    SetBlipScale  (Blip, 0.7)
-    SetBlipAsShortRange(Blip, true)
-    SetBlipColour(Blip, 0)
-    SetBlipAlpha(Blip, 0.7)
+    local blip = AddBlipForCoord(Config.Locations.exit.x, Config.Locations.exit.y, Config.Locations.exit.z)
+    SetBlipSprite(blip, 446)
+    SetBlipDisplay(blip, 4)
+    SetBlipScale(blip, 0.7)
+    SetBlipColour(blip, 0)
+    SetBlipAsShortRange(blip, true)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentSubstringPlayerName(Lang:t('labels.job_blip'))
-    EndTextCommandSetBlipName(Blip)
+    AddTextComponentString(Lang:t('labels.job_blip'))
+    EndTextCommandSetBlipName(blip)
 end
 
 CreateThread(function()
@@ -781,7 +778,7 @@ local function registerVehicleListMenu()
     for k,v in pairs(Config.Vehicles) do
         options[#options+1] = {
             title = v,
-            description = "Vehicle: "..v.."",
+            description = Lang:t('labels.vehicle_title', {value = v}),
             onSelect = function()
                 spawnListVehicle(k)
             end,
@@ -790,7 +787,7 @@ local function registerVehicleListMenu()
 
     lib.registerContext({
         id = 'mechanicVehicles',
-        title = 'Vehicle List',
+        title = Lang:t('labels.vehicle_list'),
         options = options,
     })
 end

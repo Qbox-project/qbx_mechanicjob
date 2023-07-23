@@ -1,6 +1,16 @@
 local QBCore = exports['qbx-core']:GetCoreObject()
 local vehicleStatus = {}
 local vehicleDrivingDistance = {}
+local stash = {
+    id = 'mechanicstash',
+    label = Lang:t('labels.stash'),
+    slots = 500,
+    weight = 4000000,
+    owner = false,
+    groups = {['mechanic'] = 0},
+    coords = Config.Locations['stash']
+}
+exports.ox_inventory:RegisterStash(stash.id, stash.label, stash.slots, stash.weight, stash.owner, stash.groups, stash.coords)
 
 -- Functions
 

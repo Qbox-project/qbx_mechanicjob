@@ -17,6 +17,10 @@ local Translations = {
         progress_bar = 'Repairing...',
         veh_status = 'Vehicle Status:',
         job_blip = 'Autocare Mechanic',
+        stash = 'Mechanic Stash',
+        status = 'Status',
+        vehicle_title = "Vehicle: %{value}",
+        vehicle_list = 'Vehicle List',
     },
 
     lift_menu = {
@@ -66,7 +70,7 @@ local Translations = {
     }
 }
 
-Lang = Locale:new({
+Lang = Lang or Locale:new({
     phrases = Translations,
     warnOnMissing = true
 })
