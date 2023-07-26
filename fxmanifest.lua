@@ -18,7 +18,6 @@ client_scripts {
     '@PolyZone/CircleZone.lua',
     'client/damage-effects.lua',
     'client/main.lua',
-    'client/drivingdistance.lua',
 }
 
 server_scripts {
