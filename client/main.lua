@@ -412,15 +412,19 @@ local function spawnListVehicle(model)
         w = Config.Locations.vehicle.w,
     }
 
-    QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
-        local veh = NetToVeh(netId)
-        SetVehicleNumberPlateText(veh, "MECH"..tostring(math.random(1000, 9999)))
-        SetEntityHeading(veh, coords.w)
-        SetVehicleFuelLevel(veh, 100.0)
-        TaskWarpPedIntoVehicle(cache.ped, veh, -1)
-        TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
-        SetVehicleEngineOn(veh, true, true, false)
-    end, model, coords, true)
+    local netId = lib.callback.await('qbx-mechanicjob:server:spawnVehicle', false, model, coords, true)
+    local timeout = 100
+    while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
+        Wait(10)
+        timeout -= 1
+    end
+    local veh = NetworkGetEntityFromNetworkId(netId)
+    SetVehicleNumberPlateText(veh, "MECH"..tostring(math.random(1000, 9999)))
+    SetEntityHeading(veh, coords.w)
+    SetVehicleFuelLevel(veh, 100.0)
+    TaskWarpPedIntoVehicle(cache.ped, veh, -1)
+    TriggerEvent("vehiclekeys:client:SetOwner", GetPlate(veh))
+    SetVehicleEngineOn(veh, true, true, false)
 end
 
 -- Events
