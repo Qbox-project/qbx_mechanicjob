@@ -49,6 +49,11 @@ lib.callback.register('qb-vehicletuning:server:GetAttachedVehicle', function()
     return Config.Plates
 end)
 
+lib.callback.register('qbx-mechanicjob:server:spawnVehicle', function(source, vehicleName, vehicleCoords)
+	local netId = SpawnVehicle(source, vehicleName, vehicleCoords, true)
+	return netId
+end)
+
 -- Events
 
 RegisterNetEvent('qb-vehicletuning:server:SaveVehicleProps', function(vehicleProps)
