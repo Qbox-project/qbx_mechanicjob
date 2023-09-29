@@ -37,7 +37,7 @@ end
 -- Callbacks
 
 lib.callback.register('qb-vehicletuning:server:GetDrivingDistances', function()
-    return VehicleDrivingDistance
+    return vehicleDrivingDistance
 end)
 
 lib.callback.register('qb-vehicletuning:server:IsVehicleOwned', function(_, plate)
