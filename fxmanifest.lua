@@ -1,15 +1,16 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'QBX-MechanicJob'
+description 'qbx_MechanicJob'
 version '1.0.0'
 
 shared_scripts {
-    '@qb-core/shared/locale.lua',
+    '@ox_lib/init.lua',
+    '@qbx_core/import.lua',
+    '@qbx_core/shared/locale.lua',
     'locales/en.lua',
     'locales/*.lua',
     'config.lua',
-    '@ox_lib/init.lua',
 }
 
 client_scripts {
@@ -25,8 +26,9 @@ server_scripts {
     'server/main.lua'
 }
 
-dependencies {
-    'ox_inventory',
+modules {
+    'qbx_core:playerdata',
+    'qbx_core:utils',
 }
 
 provide 'qb-mechanicjob'

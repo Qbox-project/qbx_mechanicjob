@@ -1,12 +1,8 @@
 --- TODO: change qb-target to ox_target
---- TODO: replace notify calls with NotifyV2 calls
 
-QBCore = exports['qbx-core']:GetCoreObject()
 VehicleStatus = {}
 
 local closestPlate = nil
-local playerJob = {}
-local onDuty = false
 local openingDoor = false
 
 -- zone check
@@ -67,11 +63,11 @@ local function registerDutyTarget()
         return
     end
 
-    if playerJob.type ~= 'mechanic' then
+    if QBX.PlayerData.job.type ~= 'mechanic' then
         return
     end
 
-    local label = onDuty and Lang:t('labels.sign_off') or Lang:t('labels.sign_in')
+    local label = QBX.PlayerData.job.onduty and Lang:t('labels.sign_off') or Lang:t('labels.sign_in')
 
     if Config.UseTarget then
         exports['qb-target']:AddBoxZone(dutyTargetBoxId, coords, 1.5, 2.5, {
@@ -101,9 +97,11 @@ local function registerDutyTarget()
         })
         zone:onPlayerInOut(function (isPointInside)
             if isPointInside then
-                exports['qbx-core']:DrawText("[E] " .. label, 'left')
+                lib.showTextUI("[E] " .. label, {
+                    position = 'left'
+                })
             else
-                exports['qbx-core']:HideText()
+                lib.hideTextU()
             end
 
             isInsideDutyZone = isPointInside
@@ -121,7 +119,7 @@ local function registerStashTarget()
         return
     end
 
-    if playerJob.type ~= 'mechanic' then
+    if QBX.PlayerData.job.type ~= 'mechanic' then
         return
     end
 
@@ -153,9 +151,11 @@ local function registerStashTarget()
         })
         zone:onPlayerInOut(function (isPointInside)
             if isPointInside then
-                exports['qbx-core']:DrawText(Lang:t('labels.o_stash'), 'left')
+                lib.showTextUI(Lang:t('labels.o_stash'), {
+                    position = 'left'
+                })
             else
-                exports['qbx-core']:HideText()
+                lib.hideTextU()
             end
 
             isInsideStashZone = isPointInside
@@ -176,15 +176,19 @@ local function registerGarageZone()
     })
 
     vehicleZone:onPlayerInOut(function (isPointInside)
-        if isPointInside and onDuty then
+        if isPointInside and QBX.PlayerData.job.onduty then
             local inVehicle = cache.vehicle
             if inVehicle then
-                exports['qbx-core']:DrawText(Lang:t('labels.h_vehicle'), 'left')
+                lib.showTextUI(Lang:t('labels.h_vehicle'), {
+                    position = 'left'
+                })
             else
-                exports['qbx-core']:DrawText(Lang:t('labels.g_vehicle'), 'left')
+                lib.showTextUI(Lang:t('labels.g_vehicle'), {
+                    position = 'left'
+                })
             end
         else
-            exports['qbx-core']:HideText()
+            lib.hideTextU()
         end
 
         isInsideGarageZone = isPointInside
@@ -212,14 +216,18 @@ local function registerVehiclePlateZone(id, plate)
     plateZones[id] = plateZone
 
     plateZone:onPlayerInOut(function (isPointInside)
-        if isPointInside and onDuty then
+        if isPointInside and QBX.PlayerData.job.onduty then
             if plate.AttachedVehicle then
-                exports['qbx-core']:DrawText(Lang:t('labels.o_menu'), 'left')
+                lib.showTextUI(Lang:t('labels.o_menu'), {
+                    position = 'left'
+                })
             elseif cache.vehicle then
-                exports['qbx-core']:DrawText(Lang:t('labels.work_v'), 'left')
+                lib.showTextUI(Lang:t('labels.work_v'), {
+                    position = 'left'
+                })
             end
         else
-            exports['qbx-core']:HideText()
+            lib.hideTextU()
         end
 
         isInsideVehiclePlateZone = isPointInside
@@ -302,7 +310,7 @@ local function unattachVehicle()
 end
 
 local function checkStatus()
-    local plate = QBCore.Functions.GetPlate(Config.Plates[closestPlate].AttachedVehicle)
+    local plate = GetPlate(Config.Plates[closestPlate].AttachedVehicle)
     sendStatusMessage(VehicleStatus[plate])
 end
 
@@ -326,7 +334,7 @@ local function repairPart(part)
         end)
     else
         exports.scully_emotemenu:cancelEmote()
-        QBCore.Functions.Notify(Lang:t('notifications.rep_canceled'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.rep_canceled'), "error")
     end
 end
 
@@ -354,7 +362,7 @@ local function openPartMenu(data)
 end
 
 function OpenVehicleStatusMenu()
-    local plate = QBCore.Functions.GetPlate(Config.Plates[closestPlate].AttachedVehicle)
+    local plate = GetPlate(Config.Plates[closestPlate].AttachedVehicle)
     if not VehicleStatus[plate] then return end
 
     local options = {}
@@ -412,7 +420,7 @@ local function spawnListVehicle(model)
         w = Config.Locations.vehicle.w,
     }
 
-    local netId = lib.callback.await('qbx-mechanicjob:server:spawnVehicle', false, model, coords, true)
+    local netId = lib.callback.await('qbx_mechanicjob:server:spawnVehicle', false, model, coords, true)
     local timeout = 100
     while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
         Wait(10)
@@ -430,14 +438,9 @@ end
 -- Events
 
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
-    QBCore.Functions.GetPlayerData(function(PlayerData)
-        playerJob = PlayerData.job
-        if PlayerData.job.onduty then
-            if playerJob.type == 'mechanic' then
-                TriggerServerEvent("QBCore:ToggleDuty")
-            end
-        end
-    end)
+    if QBX.PlayerData.job.onduty and QBX.PlayerData.type == 'mechanic' then
+        TriggerServerEvent("QBCore:ToggleDuty")
+    end
     lib.callback('qb-vehicletuning:server:GetAttachedVehicle', false, function(plates)
         for k, v in pairs(plates) do
             Config.Plates[k].AttachedVehicle = v.AttachedVehicle
@@ -449,27 +452,22 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     end)
 end)
 
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function(jobInfo)
-    playerJob = jobInfo
-    onDuty = playerJob.onduty
-
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
     deleteTarget(dutyTargetBoxId)
     deleteTarget(stashTargetBoxId)
     registerDutyTarget()
 
-    if onDuty then
+    if QBX.PlayerData.job.onduty then
         registerStashTarget()
     end
 end)
 
-RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
-    onDuty = duty
-
+RegisterNetEvent('QBCore:Client:SetDuty', function()
     deleteTarget(dutyTargetBoxId)
     deleteTarget(stashTargetBoxId)
     registerDutyTarget()
 
-    if onDuty then
+    if QBX.PlayerData.job.onduty then
         registerStashTarget()
     end
 end)
@@ -484,7 +482,7 @@ end)
 
 RegisterNetEvent('qb-vehicletuning:client:RepaireeePart', function(part)
     local veh = Config.Plates[closestPlate].AttachedVehicle
-    local plate = QBCore.Functions.GetPlate(veh)
+    local plate = GetPlate(veh)
     if part == "engine" then
         SetVehicleEngineHealth(veh, Config.MaxStatusValues[part])
         TriggerServerEvent("vehiclemod:server:updatePart", plate, "engine", Config.MaxStatusValues[part])
@@ -501,7 +499,7 @@ RegisterNetEvent('qb-vehicletuning:client:RepaireeePart', function(part)
     else
         TriggerServerEvent("vehiclemod:server:updatePart", plate, part, Config.MaxStatusValues[part])
     end
-    QBCore.Functions.Notify(Lang:t('notifications.partrep', {value = Config.PartLabels[part]}))
+    exports.qbx_core:Notify(Lang:t('notifications.partrep', {value = Config.PartLabels[part]}))
 end)
 
 RegisterNetEvent('vehiclemod:client:setVehicleStatus', function(plate, status)
@@ -510,28 +508,28 @@ end)
 
 RegisterNetEvent('vehiclemod:client:getVehicleStatus', function()
     if cache.vehicle then
-        QBCore.Functions.Notify(Lang:t('notifications.outside'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.outside'), "error")
         return
     end
     local veh = GetVehiclePedIsIn(cache.ped, true)
     if not veh or veh == 0 then
-        QBCore.Functions.Notify(Lang:t('notifications.veh_first'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.veh_first'), "error")
         return
     end
 
     local vehpos = GetEntityCoords(veh)
     local pos = GetEntityCoords(cache.ped)
     if #(pos - vehpos) >= 5.0 then
-        QBCore.Functions.Notify(Lang:t('notifications.not_close'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.not_close'), "error")
         return
     end
     if IsThisModelABicycle(GetEntityModel(veh)) then
-        QBCore.Functions.Notify(Lang:t('notifications.not_valid'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.not_valid'), "error")
         return
     end
-    local plate = QBCore.Functions.GetPlate(veh)
+    local plate = GetPlate(veh)
     if not VehicleStatus[plate] then
-        QBCore.Functions.Notify(Lang:t('notifications.uknown'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.uknown'), "error")
         return
     end
 
@@ -541,31 +539,31 @@ end)
 RegisterNetEvent('vehiclemod:client:fixEverything', function()
     local veh = cache.vehicle
     if not veh then
-        QBCore.Functions.Notify(Lang:t('notifications.not_vehicle'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.not_vehicle'), "error")
         return
     end
 
     if IsThisModelABicycle(GetEntityModel(veh)) or cache.seat ~= -1 then
-        QBCore.Functions.Notify(Lang:t('notifications.wrong_seat'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.wrong_seat'), "error")
     end
 
-    local plate = QBCore.Functions.GetPlate(veh)
+    local plate = GetPlate(veh)
     TriggerServerEvent("vehiclemod:server:fixEverything", plate)
 end)
 
 RegisterNetEvent('vehiclemod:client:setPartLevel', function(part, level)
     local veh = cache.vehicle
     if not veh then
-        QBCore.Functions.Notify(Lang:t('notifications.not_vehicle'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.not_vehicle'), "error")
         return
     end
 
     if IsThisModelABicycle(GetEntityModel(veh)) or cache.seat ~= -1 then
-        QBCore.Functions.Notify(Lang:t('notifications.wrong_seat'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.wrong_seat'), "error")
         return
     end
 
-    local plate = QBCore.Functions.GetPlate(veh)
+    local plate = GetPlate(veh)
     if part == "engine" then
         SetVehicleEngineHealth(veh, level)
         TriggerServerEvent("vehiclemod:server:updatePart", plate, "engine", GetVehicleEngineHealth(veh))
@@ -581,28 +579,28 @@ RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmoun
 
     -- FIXME: if ped is in a vehicle then we tell them they aren't in a vehicle? Something is wrong here.
     if cache.vehicle then
-        QBCore.Functions.Notify(Lang:t('notifications.not_vehicle'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.not_vehicle'), "error")
         return
     end
     local veh = GetVehiclePedIsIn(cache.ped, true)
     if not veh or veh == 0 then
-        QBCore.Functions.Notify(Lang:t('notifications.veh_first'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.veh_first'), "error")
         return
     end
 
     local vehpos = GetEntityCoords(veh)
     local pos = GetEntityCoords(cache.ped)
     if #(pos - vehpos) >= 5.0 then
-        QBCore.Functions.Notify(Lang:t('notifications.not_close'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.not_close'), "error")
         return
     end
     if IsThisModelABicycle(GetEntityModel(veh)) then
-        QBCore.Functions.Notify(Lang:t('notifications.not_valid'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.not_valid'), "error")
         return
     end
-    local plate = QBCore.Functions.GetPlate(veh)
+    local plate = GetPlate(veh)
     if not VehicleStatus[plate] or not VehicleStatus[plate][part] then
-        QBCore.Functions.Notify(Lang:t('notifications.not_part'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.not_part'), "error")
         return
     end
 
@@ -637,7 +635,7 @@ RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmoun
     else
         openingDoor = false
         ClearPedTasks(cache.ped)
-        QBCore.Functions.Notify(Lang:t('notifications.process_canceled'), "error")
+        exports.qbx_core:Notify(Lang:t('notifications.process_canceled'), "error")
     end
 end)
 
@@ -649,7 +647,7 @@ end)
 
 local function listenForInteractions()
     local wait = 500
-    if playerJob.type ~= 'mechanic' then return wait end
+    if QBX.PlayerData.job.type ~= 'mechanic' then return wait end
     local veh = cache.vehicle
 
     if isInsideDutyZone then
@@ -659,7 +657,7 @@ local function listenForInteractions()
         end
     end
 
-    if not onDuty then return wait end
+    if not QBX.PlayerData.job.onduty then return wait end
 
     if isInsideStashZone then
         wait = 0
@@ -673,10 +671,10 @@ local function listenForInteractions()
         if IsControlJustPressed(0, 38) then
             if veh then
                 DeleteVehicle(veh)
-                exports['qbx-core']:HideText()
+                lib.hideTextU()
             else
                 lib.showContext('mechanicVehicles')
-                exports['qbx-core']:HideText()
+                lib.hideTextU()
             end
         end
     end
@@ -687,7 +685,7 @@ local function listenForInteractions()
         local coords = Config.Plates[closestPlate].coords
         if attachedVehicle then
             if IsControlJustPressed(0, 38) then
-                exports['qbx-core']:HideText()
+                lib.hideTextUI()
                 lib.showContext('lift')
             end
         elseif IsControlJustPressed(0, 38) and veh then
