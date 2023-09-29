@@ -1,4 +1,3 @@
-local QBCore = exports['qbx-core']:GetCoreObject()
 local vehicleStatus = {}
 local vehicleDrivingDistance = {}
 local stash = {
@@ -38,7 +37,7 @@ end
 -- Callbacks
 
 lib.callback.register('qb-vehicletuning:server:GetDrivingDistances', function()
-    return VehicleDrivingDistance
+    return vehicleDrivingDistance
 end)
 
 lib.callback.register('qb-vehicletuning:server:IsVehicleOwned', function(_, plate)
@@ -49,7 +48,7 @@ lib.callback.register('qb-vehicletuning:server:GetAttachedVehicle', function()
     return Config.Plates
 end)
 
-lib.callback.register('qbx-mechanicjob:server:spawnVehicle', function(source, vehicleName, vehicleCoords)
+lib.callback.register('qbx_mechanicjob:server:spawnVehicle', function(source, vehicleName, vehicleCoords)
 	local netId = SpawnVehicle(source, vehicleName, vehicleCoords, true)
 	return netId
 end)
@@ -137,7 +136,7 @@ end)
 
 RegisterNetEvent('qb-vehicletuning:server:CheckForItems', function(part)
     local src = source
-    local player = QBCore.Functions.GetPlayer(src)
+    local player = exports.qbx_core:GetPlayer(src)
     local itemName = Config.RepairCostAmount[part].item
     local amountRequired = Config.RepairCostAmount[part].costs
     local amount = exports.ox_inventory:Search(src, 'count', itemName)
@@ -153,7 +152,7 @@ RegisterNetEvent('qb-vehicletuning:server:CheckForItems', function(part)
 end)
 
 RegisterNetEvent('qb-mechanicjob:server:removePart', function(part, amount)
-    local player = QBCore.Functions.GetPlayer(source)
+    local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
     player.Functions.RemoveItem(Config.RepairCost[part], amount)
 end)
@@ -191,11 +190,11 @@ lib.addCommand('setmechanic', {
         },
     },
 }, function(source, args)
-    local Player = QBCore.Functions.GetPlayer(source)
+    local Player = exports.qbx_core:GetPlayer(source)
 
     if isAuthorized(Player.PlayerData.citizenid) then
         if args.target then
-            local targetData = QBCore.Functions.GetPlayer(args.target)
+            local targetData = exports.qbx_core:GetPlayer(args.target)
             if targetData then
                 targetData.Functions.SetJob("mechanic")
                 TriggerClientEvent('QBCore:Notify', targetData.PlayerData.source, "You Were Hired As An Autocare Employee!")
@@ -219,11 +218,11 @@ lib.addCommand('firemechanic', {
         },
     },
 }, function(source, args)
-    local Player = QBCore.Functions.GetPlayer(source)
+    local Player = exports.qbx_core:GetPlayer(source)
 
     if isAuthorized(Player.PlayerData.citizenid) then
         if args.target then
-            local TargetData = QBCore.Functions.GetPlayer(args.target)
+            local TargetData = exports.qbx_core:GetPlayer(args.target)
             if TargetData then
                 if TargetData.PlayerData.job.name == "mechanic" then
                     TargetData.Functions.SetJob("unemployed")

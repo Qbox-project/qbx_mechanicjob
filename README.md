@@ -20,6 +20,6 @@ Mechanic Job for Qbox Framework
 - Import `qb-.sql` in your database
 - Add the following code to your server.cfg/resouces.cfg
 ```
-ensure qbx-core
-ensure qbx-mechanicjob
+ensure qbx_core
+ensure qbx_mechanicjob
 ```

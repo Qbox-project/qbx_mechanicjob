@@ -153,7 +153,7 @@ local function leakFuel(vehicle, plate)
 end
 
 local function applyEffects(vehicle)
-    local plate = QBCore.Functions.GetPlate(vehicle)
+    local plate = GetPlate(vehicle)
     local class = GetVehicleClass(vehicle)
     if class == 13 or class == 21 or class == 16 or class == 15 or class == 14 then return end
     if not VehicleStatus[plate] then return end
@@ -188,7 +188,7 @@ function UpdatePartHealth()
     end
     local engineHealth = GetVehicleEngineHealth(veh)
     local bodyHealth = GetVehicleBodyHealth(veh)
-    local plate = QBCore.Functions.GetPlate(veh)
+    local plate = GetPlate(veh)
     if not VehicleStatus[plate] then
         TriggerServerEvent("vehiclemod:server:setupVehicleStatus", plate, engineHealth, bodyHealth)
     else
