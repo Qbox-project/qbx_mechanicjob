@@ -449,9 +449,6 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
     deleteTarget(stashTargetBoxId)
     registerDutyTarget()
 
-    if QBX.PlayerData.job.onduty then
-        registerStashTarget()
-    end
 end)
 
 RegisterNetEvent('QBCore:Client:SetDuty', function()
