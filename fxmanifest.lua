@@ -3,7 +3,7 @@ game 'gta5'
 
 description 'QBX_MechanicJob'
 repository 'https://github.com/Qbox-project/qbx_mechanicjob'
-version '1.0.0'
+version '1.0.1'
 
 shared_scripts {
     '@ox_lib/init.lua',
@@ -16,9 +16,6 @@ shared_scripts {
 
 client_scripts {
     '@qbx_core/modules/playerdata.lua',
-    '@PolyZone/client.lua',
-    '@PolyZone/BoxZone.lua',
-    '@PolyZone/CircleZone.lua',
     'client/damage-effects.lua',
     'client/main.lua',
 }
