@@ -3,7 +3,7 @@ game 'gta5'
 
 description 'QBX_MechanicJob'
 repository 'https://github.com/Qbox-project/qbx_mechanicjob'
-version '1.0.1'
+version '1.0.0'
 
 shared_scripts {
     '@ox_lib/init.lua',
