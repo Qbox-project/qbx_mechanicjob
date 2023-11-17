@@ -1,7 +1,7 @@
 Config = {}
 
 -- **** IMPORTANT ****
-Config.UseTarget = true
+Config.UseTarget = false
 
 Config.Targets = {}
 
