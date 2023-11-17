@@ -11,7 +11,6 @@ local isInsideStashZone = false
 local isInsideGarageZone = false
 local isInsideVehiclePlateZone = false
 local plateZones = {}
-local plateTargetBoxId = 'plateTarget_'
 local dutyTargetBoxId = 'dutyTarget'
 local stashTargetBoxId = 'stashTarget'
 
