@@ -81,39 +81,34 @@ Config.AuthorizedIds = {
 ---@type Plate[]
 Config.Plates = {
     {
-        coords = vector4(-340.95, -128.24, 39, 160.0),
+        coords = vec4(-340.95, -128.24, 39, 160.0),
         boxData = {
-            heading = 340,
-            length = 5,
-            width = 2.5,
-            debugPoly = false
+            size = vec3(2.15, 5.2, 3.7),
+            rotation = 340.0,
         },
         AttachedVehicle = nil,
     },
     {
         coords = vector4(-327.91, -144.34, 38.86, 70.34),
         boxData = {
-            heading = 249,
-            length = 6.5,
-            width = 5,
-            debugPoly = false
+            size = vec3(3.1, 5.15, 2.4),
+            rotation = 250.0,
         },
         AttachedVehicle = nil,
     },
 }
 
 Config.Locations = {
-    exit = vector3(-339.04, -135.53, 39.00),
-    duty = vector3(-323.30, -128.79, 39.02),
-    stash = vector3(-319.19, -131.90, 37.98),
-    vehicle = vector4(-370.51, -107.88, 38.35, 72.56),
+    exit = vec3(-339.04, -135.53, 39.00),
+    duty = vec3(-323.5, -129.25, 38.85),
+    stash = vec3(-319.05, -131.9, 38.6),
+    vehicle = vec4(-370.51, -107.88, 38.35, 72.56),
 }
 
-Config.Vehicles = {
-    ["flatbed"] = "Flatbed",
-    ["towtruck"] = "Towtruck",
-    ["minivan"] = "Minivan (Rental Car)",
-    ["blista"] = "Blista",
+Config.LocationsSize = {
+    duty = vec3(0.95, 1.25, 1.8),
+    stash = vec3(1.1, 1.65, 1.4),
+    vehicle = vec3(12.5, 5.5, 4.1),
 }
 
 ---@alias Range {min: integer, max: integer}
