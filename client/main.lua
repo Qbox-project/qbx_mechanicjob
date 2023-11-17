@@ -164,24 +164,25 @@ local function registerGarageZone()
         size = size,
         rotation = 339.75,
         debug = Config.DebugPoly,
+            
         onEnter = function()
-            if QBX.PlayerData.job.onduty then
-               -- local inVehicle = cache.vehicle
-                 if cache.vehicle then
-                    lib.showTextUI(Lang:t('labels.h_vehicle'), { position = 'left-center' })
-                 else
-                    lib.showTextUI(Lang:t('labels.g_vehicle'), { position = 'left-center' })
-                 end
-                 isInsideGarageZone = true
-            end
+        local onDuty = QBX.PlayerData.job.onduty
+              if not onDuty then return end
+              if cache.vehicle then
+                lib.showTextUI(Lang:t('labels.h_vehicle'), { position = 'left-center' })
+              else
+                lib.showTextUI(Lang:t('labels.g_vehicle'), { position = 'left-center' })
+              end
+            isInsideGarageZone = true
+              return onDuty
         end,
+            
         onExit = function()
             lib.hideTextUI()
             isInsideGarageZone = false
         end
     })
 end
-
 
 local function destroyVehiclePlateZone(id)
     if plateZones[id] then
@@ -199,20 +200,20 @@ local function registerVehiclePlateZone(id, plate)
         size = boxData.size,
         rotation = boxData.rotation,
         debug = Config.DebugPoly,
+            
         onEnter = function()
-            if QBX.PlayerData.job.onduty then
-               if plate.AttachedVehicle then
-                lib.showTextUI(Lang:t('labels.o_menu'), {
-                    position = 'left'
-                })
-                elseif cache.vehicle then
-                lib.showTextUI(Lang:t('labels.work_v'), {
-                    position = 'left'
-                })
-                end
-                isInsideVehiclePlateZone = true
+            local onDuty = QBX.PlayerData.job.onduty
+            if not onDuty then return end
+                
+            if plate.AttachedVehicle then
+            lib.showTextUI(Lang:t('labels.o_menu'), {position = 'left'})
+            elseif cache.vehicle then
+            lib.showTextUI(Lang:t('labels.work_v'), {position = 'left'})
             end
+            isInsideVehiclePlateZone = true
+            return onDuty
         end,
+            
         onExit = function()
             lib.hideTextUI()
             isInsideVehiclePlateZone = false
