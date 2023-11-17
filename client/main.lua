@@ -48,7 +48,7 @@ local function deleteTarget(id)
         exports.ox_target:removeZone(id)
     else
         if Config.Targets[id] and Config.Targets[id].zone then
-            Config.Targets[id].zone:destroy()
+            Config.Targets[id].zone:remove()
         end
     end
 
