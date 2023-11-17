@@ -41,11 +41,11 @@ exports('SetVehicleStatus', setVehicleStatus)
 
 
 -- Functions
-
+ 
 ---@param id string
 local function deleteTarget(id)
     if Config.UseTarget then
-        exports['qb-target']:RemoveZone(id)
+        exports.ox_target:removeZone(id)
     else
         if Config.Targets[id] and Config.Targets[id].zone then
             Config.Targets[id].zone:destroy()
@@ -57,6 +57,7 @@ end
 
 local function registerDutyTarget()
     local coords = Config.Locations.duty
+    local size = Config.LocationsSize.duty
     local boxData = Config.Targets[dutyTargetBoxId] or {}
 
     if boxData and boxData.created then
@@ -70,42 +71,38 @@ local function registerDutyTarget()
     local label = QBX.PlayerData.job.onduty and Lang:t('labels.sign_off') or Lang:t('labels.sign_in')
 
     if Config.UseTarget then
-        exports['qb-target']:AddBoxZone(dutyTargetBoxId, coords, 1.5, 2.5, {
+
+        exports.ox_target:addBoxZone({
             name = dutyTargetBoxId,
-            heading = 338.16,
-            debugPoly = Config.DebugPoly,
-            minZ = coords.z - 1.0,
-            maxZ = coords.z,
-        }, {
-            options = {{
-                type = "server",
-                event = "QBCore:ToggleDuty",
-                label = label,
-                icon = "fa fa-sign-in"
-            }},
-            distance = 2.0
+            coords = coords,
+            size = size,
+            rotation = 341.0,
+            debug = Config.DebugPoly,
+            options = {
+                {
+                    serverEvent = "QBCore:ToggleDuty",
+                    label = label,
+                    icon = "fa fa-sign-in"
+                }
+            }
         })
 
         Config.Targets[dutyTargetBoxId] = {created = true}
-    else
-        local zone = BoxZone:Create(coords, 1.5, 1.5, {
-            name = dutyTargetBoxId,
-            heading = 0,
-            debugPoly = Config.DebugPoly,
-            minZ = coords.z - 1.0,
-            maxZ = coords.z + 1.0,
-        })
-        zone:onPlayerInOut(function (isPointInside)
-            if isPointInside then
-                lib.showTextUI("[E] " .. label, {
-                    position = 'left'
-                })
-            else
-                lib.hideTextU()
+    else    
+        lib.zones.box({
+            coords = coords,
+            size = size,
+            rotation = 341.0,
+            debug = Config.DebugPoly,
+            onEnter = function()
+                isInsideDutyZone = true
+                lib.showTextUI('[E] ' .. label, { position = 'left-center' })
+            end,
+            onExit = function()
+                lib.hideTextUI()
+                isInsideDutyZone = false
             end
-
-            isInsideDutyZone = isPointInside
-        end)
+        })
 
         Config.Targets[dutyTargetBoxId] = {created = true, zone = zone}
     end
@@ -113,91 +110,83 @@ end
 
 local function registerStashTarget()
     local coords = Config.Locations.stash
+    local size = Config.LocationsSize.stash
     local boxData = Config.Targets[stashTargetBoxId] or {}
 
-    if boxData and boxData.created then
-        return
-    end
+    if boxData and boxData.created then return end
 
-    if QBX.PlayerData.job.type ~= 'mechanic' then
-        return
-    end
+    if QBX.PlayerData.job.name ~= 'mechanic' then return end
 
     if Config.UseTarget then
-        exports['qb-target']:AddBoxZone(stashTargetBoxId, coords, 1.0, 1.5, {
-            name = stashTargetBoxId,
-            heading = 248.41,
-            debugPoly = Config.DebugPoly,
-            minZ = coords.z - 1.0,
-            maxZ = coords.z + 1.0,
-        }, {
-            options = {{
-                type = "client",
-                event = "qb-mechanicjob:client:target:OpenStash",
-                label = Lang:t('labels.o_stash'),
-                icon = 'fa fa-archive'
-            }},
-            distance = 2.0
+        exports.ox_target:addBoxZone({
+            name = "stash",
+            coords = coords,
+            size = size,
+            rotation = 340.75,
+            debug = Config.DebugPoly,
+            drawSprite = true,
+            options = {
+                {
+                    event = "qb-mechanicjob:client:target:OpenStash",
+                    label = Lang:t('labels.o_stash'),
+                    icon = 'fa fa-archive',
+                    groups = 'mechanic',
+                    distance = 2.0
+                }
+            }
         })
 
         Config.Targets[stashTargetBoxId] = {created = true}
     else
-        local zone = BoxZone:Create(coords, 1.5, 1.5, {
-            name = stashTargetBoxId,
-            heading = 0,
-            debugPoly = Config.DebugPoly,
-            minZ = coords.z - 1.0,
-            maxZ = coords.z + 1.0,
-        })
-        zone:onPlayerInOut(function (isPointInside)
-            if isPointInside then
-                lib.showTextUI(Lang:t('labels.o_stash'), {
-                    position = 'left'
-                })
-            else
-                lib.hideTextU()
+        lib.zones.box({
+            coords = coords,
+            size = size,
+            rotation = 340.75,
+            debug = Config.DebugPoly,
+            onEnter = function()
+                isInsideStashZone = true
+                lib.showTextUI('[E] ' .. Lang:t('labels.o_stash'), { position = 'left-center' })
+            end,
+            onExit = function()
+                lib.hideTextUI()
+                isInsideStashZone = false
             end
-
-            isInsideStashZone = isPointInside
-        end)
-
+        })
         Config.Targets[stashTargetBoxId] = {created = true, zone = zone}
     end
 end
 
 local function registerGarageZone()
     local coords = Config.Locations.vehicle
-    local vehicleZone = BoxZone:Create(coords.xyz, 5, 15, {
-        name = 'vehicleZone',
-        heading = 340.0,
-        minZ = coords.z - 1.0,
-        maxZ = coords.z + 5.0,
-        debugPoly = false
-    })
+    local size = Config.LocationsSize.vehicle
 
-    vehicleZone:onPlayerInOut(function (isPointInside)
-        if isPointInside and QBX.PlayerData.job.onduty then
-            local inVehicle = cache.vehicle
-            if inVehicle then
-                lib.showTextUI(Lang:t('labels.h_vehicle'), {
-                    position = 'left'
-                })
-            else
-                lib.showTextUI(Lang:t('labels.g_vehicle'), {
-                    position = 'left'
-                })
+    lib.zones.box({
+        coords = coords,
+        size = size,
+        rotation = 339.75,
+        debug = Config.DebugPoly,
+        onEnter = function()
+            if QBX.PlayerData.job.onduty then
+               -- local inVehicle = cache.vehicle
+                 if cache.vehicle then
+                    lib.showTextUI(Lang:t('labels.h_vehicle'), { position = 'left-center' })
+                 else
+                    lib.showTextUI(Lang:t('labels.g_vehicle'), { position = 'left-center' })
+                 end
+                 isInsideGarageZone = true
             end
-        else
-            lib.hideTextU()
+        end,
+        onExit = function()
+            lib.hideTextUI()
+            isInsideGarageZone = false
         end
-
-        isInsideGarageZone = isPointInside
-    end)
+    })
 end
+
 
 local function destroyVehiclePlateZone(id)
     if plateZones[id] then
-        plateZones[id]:destroy()
+        plateZones[id]:remove()
         plateZones[id] = nil
     end
 end
@@ -205,33 +194,32 @@ end
 local function registerVehiclePlateZone(id, plate)
     local coords = plate.coords
     local boxData = plate.boxData
-    local plateZone = BoxZone:Create(coords.xyz, boxData.length, boxData.width, {
-        name = plateTargetBoxId .. id,
-        heading = boxData.heading,
-        minZ = coords.z - 1.0,
-        maxZ = coords.z + 3.0,
-        debugPoly = boxData.debugPoly
-    })
 
-    plateZones[id] = plateZone
-
-    plateZone:onPlayerInOut(function (isPointInside)
-        if isPointInside and QBX.PlayerData.job.onduty then
-            if plate.AttachedVehicle then
+    local plateZone = lib.zones.box({
+        coords = coords,
+        size = boxData.size,
+        rotation = boxData.rotation,
+        debug = Config.DebugPoly,
+        onEnter = function()
+            if QBX.PlayerData.job.onduty then
+               if plate.AttachedVehicle then
                 lib.showTextUI(Lang:t('labels.o_menu'), {
                     position = 'left'
                 })
-            elseif cache.vehicle then
+                elseif cache.vehicle then
                 lib.showTextUI(Lang:t('labels.work_v'), {
                     position = 'left'
                 })
+                end
+                isInsideVehiclePlateZone = true
             end
-        else
-            lib.hideTextU()
+        end,
+        onExit = function()
+            lib.hideTextUI()
+            isInsideVehiclePlateZone = false
         end
-
-        isInsideVehiclePlateZone = isPointInside
-    end)
+    })
+    plateZones[id] = plateZone
 end
 
 local function setVehiclePlateZones()
@@ -419,7 +407,8 @@ local function spawnListVehicle(model)
         z = Config.Locations.vehicle.z,
         w = Config.Locations.vehicle.w,
     }
-
+    DoScreenFadeOut(150)
+    Wait(150)
     local netId = lib.callback.await('qbx_mechanicjob:server:spawnVehicle', false, model, coords, true)
     local timeout = 100
     while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
@@ -433,6 +422,9 @@ local function spawnListVehicle(model)
     TaskWarpPedIntoVehicle(cache.ped, veh, -1)
     TriggerEvent("vehiclekeys:client:SetOwner", GetPlate(veh))
     SetVehicleEngineOn(veh, true, true, false)
+    Wait(500)
+    DoScreenFadeIn(250)
+
 end
 
 -- Events
@@ -671,10 +663,10 @@ local function listenForInteractions()
         if IsControlJustPressed(0, 38) then
             if veh then
                 DeleteVehicle(veh)
-                lib.hideTextU()
+                lib.hideTextUI()
             else
                 lib.showContext('mechanicVehicles')
-                lib.hideTextU()
+                lib.hideTextUI()
             end
         end
     end
