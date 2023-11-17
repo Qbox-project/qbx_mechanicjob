@@ -101,7 +101,7 @@ local function registerDutyTarget()
                     position = 'left'
                 })
             else
-                lib.hideTextU()
+                lib.hideTextUI()
             end
 
             isInsideDutyZone = isPointInside
@@ -155,7 +155,7 @@ local function registerStashTarget()
                     position = 'left'
                 })
             else
-                lib.hideTextU()
+                lib.hideTextUI()
             end
 
             isInsideStashZone = isPointInside
@@ -188,7 +188,7 @@ local function registerGarageZone()
                 })
             end
         else
-            lib.hideTextU()
+            lib.hideTextUI()
         end
 
         isInsideGarageZone = isPointInside
@@ -227,7 +227,7 @@ local function registerVehiclePlateZone(id, plate)
                 })
             end
         else
-            lib.hideTextU()
+            lib.hideTextUI()
         end
 
         isInsideVehiclePlateZone = isPointInside
@@ -671,10 +671,10 @@ local function listenForInteractions()
         if IsControlJustPressed(0, 38) then
             if veh then
                 DeleteVehicle(veh)
-                lib.hideTextU()
+                lib.hideTextUI()
             else
                 lib.showContext('mechanicVehicles')
-                lib.hideTextU()
+                lib.hideTextUI()
             end
         end
     end
