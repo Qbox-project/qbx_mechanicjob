@@ -1,8 +1,8 @@
 Config = {}
 
 -- **** IMPORTANT ****
--- UseTarget should only be set to true when using qb-target
-Config.UseTarget = GetConvar('UseTarget', 'false') == 'true'
+Config.UseTarget = true
+
 Config.Targets = {}
 
 Config.DebugPoly = false
