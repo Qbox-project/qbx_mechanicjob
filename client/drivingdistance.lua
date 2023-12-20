@@ -1,3 +1,4 @@
+local config = require 'config.client'
 local vehicleMeters = -1
 local previousVehiclePos = nil
 local checkDone = false
@@ -15,14 +16,14 @@ end
 ---@return Range?
 local function getDamageMultiplier(meters)
     local check = round(meters / 1000)
-    for i = 1, #Config.MinimalMetersForDamage do
-        local v = Config.MinimalMetersForDamage[i]
+    for i = 1, #config.minimalMetersForDamage do
+        local v = config.minimalMetersForDamage[i]
         if check >= v.min and check <= v.max then
             return v.multiplier
         end
     end
 
-    local data = Config.MinimalMetersForDamage[#Config.MinimalMetersForDamage]
+    local data = config.minimalMetersForDamage[#config.minimalMetersForDamage]
     if check >= data.min then
         return data.multiplier
     end
@@ -48,8 +49,8 @@ end)
 ---@param plate string
 local function damageParts(multiplierRange, plate)
     local currentData = VehicleStatus[plate]
-    for i = 1, #Config.DamageableParts do
-        local partName = Config.DamageableParts[i]
+    for i = 1, #config.damageableParts do
+        local partName = config.damageableParts[i]
         local randmultiplier = (math.random(multiplierRange.min, multiplierRange.max) / 100)
         local newDamage = 0
         if currentData[partName] - randmultiplier >= 0 then

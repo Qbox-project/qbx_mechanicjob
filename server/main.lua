@@ -1,3 +1,5 @@
+local config = require 'config.server'
+local sharedConfig = require 'config.shared'
 local vehicleStatus = {}
 local vehicleDrivingDistance = {}
 local stash = {
@@ -7,7 +9,7 @@ local stash = {
     weight = 4000000,
     owner = false,
     groups = {['mechanic'] = 0},
-    coords = Config.Locations['stash']
+    coords = sharedConfig.locations['stash']
 }
 exports.ox_inventory:RegisterStash(stash.id, stash.label, stash.slots, stash.weight, stash.owner, stash.groups, stash.coords)
 
@@ -26,7 +28,7 @@ local function getVehicleStatus(plate)
 end
 
 local function isAuthorized(citizenId)
-    for _, cid in pairs(Config.AuthorizedIds) do
+    for _, cid in pairs(config.authorizedIds) do
         if cid == citizenId then
             return true
         end
@@ -45,7 +47,7 @@ lib.callback.register('qb-vehicletuning:server:IsVehicleOwned', function(_, plat
 end)
 
 lib.callback.register('qb-vehicletuning:server:GetAttachedVehicle', function()
-    return Config.Plates
+    return sharedConfig.plates
 end)
 
 lib.callback.register('qbx_mechanicjob:server:spawnVehicle', function(source, vehicleName, vehicleCoords)
@@ -69,11 +71,11 @@ RegisterNetEvent('vehiclemod:server:setupVehicleStatus', function(plate, engineH
         {
             engine = engineHealth,
             body = bodyHealth,
-            radiator = Config.MaxStatusValues.radiator,
-            axle = Config.MaxStatusValues.axle,
-            brakes = Config.MaxStatusValues.brakes,
-            clutch = Config.MaxStatusValues.clutch,
-            fuel = Config.MaxStatusValues.fuel
+            radiator = sharedConfig.maxStatusValues.radiator,
+            axle = sharedConfig.maxStatusValues.axle,
+            brakes = sharedConfig.maxStatusValues.brakes,
+            clutch = sharedConfig.maxStatusValues.clutch,
+            fuel = sharedConfig.maxStatusValues.fuel
         }
 
     vehicleStatus[plate] = statusInfo
@@ -117,7 +119,7 @@ end)
 
 RegisterNetEvent('vehiclemod:server:fixEverything', function(plate)
     if vehicleStatus[plate] == nil then return end
-    for k, v in pairs(Config.MaxStatusValues) do
+    for k, v in pairs(sharedConfig.maxStatusValues) do
         vehicleStatus[plate][k] = v
     end
     TriggerClientEvent("vehiclemod:client:setVehicleStatus", -1, plate, vehicleStatus[plate])
@@ -130,15 +132,15 @@ RegisterNetEvent('vehiclemod:server:saveStatus', function(plate)
 end)
 
 RegisterNetEvent('qb-vehicletuning:server:SetAttachedVehicle', function(veh, k)
-    Config.Plates[k].AttachedVehicle = (veh == false) and nil or veh
+    sharedConfig.plates[k].AttachedVehicle = (veh == false) and nil or veh
     TriggerClientEvent('qb-vehicletuning:client:SetAttachedVehicle', -1, veh, k)
 end)
 
 RegisterNetEvent('qb-vehicletuning:server:CheckForItems', function(part)
     local src = source
     local player = exports.qbx_core:GetPlayer(src)
-    local itemName = Config.RepairCostAmount[part].item
-    local amountRequired = Config.RepairCostAmount[part].costs
+    local itemName = sharedConfig.repairCostAmount[part].item
+    local amountRequired = sharedConfig.repairCostAmount[part].costs
     local amount = exports.ox_inventory:Search(src, 'count', itemName)
 
     if amount < amountRequired then
@@ -154,7 +156,7 @@ end)
 RegisterNetEvent('qb-mechanicjob:server:removePart', function(part, amount)
     local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
-    player.Functions.RemoveItem(Config.RepairCost[part], amount)
+    player.Functions.RemoveItem(sharedConfig.repairCost[part], amount)
 end)
 
 -- Commands

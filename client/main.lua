@@ -1,4 +1,5 @@
---- TODO: change qb-target to ox_target
+local config = require 'config.client'
+local sharedConfig = require 'config.shared'
 
 VehicleStatus = {}
 
@@ -44,20 +45,20 @@ exports('SetVehicleStatus', setVehicleStatus)
 
 ---@param id string
 local function deleteTarget(id)
-    if Config.UseTarget then
+    if config.useTarget then
         exports['qb-target']:RemoveZone(id)
     else
-        if Config.Targets[id] and Config.Targets[id].zone then
-            Config.Targets[id].zone:destroy()
+        if config.targets[id] and config.targets[id].zone then
+            config.targets[id].zone:destroy()
         end
     end
 
-    Config.Targets[id] = nil
+    config.targets[id] = nil
 end
 
 local function registerDutyTarget()
-    local coords = Config.Locations.duty
-    local boxData = Config.Targets[dutyTargetBoxId] or {}
+    local coords = sharedConfig.locations.duty
+    local boxData = config.targets[dutyTargetBoxId] or {}
 
     if boxData and boxData.created then
         return
@@ -69,11 +70,11 @@ local function registerDutyTarget()
 
     local label = QBX.PlayerData.job.onduty and Lang:t('labels.sign_off') or Lang:t('labels.sign_in')
 
-    if Config.UseTarget then
+    if config.useTarget then
         exports['qb-target']:AddBoxZone(dutyTargetBoxId, coords, 1.5, 2.5, {
             name = dutyTargetBoxId,
             heading = 338.16,
-            debugPoly = Config.DebugPoly,
+            debugPoly = config.debugPoly,
             minZ = coords.z - 1.0,
             maxZ = coords.z,
         }, {
@@ -86,12 +87,12 @@ local function registerDutyTarget()
             distance = 2.0
         })
 
-        Config.Targets[dutyTargetBoxId] = {created = true}
+        config.targets[dutyTargetBoxId] = {created = true}
     else
         local zone = BoxZone:Create(coords, 1.5, 1.5, {
             name = dutyTargetBoxId,
             heading = 0,
-            debugPoly = Config.DebugPoly,
+            debugPoly = config.debugPoly,
             minZ = coords.z - 1.0,
             maxZ = coords.z + 1.0,
         })
@@ -107,13 +108,13 @@ local function registerDutyTarget()
             isInsideDutyZone = isPointInside
         end)
 
-        Config.Targets[dutyTargetBoxId] = {created = true, zone = zone}
+        config.targets[dutyTargetBoxId] = {created = true, zone = zone}
     end
 end
 
 local function registerStashTarget()
-    local coords = Config.Locations.stash
-    local boxData = Config.Targets[stashTargetBoxId] or {}
+    local coords = sharedConfig.locations.stash
+    local boxData = config.targets[stashTargetBoxId] or {}
 
     if boxData and boxData.created then
         return
@@ -123,11 +124,11 @@ local function registerStashTarget()
         return
     end
 
-    if Config.UseTarget then
+    if config.useTarget then
         exports['qb-target']:AddBoxZone(stashTargetBoxId, coords, 1.0, 1.5, {
             name = stashTargetBoxId,
             heading = 248.41,
-            debugPoly = Config.DebugPoly,
+            debugPoly = config.debugPoly,
             minZ = coords.z - 1.0,
             maxZ = coords.z + 1.0,
         }, {
@@ -140,12 +141,12 @@ local function registerStashTarget()
             distance = 2.0
         })
 
-        Config.Targets[stashTargetBoxId] = {created = true}
+        config.targets[stashTargetBoxId] = {created = true}
     else
         local zone = BoxZone:Create(coords, 1.5, 1.5, {
             name = stashTargetBoxId,
             heading = 0,
-            debugPoly = Config.DebugPoly,
+            debugPoly = config.debugPoly,
             minZ = coords.z - 1.0,
             maxZ = coords.z + 1.0,
         })
@@ -161,18 +162,18 @@ local function registerStashTarget()
             isInsideStashZone = isPointInside
         end)
 
-        Config.Targets[stashTargetBoxId] = {created = true, zone = zone}
+        config.targets[stashTargetBoxId] = {created = true, zone = zone}
     end
 end
 
 local function registerGarageZone()
-    local coords = Config.Locations.vehicle
+    local coords = sharedConfig.locations.vehicle
     local vehicleZone = BoxZone:Create(coords.xyz, 5, 15, {
         name = 'vehicleZone',
         heading = 340.0,
         minZ = coords.z - 1.0,
         maxZ = coords.z + 5.0,
-        debugPoly = false
+        debugPoly = config.debugPoly
     })
 
     vehicleZone:onPlayerInOut(function (isPointInside)
@@ -235,9 +236,9 @@ local function registerVehiclePlateZone(id, plate)
 end
 
 local function setVehiclePlateZones()
-    if #Config.Plates > 0 then
-        for i = 1, #Config.Plates do
-            local plate = Config.Plates[i]
+    if #sharedConfig.plates > 0 then
+        for i = 1, #sharedConfig.plates do
+            local plate = sharedConfig.plates[i]
             registerVehiclePlateZone(i, plate)
         end
     else
@@ -250,8 +251,8 @@ local function setClosestPlate()
     local current = nil
     local closestDist = nil
 
-    for i = 1, #Config.Plates do
-        local plate = Config.Plates[i]
+    for i = 1, #sharedConfig.plates do
+        local plate = sharedConfig.plates[i]
         local distance = #(pos - plate.coords.xyz)
         if not current or distance < closestDist then
             closestDist = distance
@@ -286,15 +287,15 @@ end
 local function sendStatusMessage(statusList)
     if not statusList then return end
     TriggerEvent('chat:addMessage', {
-        template = '<div class="chat-message normal"><div class="chat-message-body"><strong>{0}:</strong><br><br> <strong>'.. Config.PartLabels.engine ..' (engine):</strong> {1} <br><strong>'.. Config.PartLabels.body ..' (body):</strong> {2} <br><strong>'.. Config.PartLabels.radiator ..' (radiator):</strong> {3} <br><strong>'.. Config.PartLabels.axle ..' (axle):</strong> {4}<br><strong>'.. Config.PartLabels.brakes ..' (brakes):</strong> {5}<br><strong>'.. Config.PartLabels.clutch ..' (clutch):</strong> {6}<br><strong>'.. Config.PartLabels.fuel ..' (fuel):</strong> {7}</div></div>',
-        args = {Lang:t('labels.veh_status'), round(statusList.engine) .. "/" .. Config.MaxStatusValues.engine .. " ("..exports.ox_inventory:Items()['advancedrepairkit'].label..")", round(statusList.body) .. "/" .. Config.MaxStatusValues.body .. " ("..exports.ox_inventory:Items()[Config.RepairCost.body].label..")", round(statusList.radiator) .. "/" .. Config.MaxStatusValues.radiator .. ".0 ("..exports.ox_inventory:Items()[Config.RepairCost.radiator].label..")", round(statusList.axle) .. "/" .. Config.MaxStatusValues.axle .. ".0 ("..exports.ox_inventory:Items()[Config.RepairCost.axle].label..")", round(statusList.brakes) .. "/" .. Config.MaxStatusValues.brakes .. ".0 ("..exports.ox_inventory:Items()[Config.RepairCost.brakes].label..")", round(statusList.clutch) .. "/" .. Config.MaxStatusValues.clutch .. ".0 ("..exports.ox_inventory:Items()[Config.RepairCost.clutch].label..")", round(statusList.fuel) .. "/" .. Config.MaxStatusValues.fuel .. ".0 ("..exports.ox_inventory:Items()[Config.RepairCost.fuel].label..")"}
+        template = '<div class="chat-message normal"><div class="chat-message-body"><strong>{0}:</strong><br><br> <strong>'.. config.partLabels.engine ..' (engine):</strong> {1} <br><strong>'.. config.partLabels.body ..' (body):</strong> {2} <br><strong>'.. config.partLabels.radiator ..' (radiator):</strong> {3} <br><strong>'.. config.partLabels.axle ..' (axle):</strong> {4}<br><strong>'.. config.partLabels.brakes ..' (brakes):</strong> {5}<br><strong>'.. config.partLabels.clutch ..' (clutch):</strong> {6}<br><strong>'.. config.partLabels.fuel ..' (fuel):</strong> {7}</div></div>',
+        args = {Lang:t('labels.veh_status'), round(statusList.engine) .. "/" .. sharedConfig.maxStatusValues.engine .. " ("..exports.ox_inventory:Items()['advancedrepairkit'].label..")", round(statusList.body) .. "/" .. sharedConfig.maxStatusValues.body .. " ("..exports.ox_inventory:Items()[sharedConfig.repairCost.body].label..")", round(statusList.radiator) .. "/" .. sharedConfig.maxStatusValues.radiator .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.radiator].label..")", round(statusList.axle) .. "/" .. sharedConfig.maxStatusValues.axle .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.axle].label..")", round(statusList.brakes) .. "/" .. sharedConfig.maxStatusValues.brakes .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.brakes].label..")", round(statusList.clutch) .. "/" .. sharedConfig.maxStatusValues.clutch .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.clutch].label..")", round(statusList.fuel) .. "/" .. sharedConfig.maxStatusValues.fuel .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.fuel].label..")"}
     })
 end
 
 local function unattachVehicle()
     DoScreenFadeOut(150)
     Wait(150)
-    local plate = Config.Plates[closestPlate]
+    local plate = sharedConfig.plates[closestPlate]
     FreezeEntityPosition(plate.AttachedVehicle, false)
     SetEntityCoords(plate.AttachedVehicle, plate.coords.x, plate.coords.y, plate.coords.z, false, false, false, false)
     SetEntityHeading(plate.AttachedVehicle, plate.coords.w)
@@ -310,7 +311,7 @@ local function unattachVehicle()
 end
 
 local function checkStatus()
-    local plate = GetPlate(Config.Plates[closestPlate].AttachedVehicle)
+    local plate = GetPlate(sharedConfig.plates[closestPlate].AttachedVehicle)
     sendStatusMessage(VehicleStatus[plate])
 end
 
@@ -318,7 +319,7 @@ local function repairPart(part)
     exports.scully_emotemenu:playEmoteByCommand('mechanic')
     if lib.progressBar({
         duration = math.random(5000, 10000),
-        label = Lang:t('labels.progress_bar') .. string.lower(Config.PartLabels[part]),
+        label = Lang:t('labels.progress_bar') .. string.lower(config.partLabels[part]),
         canCancel = true,
         disable = {
             move = true,
@@ -344,7 +345,7 @@ local function openPartMenu(data)
     local options = {
         {
             title = partName,
-            description = Lang:t('parts_menu.repair_op')..exports.ox_inventory:Items()[Config.RepairCostAmount[part].item].label.." "..Config.RepairCostAmount[part].costs.."x",
+            description = Lang:t('parts_menu.repair_op')..exports.ox_inventory:Items()[sharedConfig.repairCostAmount[part].item].label.." "..sharedConfig.repairCostAmount[part].costs.."x",
             onSelect = function()
                 repairPart(part)
             end,
@@ -362,13 +363,13 @@ local function openPartMenu(data)
 end
 
 function OpenVehicleStatusMenu()
-    local plate = GetPlate(Config.Plates[closestPlate].AttachedVehicle)
+    local plate = GetPlate(sharedConfig.plates[closestPlate].AttachedVehicle)
     if not VehicleStatus[plate] then return end
 
     local options = {}
 
-    for partName, label in pairs(Config.PartLabels) do
-        if math.ceil(VehicleStatus[plate][partName]) ~= Config.MaxStatusValues[partName] then
+    for partName, label in pairs(config.partLabels) do
+        if math.ceil(VehicleStatus[plate][partName]) ~= sharedConfig.maxStatusValues[partName] then
             local percentage = math.ceil(VehicleStatus[plate][partName])
             if percentage > 100 then
                 percentage = math.ceil(VehicleStatus[plate][partName]) / 10
@@ -385,9 +386,9 @@ function OpenVehicleStatusMenu()
                 arrow = true,
             }
         else
-            local percentage = math.ceil(Config.MaxStatusValues[partName])
+            local percentage = math.ceil(sharedConfig.maxStatusValues[partName])
             if percentage > 100 then
-                percentage = math.ceil(Config.MaxStatusValues[partName]) / 10
+                percentage = math.ceil(sharedConfig.maxStatusValues[partName]) / 10
             end
             options[#options+1] = {
                 title = label,
@@ -409,15 +410,15 @@ end
 
 local function resetClosestVehiclePlate()
     destroyVehiclePlateZone(closestPlate)
-    registerVehiclePlateZone(closestPlate, Config.Plates[closestPlate])
+    registerVehiclePlateZone(closestPlate, sharedConfig.plates[closestPlate])
 end
 
 local function spawnListVehicle(model)
     local coords = {
-        x = Config.Locations.vehicle.x,
-        y = Config.Locations.vehicle.y,
-        z = Config.Locations.vehicle.z,
-        w = Config.Locations.vehicle.w,
+        x = sharedConfig.locations.vehicle.x,
+        y = sharedConfig.locations.vehicle.y,
+        z = sharedConfig.locations.vehicle.z,
+        w = sharedConfig.locations.vehicle.w,
     }
 
     local netId = lib.callback.await('qbx_mechanicjob:server:spawnVehicle', false, model, coords, true)
@@ -443,7 +444,7 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     end
     lib.callback('qb-vehicletuning:server:GetAttachedVehicle', false, function(plates)
         for k, v in pairs(plates) do
-            Config.Plates[k].AttachedVehicle = v.AttachedVehicle
+            sharedConfig.plates[k].AttachedVehicle = v.AttachedVehicle
         end
     end)
 
@@ -474,32 +475,32 @@ end)
 
 RegisterNetEvent('qb-vehicletuning:client:SetAttachedVehicle', function(veh, key)
     if veh ~= false then
-        Config.Plates[key].AttachedVehicle = veh
+        sharedConfig.plates[key].AttachedVehicle = veh
     else
-        Config.Plates[key].AttachedVehicle = nil
+        sharedConfig.plates[key].AttachedVehicle = nil
     end
 end)
 
 RegisterNetEvent('qb-vehicletuning:client:RepaireeePart', function(part)
-    local veh = Config.Plates[closestPlate].AttachedVehicle
+    local veh = sharedConfig.plates[closestPlate].AttachedVehicle
     local plate = GetPlate(veh)
     if part == "engine" then
-        SetVehicleEngineHealth(veh, Config.MaxStatusValues[part])
-        TriggerServerEvent("vehiclemod:server:updatePart", plate, "engine", Config.MaxStatusValues[part])
+        SetVehicleEngineHealth(veh, sharedConfig.maxStatusValues[part])
+        TriggerServerEvent("vehiclemod:server:updatePart", plate, "engine", sharedConfig.maxStatusValues[part])
     elseif part == "body" then
         local enhealth = GetVehicleEngineHealth(veh)
         local realFuel = GetVehicleFuelLevel(veh)
-        SetVehicleBodyHealth(veh, Config.MaxStatusValues[part])
-        TriggerServerEvent("vehiclemod:server:updatePart", plate, "body", Config.MaxStatusValues[part])
+        SetVehicleBodyHealth(veh, sharedConfig.maxStatusValues[part])
+        TriggerServerEvent("vehiclemod:server:updatePart", plate, "body", sharedConfig.maxStatusValues[part])
         SetVehicleFixed(veh)
         SetVehicleEngineHealth(veh, enhealth)
         if GetVehicleFuelLevel(veh) ~= realFuel then
             SetVehicleFuelLevel(veh, realFuel)
         end
     else
-        TriggerServerEvent("vehiclemod:server:updatePart", plate, part, Config.MaxStatusValues[part])
+        TriggerServerEvent("vehiclemod:server:updatePart", plate, part, sharedConfig.maxStatusValues[part])
     end
-    exports.qbx_core:Notify(Lang:t('notifications.partrep', {value = Config.PartLabels[part]}))
+    exports.qbx_core:Notify(Lang:t('notifications.partrep', {value = config.partLabels[part]}))
 end)
 
 RegisterNetEvent('vehiclemod:client:setVehicleStatus', function(plate, status)
@@ -681,8 +682,8 @@ local function listenForInteractions()
 
     if isInsideVehiclePlateZone then
         wait = 0
-        local attachedVehicle = Config.Plates[closestPlate].AttachedVehicle
-        local coords = Config.Plates[closestPlate].coords
+        local attachedVehicle = sharedConfig.plates[closestPlate].AttachedVehicle
+        local coords = sharedConfig.plates[closestPlate].coords
         if attachedVehicle then
             if IsControlJustPressed(0, 38) then
                 lib.hideTextUI()
@@ -691,7 +692,7 @@ local function listenForInteractions()
         elseif IsControlJustPressed(0, 38) and veh then
             DoScreenFadeOut(150)
             Wait(150)
-            Config.Plates[closestPlate].AttachedVehicle = veh
+            sharedConfig.plates[closestPlate].AttachedVehicle = veh
             SetEntityCoords(veh, coords.x, coords.y, coords.z, false, false, false, false)
             SetEntityHeading(veh, coords.w)
             FreezeEntityPosition(veh, true)
@@ -700,7 +701,7 @@ local function listenForInteractions()
             TriggerServerEvent('qb-vehicletuning:server:SetAttachedVehicle', veh, closestPlate)
 
             destroyVehiclePlateZone(closestPlate)
-            registerVehiclePlateZone(closestPlate, Config.Plates[closestPlate])
+            registerVehiclePlateZone(closestPlate, sharedConfig.plates[closestPlate])
         end
     end
 
@@ -708,7 +709,7 @@ local function listenForInteractions()
 end
 
 local function createBlip()
-    local blip = AddBlipForCoord(Config.Locations.exit.x, Config.Locations.exit.y, Config.Locations.exit.z)
+    local blip = AddBlipForCoord(sharedConfig.locations.exit.x, sharedConfig.locations.exit.y, sharedConfig.locations.exit.z)
     SetBlipSprite(blip, 446)
     SetBlipDisplay(blip, 4)
     SetBlipScale(blip, 0.7)
@@ -777,7 +778,7 @@ end
 
 local function registerVehicleListMenu()
     local options = {}
-    for k,v in pairs(Config.Vehicles) do
+    for k,v in pairs(config.vehicles) do
         options[#options+1] = {
             title = v,
             description = Lang:t('labels.vehicle_title', {value = v}),
