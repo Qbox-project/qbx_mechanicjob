@@ -1,5 +1,5 @@
 return {
-    useTarget = GetConvar('UseTarget', 'false') == 'true',
+    useTarget = false,
     debugPoly = false,
     targets = {},
     partLabels = {
