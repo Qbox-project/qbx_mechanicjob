@@ -15,9 +15,6 @@ shared_scripts {
 
 client_scripts {
     '@qbx_core/modules/playerdata.lua',
-    '@PolyZone/client.lua',
-    '@PolyZone/BoxZone.lua',
-    '@PolyZone/CircleZone.lua',
     'client/damage-effects.lua',
     'client/main.lua',
 }
