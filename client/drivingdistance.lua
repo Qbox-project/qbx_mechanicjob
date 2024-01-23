@@ -29,29 +29,13 @@ local function getDamageMultiplier(meters)
     end
 end
 
----@param plate string
----@return string?
-local function trim(plate)
-    if not plate then return end
-    local trimmed = string.gsub(plate, '^%s*(.-)%s*$', '%1')
-    return trimmed
-end
-
--- Events
-
----@param amount number
----@param plate string
-RegisterNetEvent('qb-vehicletuning:client:UpdateDrivingDistance', function(amount, plate)
-    DrivingDistance[plate] = amount
-end)
-
 ---@param multiplierRange Range
 ---@param plate string
 local function damageParts(multiplierRange, plate)
     local currentData = VehicleStatus[plate]
     for i = 1, #config.damageableParts do
         local partName = config.damageableParts[i]
-        local randmultiplier = (math.random(multiplierRange.min, multiplierRange.max) / 100)
+        local randmultiplier = math.random(multiplierRange.min, multiplierRange.max) / 100
         local newDamage = 0
         if currentData[partName] - randmultiplier >= 0 then
             newDamage = currentData[partName] - randmultiplier
@@ -66,7 +50,7 @@ local function trackDistanceFromPreviousPosition(pos, plate)
     local distance = #(pos - previousVehiclePos)
     local multiplierRange = getDamageMultiplier(vehicleMeters)
 
-    vehicleMeters += ((distance / 100) * 325)
+    vehicleMeters += (distance / 100) * 325
     DrivingDistance[plate] = vehicleMeters
 
     if multiplierRange and math.random(3) == 3 then
@@ -94,7 +78,7 @@ local function trackDistance()
 
     local isDriver = cache.seat == -1
     local pos = GetEntityCoords(ped)
-    local plate = trim(GetVehicleNumberPlateText(veh))
+    local plate = qbx.getVehiclePlate(veh)
 
     if not plate then
         Wait(2000)
@@ -130,6 +114,14 @@ local function trackDistance()
     previousVehiclePos = pos
     Wait(2000)
 end
+
+-- Events
+
+---@param amount number
+---@param plate string
+RegisterNetEvent('qb-vehicletuning:client:UpdateDrivingDistance', function(amount, plate)
+    DrivingDistance[plate] = amount
+end)
 
 -- Threads
 

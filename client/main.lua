@@ -1,9 +1,9 @@
+lib.locale()
+
 local config = require 'config.client'
 local sharedConfig = require 'config.shared'
 
 VehicleStatus = {}
-
-local openingDoor = false
 
 -- zone check
 local plateZones = {}
@@ -15,11 +15,12 @@ local stashTargetBoxId = 'stashTarget'
 ---@param plate string
 ---@return table?
 local function getVehicleStatusList(plate)
-    if VehicleStatus[plate] then
-        return VehicleStatus[plate]
-    end
+    return VehicleStatus[plate]
 end
 
+---@param plate string
+---@param part string
+---@return number?
 local function getVehicleStatus(plate, part)
     if VehicleStatus[plate] then
         return VehicleStatus[plate][part]
@@ -34,7 +35,6 @@ exports('GetVehicleStatusList', getVehicleStatusList)
 exports('GetVehicleStatus', getVehicleStatus)
 exports('SetVehicleStatus', setVehicleStatus)
 
-
 -- Functions
 
 ---@param id string
@@ -42,7 +42,7 @@ local function deleteTarget(id)
     if config.useTarget then
         exports.ox_target:removeZone(id)
     else
-        if config.targets[id] and config.targets[id].zone then
+        if config.targets[id]?.zone then
             config.targets[id].zone:remove()
         end
     end
@@ -54,7 +54,7 @@ local function registerDutyTarget()
     local coords = sharedConfig.locations.duty
     local boxData = config.targets[dutyTargetBoxId] or {}
 
-    if boxData and boxData.created then
+    if boxData?.created then
         return
     end
 
@@ -62,7 +62,7 @@ local function registerDutyTarget()
         return
     end
 
-    local label = QBX.PlayerData.job.onduty and Lang:t('labels.sign_off') or Lang:t('labels.sign_in')
+    local label = QBX.PlayerData.job.onduty and locale('labels.sign_off') or locale('labels.sign_in')
 
     if config.useTarget then
         dutyTargetBoxId = exports.ox_target:addBoxZone({
@@ -115,7 +115,7 @@ local function registerStashTarget()
     local coords = sharedConfig.locations.stash
     local boxData = config.targets[stashTargetBoxId] or {}
 
-    if boxData and boxData.created then
+    if boxData?.created then
         return
     end
 
@@ -130,7 +130,7 @@ local function registerStashTarget()
             rotation = 248.41,
             debug = config.debugPoly,
             options = {{
-                label = Lang:t('labels.o_stash'),
+                label = locale('labels.o_stash'),
                 name = stashTargetBoxId,
                 icon = 'fa fa-archive',
                 distance = 2.0,
@@ -158,7 +158,7 @@ local function registerStashTarget()
             end,
             onEnter = function()
                 if QBX.PlayerData.job.onduty and QBX.PlayerData.job.type == 'mechanic' then
-                    lib.showTextUI(Lang:t('labels.o_stash'), {position = 'left-center'})
+                    lib.showTextUI(locale('labels.o_stash'), {position = 'left-center'})
                 end
             end,
             onExit = function()
@@ -197,9 +197,9 @@ local function registerGarageZone()
             if QBX.PlayerData.job.onduty and QBX.PlayerData.job.type == 'mechanic' then
                 local inVehicle = cache.vehicle
                 if inVehicle then
-                    lib.showTextUI(Lang:t('labels.h_vehicle'), {position = 'left-center'})
+                    lib.showTextUI(locale('labels.h_vehicle'), {position = 'left-center'})
                 else
-                    lib.showTextUI(Lang:t('labels.g_vehicle'), {position = 'left-center'})
+                    lib.showTextUI(locale('labels.g_vehicle'), {position = 'left-center'})
                 end
             end
         end,
@@ -209,14 +209,15 @@ local function registerGarageZone()
     })
 end
 
-
 local closestPlate = nil
 
 local function destroyVehiclePlateZone(id)
-    if plateZones[id] then
-        plateZones[id]:remove()
-        plateZones[id] = nil
+    if not plateZones[id] then
+        return
     end
+
+    plateZones[id]:remove()
+    plateZones[id] = nil
 end
 
 local function registerVehiclePlateZone(id, plate)
@@ -246,19 +247,21 @@ local function registerVehiclePlateZone(id, plate)
                     FreezeEntityPosition(veh, true)
                     Wait(500)
                     DoScreenFadeIn(150)
-                    TriggerServerEvent('qb-vehicletuning:server:SetAttachedVehicle', veh, plate)
+                    TriggerServerEvent('qb-vehicletuning:server:SetAttachedVehicle', id, veh)
                     destroyVehiclePlateZone(plate)
-                    registerVehiclePlateZone(plate, sharedConfig.plates[plate])
+                    registerVehiclePlateZone(id, plate)
                 end
             end
         end,
         onEnter = function()
-            if QBX.PlayerData.job.onduty then
-                if plate.AttachedVehicle then
-                    lib.showTextUI(Lang:t('labels.o_menu'), {position = 'left-center'})
-                elseif cache.vehicle then
-                    lib.showTextUI(Lang:t('labels.work_v'), {position = 'left-center'})
-                end
+            if not QBX.PlayerData.job.onduty then
+                return
+            end
+
+            if plate.AttachedVehicle then
+                lib.showTextUI(locale('labels.o_menu'), {position = 'left-center'})
+            elseif cache.vehicle then
+                lib.showTextUI(locale('labels.work_v'), {position = 'left-center'})
             end
         end,
         onExit = function()
@@ -280,28 +283,6 @@ local function setVehiclePlateZones()
     end
 end
 
-local function scrapAnim(time)
-    time = time / 1000
-    lib.requestAnimDict('mp_car_bomb')
-    TaskPlayAnim(cache.ped, "mp_car_bomb", "car_bomb_mechanic" ,3.0, 3.0, -1, 16, 0, false, false, false)
-    openingDoor = true
-    CreateThread(function()
-        repeat
-            TaskPlayAnim(cache.ped, "mp_car_bomb", "car_bomb_mechanic", 3.0, 3.0, -1, 16, 0, false, false, false)
-            Wait(2000)
-            time -= 2
-            if time <= 0 then
-                openingDoor = false
-                StopAnimTask(cache.ped, "mp_car_bomb", "car_bomb_mechanic", 1.0)
-            end
-        until not openingDoor
-    end)
-end
-
-local function round(num, numDecimalPlaces)
-    return tonumber(string.format("%." .. (numDecimalPlaces or 1) .. "f", num))
-end
-
 local function sendStatusMessage(statusList)
     if not statusList then return end
     local templateStart = '<div class="chat-message normal"><div class="chat-message-body"><strong>{0}:</strong><br><br> '
@@ -309,19 +290,19 @@ local function sendStatusMessage(statusList)
     local templateMiddle = '<strong>'.. config.partLabels.engine ..' (engine):</strong> {1} <br><strong>'.. config.partLabels.body ..' (body):</strong> {2} <br><strong>'.. config.partLabels.radiator ..' (radiator):</strong> {3} <br><strong>'.. config.partLabels.axle ..' (axle):</strong> {4}<br><strong>'.. config.partLabels.brakes ..' (brakes):</strong> {5}<br><strong>'.. config.partLabels.clutch ..' (clutch):</strong> {6}<br><strong>'.. config.partLabels.fuel ..' (fuel):</strong> {7}'
     TriggerEvent('chat:addMessage', {
         template = templateStart .. templateMiddle .. templateEnd,
-        args = {Lang:t('labels.veh_status'),
-            round(statusList.engine) .. "/" .. sharedConfig.maxStatusValues.engine .. " ("..exports.ox_inventory:Items()['advancedrepairkit'].label..")",
-            round(statusList.body) .. "/" .. sharedConfig.maxStatusValues.body .. " ("..exports.ox_inventory:Items()[sharedConfig.repairCost.body].label..")",
-            round(statusList.radiator) .. "/" .. sharedConfig.maxStatusValues.radiator .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.radiator].label..")",
-            round(statusList.axle) .. "/" .. sharedConfig.maxStatusValues.axle .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.axle].label..")",
-            round(statusList.brakes) .. "/" .. sharedConfig.maxStatusValues.brakes .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.brakes].label..")",
-            round(statusList.clutch) .. "/" .. sharedConfig.maxStatusValues.clutch .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.clutch].label..")",
-            round(statusList.fuel) .. "/" .. sharedConfig.maxStatusValues.fuel .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.fuel].label..")"
+        args = {locale('labels.veh_status'),
+            qbx.math.round(statusList.engine) .. "/" .. sharedConfig.maxStatusValues.engine .. " ("..exports.ox_inventory:Items().advancedrepairkit.label..")",
+            qbx.math.round(statusList.body) .. "/" .. sharedConfig.maxStatusValues.body .. " ("..exports.ox_inventory:Items()[sharedConfig.repairCost.body].label..")",
+            qbx.math.round(statusList.radiator) .. "/" .. sharedConfig.maxStatusValues.radiator .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.radiator].label..")",
+            qbx.math.round(statusList.axle) .. "/" .. sharedConfig.maxStatusValues.axle .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.axle].label..")",
+            qbx.math.round(statusList.brakes) .. "/" .. sharedConfig.maxStatusValues.brakes .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.brakes].label..")",
+            qbx.math.round(statusList.clutch) .. "/" .. sharedConfig.maxStatusValues.clutch .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.clutch].label..")",
+            qbx.math.round(statusList.fuel) .. "/" .. sharedConfig.maxStatusValues.fuel .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.fuel].label..")"
         }
     })
 end
 
-local function unattachVehicle()
+local function detachVehicle()
     DoScreenFadeOut(150)
     Wait(150)
     local plate = sharedConfig.plates[closestPlate]
@@ -333,22 +314,29 @@ local function unattachVehicle()
     DoScreenFadeIn(250)
 
     plate.AttachedVehicle = nil
-    TriggerServerEvent('qb-vehicletuning:server:SetAttachedVehicle', false, closestPlate)
+    TriggerServerEvent('qb-vehicletuning:server:SetAttachedVehicle', closestPlate, false)
 
     destroyVehiclePlateZone(closestPlate)
     registerVehiclePlateZone(closestPlate, plate)
 end
 
 local function checkStatus()
-    local plate = GetPlate(sharedConfig.plates[closestPlate].AttachedVehicle)
+    local plate = qbx.getVehiclePlate(sharedConfig.plates[closestPlate].AttachedVehicle)
     sendStatusMessage(VehicleStatus[plate])
 end
 
 local function repairPart(part)
+    local hasEnough = lib.callback.await('qbx_mechanicjob:server:checkForItems', false, part)
+    if not hasEnough then
+        local itemName = sharedConfig.repairCostAmount[part].item
+        local amountRequired = sharedConfig.repairCostAmount[part].costs
+        return exports.qbx_core:Notify(locale('notifications.not_enough', exports.ox_inventory:Items()[itemName].label, amountRequired), 'error')
+    end
+
     exports.scully_emotemenu:playEmoteByCommand('mechanic')
     if lib.progressBar({
         duration = math.random(5000, 10000),
-        label = Lang:t('labels.progress_bar') .. string.lower(config.partLabels[part]),
+        label = locale('labels.progress_bar', string.lower(config.partLabels[part])),
         canCancel = true,
         disable = {
             move = true,
@@ -358,13 +346,30 @@ local function repairPart(part)
         }
     }) then
         exports.scully_emotemenu:cancelEmote()
-        TriggerServerEvent('qb-vehicletuning:server:CheckForItems', part)
-        SetTimeout(250, function()
-            OpenVehicleStatusMenu()
-        end)
+        local veh = sharedConfig.plates[closestPlate].AttachedVehicle
+        local plate = qbx.getVehiclePlate(veh)
+        if part == "engine" then
+            SetVehicleEngineHealth(veh, sharedConfig.maxStatusValues[part])
+            TriggerServerEvent("vehiclemod:server:updatePart", plate, "engine", sharedConfig.maxStatusValues[part])
+        elseif part == "body" then
+            local enhealth = GetVehicleEngineHealth(veh)
+            local realFuel = GetVehicleFuelLevel(veh)
+            SetVehicleBodyHealth(veh, sharedConfig.maxStatusValues[part])
+            TriggerServerEvent("vehiclemod:server:updatePart", plate, "body", sharedConfig.maxStatusValues[part])
+            SetVehicleFixed(veh)
+            SetVehicleEngineHealth(veh, enhealth)
+            if GetVehicleFuelLevel(veh) ~= realFuel then
+                SetVehicleFuelLevel(veh, realFuel)
+            end
+        else
+            TriggerServerEvent("vehiclemod:server:updatePart", plate, part, sharedConfig.maxStatusValues[part])
+        end
+        exports.qbx_core:Notify(locale('notifications.partrep', config.partLabels[part]))
+        Wait(250)
+        OpenVehicleStatusMenu()
     else
         exports.scully_emotemenu:cancelEmote()
-        exports.qbx_core:Notify(Lang:t('notifications.rep_canceled'), "error")
+        exports.qbx_core:Notify(locale('notifications.rep_canceled'), "error")
     end
 end
 
@@ -374,7 +379,7 @@ local function openPartMenu(data)
     local options = {
         {
             title = partName,
-            description = Lang:t('parts_menu.repair_op')..exports.ox_inventory:Items()[sharedConfig.repairCostAmount[part].item].label.." "..sharedConfig.repairCostAmount[part].costs.."x",
+            description = locale('parts_menu.repair_op', exports.ox_inventory:Items()[sharedConfig.repairCostAmount[part].item].label, sharedConfig.repairCostAmount[part].costs),
             onSelect = function()
                 repairPart(part)
             end,
@@ -383,7 +388,7 @@ local function openPartMenu(data)
 
     lib.registerContext({
         id = 'part',
-        title = Lang:t('parts_menu.menu_header'),
+        title = locale('parts_menu.menu_header'),
         options = options,
         menu = 'vehicleStatus',
     })
@@ -392,7 +397,7 @@ local function openPartMenu(data)
 end
 
 function OpenVehicleStatusMenu()
-    local plate = GetPlate(sharedConfig.plates[closestPlate].AttachedVehicle)
+    local plate = qbx.getVehiclePlate(sharedConfig.plates[closestPlate].AttachedVehicle)
     if not VehicleStatus[plate] then return end
 
     local options = {}
@@ -405,7 +410,7 @@ function OpenVehicleStatusMenu()
             end
             options[#options+1] = {
                 title = label,
-                description = "Status: " .. percentage .. ".0% / 100.0%",
+                description = locale('parts_menu.status', percentage),
                 onSelect = function()
                     openPartMenu({
                         name = label,
@@ -421,7 +426,7 @@ function OpenVehicleStatusMenu()
             end
             options[#options+1] = {
                 title = label,
-                description = Lang:t('parts_menu.status') .. percentage .. ".0% / 100.0%",
+                description = locale('parts_menu.status', percentage),
                 onSelect = OpenVehicleStatusMenu,
                 arrow = true,
             }
@@ -430,7 +435,7 @@ function OpenVehicleStatusMenu()
 
     lib.registerContext({
         id = 'vehicleStatus',
-        title = Lang:t('labels.status'),
+        title = locale('labels.status'),
         options = options,
     })
 
@@ -443,14 +448,7 @@ local function resetClosestVehiclePlate()
 end
 
 local function spawnListVehicle(model)
-    local coords = {
-        x = sharedConfig.locations.vehicle.x,
-        y = sharedConfig.locations.vehicle.y,
-        z = sharedConfig.locations.vehicle.z,
-        w = sharedConfig.locations.vehicle.w,
-    }
-
-    local netId = lib.callback.await('qbx_mechanicjob:server:spawnVehicle', false, model, coords, true)
+    local netId = lib.callback.await('qbx_mechanicjob:server:spawnVehicle', false, model, sharedConfig.locations.vehicle, true)
     local timeout = 100
     while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
         Wait(10)
@@ -458,10 +456,9 @@ local function spawnListVehicle(model)
     end
     local veh = NetworkGetEntityFromNetworkId(netId)
     SetVehicleNumberPlateText(veh, "MECH"..tostring(math.random(1000, 9999)))
-    SetEntityHeading(veh, coords.w)
     SetVehicleFuelLevel(veh, 100.0)
     TaskWarpPedIntoVehicle(cache.ped, veh, -1)
-    TriggerEvent("vehiclekeys:client:SetOwner", GetPlate(veh))
+    TriggerEvent("vehiclekeys:client:SetOwner", qbx.getVehiclePlate(veh))
     SetVehicleEngineOn(veh, true, true, false)
 end
 
@@ -473,11 +470,34 @@ local function createBlip()
     SetBlipColour(blip, 0)
     SetBlipAsShortRange(blip, true)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString(Lang:t('labels.job_blip'))
+    AddTextComponentString(locale('labels.job_blip'))
     EndTextCommandSetBlipName(blip)
 end
 
 -- Events
+
+AddEventHandler('onResourceStart', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+
+    createBlip()
+    registerGarageZone()
+    registerDutyTarget()
+    registerStashTarget()
+    setVehiclePlateZones()
+    if QBX.PlayerData.job.onduty and QBX.PlayerData.type == 'mechanic' then
+        TriggerServerEvent("QBCore:ToggleDuty")
+    end
+
+    lib.callback('qb-vehicletuning:server:GetAttachedVehicle', false, function(plates)
+        for k, v in pairs(plates) do
+            sharedConfig.plates[k].AttachedVehicle = v.AttachedVehicle
+        end
+    end)
+
+    lib.callback('qb-vehicletuning:server:GetDrivingDistances', false, function(retval)
+        DrivingDistance = retval
+    end)
+end)
 
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     createBlip()
@@ -504,12 +524,12 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
     deleteTarget(dutyTargetBoxId)
     deleteTarget(stashTargetBoxId)
 
-    if QBX.PlayerData.type == 'mechanic' then
-        registerDutyTarget()
-        if QBX.PlayerData.job.onduty then
-            registerStashTarget()
-        end
-    end
+    if QBX.PlayerData.type ~= 'mechanic' then return end
+
+    registerDutyTarget()
+
+    if not QBX.PlayerData.job.onduty then return end
+    registerStashTarget()
 end)
 
 RegisterNetEvent('QBCore:Client:SetDuty', function()
@@ -517,105 +537,49 @@ RegisterNetEvent('QBCore:Client:SetDuty', function()
     deleteTarget(stashTargetBoxId)
 
     if QBX.PlayerData.type == 'mechanic' then
-        registerDutyTarget()
-        if QBX.PlayerData.job.onduty then
-            registerStashTarget()
-        end
+    registerDutyTarget()
+
+    if not QBX.PlayerData.job.onduty then return end
+    registerStashTarget()
     end
 end)
 
 RegisterNetEvent('qb-vehicletuning:client:SetAttachedVehicle', function(veh, key)
-    if veh ~= false then
-        sharedConfig.plates[key].AttachedVehicle = veh
-    else
-        sharedConfig.plates[key].AttachedVehicle = nil
-    end
-end)
-
-RegisterNetEvent('qb-vehicletuning:client:RepaireeePart', function(part)
-    local veh = sharedConfig.plates[closestPlate].AttachedVehicle
-    local plate = GetPlate(veh)
-    if part == "engine" then
-        SetVehicleEngineHealth(veh, sharedConfig.maxStatusValues[part])
-        TriggerServerEvent("vehiclemod:server:updatePart", plate, "engine", sharedConfig.maxStatusValues[part])
-    elseif part == "body" then
-        local enhealth = GetVehicleEngineHealth(veh)
-        local realFuel = GetVehicleFuelLevel(veh)
-        SetVehicleBodyHealth(veh, sharedConfig.maxStatusValues[part])
-        TriggerServerEvent("vehiclemod:server:updatePart", plate, "body", sharedConfig.maxStatusValues[part])
-        SetVehicleFixed(veh)
-        SetVehicleEngineHealth(veh, enhealth)
-        if GetVehicleFuelLevel(veh) ~= realFuel then
-            SetVehicleFuelLevel(veh, realFuel)
-        end
-    else
-        TriggerServerEvent("vehiclemod:server:updatePart", plate, part, sharedConfig.maxStatusValues[part])
-    end
-    exports.qbx_core:Notify(Lang:t('notifications.partrep', {value = config.partLabels[part]}))
+    sharedConfig.plates[key].AttachedVehicle = veh
 end)
 
 RegisterNetEvent('vehiclemod:client:setVehicleStatus', function(plate, status)
     VehicleStatus[plate] = status
 end)
 
-RegisterNetEvent('vehiclemod:client:getVehicleStatus', function()
-    if cache.vehicle then
-        exports.qbx_core:Notify(Lang:t('notifications.outside'), "error")
-        return
-    end
-    local veh = GetVehiclePedIsIn(cache.ped, true)
-    if not veh or veh == 0 then
-        exports.qbx_core:Notify(Lang:t('notifications.veh_first'), "error")
-        return
-    end
-
-    local vehpos = GetEntityCoords(veh)
-    local pos = GetEntityCoords(cache.ped)
-    if #(pos - vehpos) >= 5.0 then
-        exports.qbx_core:Notify(Lang:t('notifications.not_close'), "error")
-        return
-    end
-    if IsThisModelABicycle(GetEntityModel(veh)) then
-        exports.qbx_core:Notify(Lang:t('notifications.not_valid'), "error")
-        return
-    end
-    local plate = GetPlate(veh)
-    if not VehicleStatus[plate] then
-        exports.qbx_core:Notify(Lang:t('notifications.uknown'), "error")
-        return
-    end
-
-    sendStatusMessage(VehicleStatus[plate])
-end)
-
 RegisterNetEvent('vehiclemod:client:fixEverything', function()
     local veh = cache.vehicle
     if not veh then
-        exports.qbx_core:Notify(Lang:t('notifications.not_vehicle'), "error")
+        exports.qbx_core:Notify(locale('notifications.not_vehicle'), "error")
         return
     end
 
     if IsThisModelABicycle(GetEntityModel(veh)) or cache.seat ~= -1 then
-        exports.qbx_core:Notify(Lang:t('notifications.wrong_seat'), "error")
+        exports.qbx_core:Notify(locale('notifications.wrong_seat'), "error")
     end
 
-    local plate = GetPlate(veh)
+    local plate = qbx.getVehiclePlate(veh)
     TriggerServerEvent("vehiclemod:server:fixEverything", plate)
 end)
 
 RegisterNetEvent('vehiclemod:client:setPartLevel', function(part, level)
     local veh = cache.vehicle
     if not veh then
-        exports.qbx_core:Notify(Lang:t('notifications.not_vehicle'), "error")
+        exports.qbx_core:Notify(locale('notifications.not_vehicle'), "error")
         return
     end
 
     if IsThisModelABicycle(GetEntityModel(veh)) or cache.seat ~= -1 then
-        exports.qbx_core:Notify(Lang:t('notifications.wrong_seat'), "error")
+        exports.qbx_core:Notify(locale('notifications.wrong_seat'), "error")
         return
     end
 
-    local plate = GetPlate(veh)
+    local plate = qbx.getVehiclePlate(veh)
     if part == "engine" then
         SetVehicleEngineHealth(veh, level)
         TriggerServerEvent("vehiclemod:server:updatePart", plate, "engine", GetVehicleEngineHealth(veh))
@@ -627,119 +591,44 @@ RegisterNetEvent('vehiclemod:client:setPartLevel', function(part, level)
     end
 end)
 
-RegisterNetEvent('vehiclemod:client:repairPart', function(part, level, needAmount)
-
-    -- FIXME: if ped is in a vehicle then we tell them they aren't in a vehicle? Something is wrong here.
-    if cache.vehicle then
-        exports.qbx_core:Notify(Lang:t('notifications.not_vehicle'), "error")
-        return
-    end
-    local veh = GetVehiclePedIsIn(cache.ped, true)
-    if not veh or veh == 0 then
-        exports.qbx_core:Notify(Lang:t('notifications.veh_first'), "error")
-        return
-    end
-
-    local vehpos = GetEntityCoords(veh)
-    local pos = GetEntityCoords(cache.ped)
-    if #(pos - vehpos) >= 5.0 then
-        exports.qbx_core:Notify(Lang:t('notifications.not_close'), "error")
-        return
-    end
-    if IsThisModelABicycle(GetEntityModel(veh)) then
-        exports.qbx_core:Notify(Lang:t('notifications.not_valid'), "error")
-        return
-    end
-    local plate = GetPlate(veh)
-    if not VehicleStatus[plate] or not VehicleStatus[plate][part] then
-        exports.qbx_core:Notify(Lang:t('notifications.not_part'), "error")
-        return
-    end
-
-    local lockpickTime = (1000 * level)
-    if part == "body" then
-        lockpickTime = lockpickTime / 10
-    end
-    scrapAnim(lockpickTime)
-    if lib.progressBar({
-        duration = lockpickTime,
-        label = Lang:t('notifications.progress_bar'),
-        canCancel = true,
-        anim = {
-            dict = 'mp_car_bomb',
-            clip = 'car_bomb_mechanic',
-            flag = 16,
-        }
-    }) then
-        openingDoor = false
-        ClearPedTasks(cache.ped)
-        if part == "body" then
-            local enhealth = GetVehicleEngineHealth(veh)
-            SetVehicleBodyHealth(veh, GetVehicleBodyHealth(veh) + level)
-            SetVehicleFixed(veh)
-            SetVehicleEngineHealth(veh, enhealth)
-            TriggerServerEvent("vehiclemod:server:updatePart", plate, part, GetVehicleBodyHealth(veh))
-            TriggerServerEvent("qb-mechanicjob:server:removePart", part, needAmount)
-        elseif part ~= "engine" then
-            TriggerServerEvent("vehiclemod:server:updatePart", plate, part, getVehicleStatus(plate, part) + level)
-            TriggerServerEvent("qb-mechanicjob:server:removePart", part, level)
-        end
-    else
-        openingDoor = false
-        ClearPedTasks(cache.ped)
-        exports.qbx_core:Notify(Lang:t('notifications.process_canceled'), "error")
-    end
+AddEventHandler('qb-mechanicjob:client:target:OpenStash', function()
+    exports.ox_inventory:openInventory('stash', {id = 'mechanicstash'})
 end)
 
-AddEventHandler('qb-mechanicjob:client:target:OpenStash', function ()
-    exports.ox_inventory:openInventory('stash', {id='mechanicstash'})
-end)
-
--- Threads
-
-CreateThread(function()
-    while true do
-        Wait(1000)
-        local wait = UpdatePartHealth()
-        Wait(wait)
-    end
-end)
-
---- STATIC MENUS
+-- Static menus
 
 local function registerLiftMenu()
-    local options = {
-        {
-            title = Lang:t('lift_menu.header_vehdc'),
-            description = Lang:t('lift_menu.desc_vehdc'),
-            onSelect = unattachVehicle,
-        },
-        {
-            title = Lang:t('lift_menu.header_stats'),
-            description = Lang:t('lift_menu.desc_stats'),
-            onSelect = checkStatus,
-        },
-        {
-            title = Lang:t('lift_menu.header_parts'),
-            description = Lang:t('lift_menu.desc_parts'),
-            arrow = true,
-            onSelect = OpenVehicleStatusMenu,
-        },
-    }
     lib.registerContext({
         id = 'lift',
-        title = Lang:t('lift_menu.header_menu'),
+        title = locale('lift_menu.header_menu'),
         onExit = resetClosestVehiclePlate,
-        options = options,
+        options = {
+            {
+                title = locale('lift_menu.header_vehdc'),
+                description = locale('lift_menu.desc_vehdc'),
+                onSelect = detachVehicle,
+            },
+            {
+                title = locale('lift_menu.header_stats'),
+                description = locale('lift_menu.desc_stats'),
+                onSelect = checkStatus,
+            },
+            {
+                title = locale('lift_menu.header_parts'),
+                description = locale('lift_menu.desc_parts'),
+                arrow = true,
+                onSelect = OpenVehicleStatusMenu,
+            }
+        }
     })
 end
 
 local function registerVehicleListMenu()
     local options = {}
-    for k,v in pairs(config.vehicles) do
-        options[#options+1] = {
+    for k, v in pairs(config.vehicles) do
+        options[#options + 1] = {
             title = v,
-            description = Lang:t('labels.vehicle_title', {value = v}),
+            description = locale('labels.vehicle_title', v),
             onSelect = function()
                 spawnListVehicle(k)
             end,
@@ -748,7 +637,7 @@ local function registerVehicleListMenu()
 
     lib.registerContext({
         id = 'mechanicVehicles',
-        title = Lang:t('labels.vehicle_list'),
+        title = locale('labels.vehicle_list'),
         options = options,
     })
 end
