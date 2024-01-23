@@ -24,22 +24,22 @@ local function applyAxleEffects(vehicle, plate)
     elseif VehicleStatus[plate].axle <= 59 and VehicleStatus[plate].axle >= 40 then
         for i = 0, 360 do
             Wait(10)
-            SetVehicleSteeringScale(vehicle,i)
+            SetVehicleSteeringScale(vehicle, i)
         end
     elseif VehicleStatus[plate].axle <= 39 and VehicleStatus[plate].axle >= 20 then
         for i = 0, 360 do
             Wait(15)
-            SetVehicleSteeringScale(vehicle,i)
+            SetVehicleSteeringScale(vehicle, i)
         end
     elseif VehicleStatus[plate].axle <= 19 and VehicleStatus[plate].axle >= 6 then
         for i = 0, 360 do
             Wait(20)
-            SetVehicleSteeringScale(vehicle,i)
+            SetVehicleSteeringScale(vehicle, i)
         end
     else
         for i = 0, 360 do
             Wait(25)
-            SetVehicleSteeringScale(vehicle,i)
+            SetVehicleSteeringScale(vehicle, i)
         end
     end
 end
@@ -72,10 +72,10 @@ local function applyClutchEffects(vehicle, plate)
     if VehicleStatus[plate].clutch <= 80 and VehicleStatus[plate].clutch >= 60 then
         SetVehicleHandbrake(vehicle, true)
         SetVehicleEngineOn(vehicle, false, false, true)
-        SetVehicleUndriveable(vehicle,true)
+        SetVehicleUndriveable(vehicle, true)
         Wait(50)
         SetVehicleEngineOn(vehicle, true, false, true)
-        SetVehicleUndriveable(vehicle,false)
+        SetVehicleUndriveable(vehicle, false)
         for i = 1, 360 do
             SetVehicleSteeringScale(vehicle, i)
             Wait(5)
@@ -85,10 +85,10 @@ local function applyClutchEffects(vehicle, plate)
     elseif VehicleStatus[plate].clutch <= 59 and VehicleStatus[plate].clutch >= 40 then
         SetVehicleHandbrake(vehicle, true)
         SetVehicleEngineOn(vehicle, false, false, true)
-        SetVehicleUndriveable(vehicle,true)
+        SetVehicleUndriveable(vehicle, true)
         Wait(100)
         SetVehicleEngineOn(vehicle, true, false, true)
-        SetVehicleUndriveable(vehicle,false)
+        SetVehicleUndriveable(vehicle, false)
         for i = 1, 360 do
             SetVehicleSteeringScale(vehicle, i)
             Wait(5)
@@ -98,10 +98,10 @@ local function applyClutchEffects(vehicle, plate)
     elseif VehicleStatus[plate].clutch <= 39 and VehicleStatus[plate].clutch >= 20 then
         SetVehicleHandbrake(vehicle, true)
         SetVehicleEngineOn(vehicle, false, false, true)
-        SetVehicleUndriveable(vehicle,true)
+        SetVehicleUndriveable(vehicle, true)
         Wait(150)
         SetVehicleEngineOn(vehicle, true, false, true)
-        SetVehicleUndriveable(vehicle,false)
+        SetVehicleUndriveable(vehicle, false)
         for i = 1, 360 do
             SetVehicleSteeringScale(vehicle, i)
             Wait(5)
@@ -111,10 +111,10 @@ local function applyClutchEffects(vehicle, plate)
     elseif VehicleStatus[plate].clutch <= 19 and VehicleStatus[plate].clutch >= 6 then
         SetVehicleHandbrake(vehicle, true)
         SetVehicleEngineOn(vehicle, false, false, true)
-        SetVehicleUndriveable(vehicle,true)
+        SetVehicleUndriveable(vehicle, true)
         Wait(200)
         SetVehicleEngineOn(vehicle, true, false, true)
-        SetVehicleUndriveable(vehicle,false)
+        SetVehicleUndriveable(vehicle, false)
         for i = 1, 360 do
             SetVehicleSteeringScale(vehicle, i)
             Wait(5)
@@ -124,10 +124,10 @@ local function applyClutchEffects(vehicle, plate)
     else
         SetVehicleHandbrake(vehicle, true)
         SetVehicleEngineOn(vehicle, false, false, true)
-        SetVehicleUndriveable(vehicle,true)
+        SetVehicleUndriveable(vehicle, true)
         Wait(250)
-        SetVehicleEngineOn(vehicle, true, false, tru)
-        SetVehicleUndriveable(vehicle,false)
+        SetVehicleEngineOn(vehicle, true, false, true)
+        SetVehicleUndriveable(vehicle, false)
         for i = 1, 360 do
             SetVehicleSteeringScale(vehicle, i)
             Wait(5)
