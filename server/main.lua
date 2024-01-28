@@ -1,3 +1,5 @@
+lib.locale()
+
 local config = require 'config.server'
 local sharedConfig = require 'config.shared'
 local vehicleStatus = {}

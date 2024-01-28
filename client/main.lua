@@ -1,3 +1,5 @@
+lib.locale()
+
 local config = require 'config.client'
 local sharedConfig = require 'config.shared'
 
