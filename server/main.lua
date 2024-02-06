@@ -4,12 +4,12 @@ local vehicleStatus = {}
 local vehicleDrivingDistance = {}
 local stash = {
     id = 'mechanicstash',
-    label = Lang:t('labels.stash'),
+    label = locale('labels.stash'),
     slots = 500,
     weight = 4000000,
     owner = false,
-    groups = {['mechanic'] = 0},
-    coords = sharedConfig.locations['stash']
+    groups = {mechanic = 0},
+    coords = sharedConfig.locations.stash
 }
 exports.ox_inventory:RegisterStash(stash.id, stash.label, stash.slots, stash.weight, stash.owner, stash.groups, stash.coords)
 
@@ -28,8 +28,8 @@ local function getVehicleStatus(plate)
 end
 
 local function isAuthorized(citizenId)
-    for _, cid in pairs(config.authorizedIds) do
-        if cid == citizenId then
+    for i = 1, #config.authorizedIds do
+        if config.authorizedIds[i] == citizenId then
             return true
         end
     end
@@ -51,16 +51,31 @@ lib.callback.register('qb-vehicletuning:server:GetAttachedVehicle', function()
 end)
 
 lib.callback.register('qbx_mechanicjob:server:spawnVehicle', function(source, vehicleName, vehicleCoords)
-	local netId = SpawnVehicle(source, vehicleName, vehicleCoords, true)
+	local netId = qbx.spawnVehicle({
+        model = joaat(vehicleName),
+        spawnSource = vehicleCoords,
+        warp = GetPlayerPed(source)
+    })
 	return netId
+end)
+
+lib.callback.register('qbx_mechanicjob:server:checkForItems', function(source, part)
+    local itemName = sharedConfig.repairCostAmount[part].item
+    local amountRequired = sharedConfig.repairCostAmount[part].costs
+    local amount = exports.ox_inventory:Search(source, 'count', itemName)
+    local hasEnough = amount >= amountRequired
+    if hasEnough then
+        exports.ox_inventory:RemoveItem(source, itemName, amountRequired)
+    end
+    return hasEnough
 end)
 
 -- Events
 
 RegisterNetEvent('qb-vehicletuning:server:SaveVehicleProps', function(vehicleProps)
-    if isVehicleOwned(vehicleProps.plate) then
-        MySQL.update('UPDATE player_vehicles SET mods = ? WHERE plate = ?', {json.encode(vehicleProps), vehicleProps.plate})
-    end
+    if not isVehicleOwned(vehicleProps.plate) then return end
+
+    MySQL.update.await('UPDATE player_vehicles SET mods = ? WHERE plate = ?', {json.encode(vehicleProps), vehicleProps.plate})
 end)
 
 RegisterNetEvent('vehiclemod:server:setupVehicleStatus', function(plate, engineHealth, bodyHealth)
@@ -86,77 +101,52 @@ RegisterNetEvent('qb-vehicletuning:server:UpdateDrivingDistance', function(amoun
     vehicleDrivingDistance[plate] = amount
     TriggerClientEvent('qb-vehicletuning:client:UpdateDrivingDistance', -1, vehicleDrivingDistance[plate], plate)
     local result = MySQL.query.await('SELECT plate FROM player_vehicles WHERE plate = ?', {plate})
-    if result[1] then
-        MySQL.update('UPDATE player_vehicles SET drivingdistance = ? WHERE plate = ?', {amount, plate})
-    end
+    if not result[1] then return end
+
+    MySQL.update.await('UPDATE player_vehicles SET drivingdistance = ? WHERE plate = ?', {amount, plate})
 end)
 
-RegisterNetEvent('qb-vehicletuning:server:LoadStatus', function(veh, plate)
+RegisterNetEvent('qb-vehicletuning:server:LoadStatus', function(veh, plate) -- Used in old qb-garages
     vehicleStatus[plate] = veh
     TriggerClientEvent("vehiclemod:client:setVehicleStatus", -1, plate, veh)
 end)
 
 RegisterNetEvent('vehiclemod:server:updatePart', function(plate, part, level)
-    if vehicleStatus[plate] == nil then return end
+    if not vehicleStatus[plate] then return end
 
     local maxLevel = (part == "engine" or part == "body") and 1000 or 100
-    if level < 0 then
-        level = 0
-    elseif level > maxLevel then
-        level = maxLevel
-    end
+    vehicleStatus[plate][part] = level < 0 and 0 or level > maxLevel and maxLevel or level
+    TriggerClientEvent("vehiclemod:client:setVehicleStatus", -1, plate, vehicleStatus[plate])
+end)
+
+RegisterNetEvent('qb-vehicletuning:server:SetPartLevel', function(plate, part, level)
+    if not vehicleStatus[plate] then return end
 
     vehicleStatus[plate][part] = level
     TriggerClientEvent("vehiclemod:client:setVehicleStatus", -1, plate, vehicleStatus[plate])
 end)
 
-RegisterNetEvent('qb-vehicletuning:server:SetPartLevel', function(plate, part, level)
-    if vehicleStatus[plate] ~= nil then
-        vehicleStatus[plate][part] = level
-        TriggerClientEvent("vehiclemod:client:setVehicleStatus", -1, plate, vehicleStatus[plate])
-    end
-end)
-
 RegisterNetEvent('vehiclemod:server:fixEverything', function(plate)
-    if vehicleStatus[plate] == nil then return end
+    if not vehicleStatus[plate] then return end
+
     for k, v in pairs(sharedConfig.maxStatusValues) do
         vehicleStatus[plate][k] = v
     end
+
     TriggerClientEvent("vehiclemod:client:setVehicleStatus", -1, plate, vehicleStatus[plate])
 end)
 
-RegisterNetEvent('vehiclemod:server:saveStatus', function(plate)
-    if vehicleStatus[plate] ~= nil then
-        MySQL.update('UPDATE player_vehicles SET status = ? WHERE plate = ?', { json.encode(vehicleStatus[plate]), plate })
-    end
+RegisterNetEvent('vehiclemod:server:saveStatus', function(plate) -- Used in old qb-garages
+    if not vehicleStatus[plate] then return end
+
+    MySQL.update.await('UPDATE player_vehicles SET status = ? WHERE plate = ?', { json.encode(vehicleStatus[plate]), plate })
 end)
 
-RegisterNetEvent('qb-vehicletuning:server:SetAttachedVehicle', function(veh, k)
-    sharedConfig.plates[k].AttachedVehicle = (veh == false) and nil or veh
+RegisterNetEvent('qb-vehicletuning:server:SetAttachedVehicle', function(k, veh)
+    if not sharedConfig.plates[k] then return end
+
+    sharedConfig.plates[k].AttachedVehicle = veh
     TriggerClientEvent('qb-vehicletuning:client:SetAttachedVehicle', -1, veh, k)
-end)
-
-RegisterNetEvent('qb-vehicletuning:server:CheckForItems', function(part)
-    local src = source
-    local player = exports.qbx_core:GetPlayer(src)
-    local itemName = sharedConfig.repairCostAmount[part].item
-    local amountRequired = sharedConfig.repairCostAmount[part].costs
-    local amount = exports.ox_inventory:Search(src, 'count', itemName)
-
-    if amount < amountRequired then
-        TriggerClientEvent('QBCore:Notify', src, Lang:t('notifications.not_enough') .. exports.ox_inventory:Items()[itemName].label .. " (min. " ..
-        amountRequired .. "x)", "error")
-        return
-    end
-
-    TriggerClientEvent('qb-vehicletuning:client:RepaireeePart', src, part)
-    player.Functions.RemoveItem(itemName, amountRequired)
-end)
-
-RegisterNetEvent('qb-mechanicjob:server:removePart', function(part, amount)
-    local player = exports.qbx_core:GetPlayer(source)
-    if not player then return end
-    player.Functions.RemoveItem(sharedConfig.repairCost[part], amount)
 end)
 
 -- Commands
@@ -192,9 +182,9 @@ lib.addCommand('setmechanic', {
         },
     },
 }, function(source, args)
-    local Player = exports.qbx_core:GetPlayer(source)
+    local player = exports.qbx_core:GetPlayer(source)
 
-    if isAuthorized(Player.PlayerData.citizenid) then
+    if isAuthorized(player.PlayerData.citizenid) then
         if args.target then
             local targetData = exports.qbx_core:GetPlayer(args.target)
             if targetData then
@@ -220,9 +210,9 @@ lib.addCommand('firemechanic', {
         },
     },
 }, function(source, args)
-    local Player = exports.qbx_core:GetPlayer(source)
+    local player = exports.qbx_core:GetPlayer(source)
 
-    if isAuthorized(Player.PlayerData.citizenid) then
+    if isAuthorized(player.PlayerData.citizenid) then
         if args.target then
             local TargetData = exports.qbx_core:GetPlayer(args.target)
             if TargetData then

@@ -1,4 +1,4 @@
-# qb-mechanicjob
+# qbx_mechanicjob
 Mechanic Job for Qbox Framework
 
 ## Screenshots
@@ -17,8 +17,7 @@ Mechanic Job for Qbox Framework
 ## Installation
 ### Manual
 - Download the script and put it in the `[qbx]` directory.
-- Import `qb-.sql` in your database
-- Add the following code to your server.cfg/resouces.cfg
+- Add the following code to your server.cfg or resouces.cfg
 ```
 ensure qbx_core
 ensure qbx_mechanicjob
