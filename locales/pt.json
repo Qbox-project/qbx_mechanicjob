@@ -1,0 +1,71 @@
+{
+    "labels": {
+        "engine": "Motor",
+        "body": "Carroçaria",
+        "radiator": "Radiador",
+        "axle": "Veio de Transmissão",
+        "brakes": "Travões",
+        "clutch": "Embraiagem",
+        "fuel": "Depósito de Combustível",
+        "sign_in": "Entrar",
+        "sign_off": "Sair",
+        "o_stash": "[E] Abrir Armazém",
+        "h_vehicle": "[E] Esconder Veículo",
+        "g_vehicle": "[E] Buscar Veículo",
+        "o_menu": "[E] Abrir Menu",
+        "work_v": "[E] Trabalhar no Veículo",
+        "progress_bar": "A reparar %s...",
+        "veh_status": "Estado do Veículo:",
+        "job_blip": "Mecânico Autocare",
+        "stash": "Armazém do Mecânico",
+        "status": "Estado",
+        "vehicle_title": "Veículo: %s",
+        "vehicle_list": "Lista de Veículos"
+    },
+
+    "lift_menu": {
+        "header_menu": "Opções do Veículo",
+        "header_vehdc": "Desligar Veículo",
+        "desc_vehdc": "Desaparelhar Veículo do Elevador",
+        "header_stats": "Verificar Estado",
+        "desc_stats": "Verificar Estado do Veículo",
+        "header_parts": "Peças do Veículo",
+        "desc_parts": "Reparar Peças do Veículo",
+        "c_menu": "⬅ Fechar Menu"
+    },
+
+    "parts_menu": {
+        "status": "Estado: %s%% / 100.0%%",
+        "menu_header": "Menu de Peças",
+        "repair_op": "Reparar: %s %sx",
+        "b_menu": "⬅ Menu Anterior",
+        "d_menu": "Voltar ao menu de peças",
+        "c_menu": "⬅ Fechar Menu"
+    },
+
+    "nodamage_menu": {
+        "header": "Sem Danos",
+        "bh_menu": "Menu Anterior",
+        "bd_menu": "Não há danos nesta peça!",
+        "c_menu": "⬅ Fechar Menu"
+    },
+
+    "notifications": {
+        "not_enough": "Não tens o suficiente de %s (mín. %sx)",
+        "not_have": "Não tens",
+        "not_materials": "Não há materiais suficientes no cofre",
+        "rep_canceled": "Reparação cancelada",
+        "repaired": "foi reparado!",
+        "unknown": "Estado desconhecido",
+        "not_valid": "Veículo inválido",
+        "not_close": "Não estás perto o suficiente do veículo",
+        "veh_first": "Tens de estar no veículo primeiro",
+        "outside": "Tens de estar fora do veículo",
+        "wrong_seat": "Não és o condutor ou estás numa bicicleta",
+        "not_vehicle": "Não estás num veículo",
+        "progress_bar": "A reparar veículo..",
+        "process_canceled": "Processo cancelado",
+        "not_part": "Peça inválida",
+        "partrep":"O %s foi reparado!"
+    }
+}
