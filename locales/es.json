@@ -1,7 +1,7 @@
 {
     "labels": {
         "engine": "Motor",
-        "bodsy": "Carrocería",
+        "body": "Carrocería",
         "radiator": "Radiador",
         "axle": "Árbol de transmisión",
         "brakes": "Frenos",
@@ -14,7 +14,7 @@
         "g_vehicle": "[E] Obtener vehículo",
         "o_menu": "[E] Abrir menú",
         "work_v": "[E] Trabajar en el vehículo",
-        "progress_bar": "Reparando...",
+        "progress_bar": "Repairing %s...",
         "veh_status": "Estado del vehículo:",
         "job_blip": "Mecánico de LS Customs",
         "stash": "Almacén de mecánico",
@@ -22,6 +22,7 @@
         "vehicle_title": "Vehículo: %s",
         "vehicle_list": "Lista de vehículos"
     },
+
     "lift_menu": {
         "header_menu": "Opciones del vehículo",
         "header_vehdc": "Desconectar vehículo",
@@ -32,27 +33,30 @@
         "desc_parts": "Reparar piezas del vehículo",
         "c_menu": "⬅ Cerrar menú"
     },
+
     "parts_menu": {
-        "status": "Estado: ",
+        "status": "Estado: %s%% / 100.0%%",
         "menu_header": "Menú de piezas",
-        "repair_op": "Reparar: ",
+        "repair_op": "Reparar: %s %sx",
         "b_menu": "⬅ Volver al menú",
         "d_menu": "Volver al menú de piezas",
         "c_menu": "⬅ Cerrar menú"
     },
+
     "nodamage_menu": {
         "header": "Sin daños",
         "bh_menu": "Volver al menú",
         "bd_menu": "¡No hay daños en esta parte!",
         "c_menu": "⬅ Cerrar menú"
     },
+
     "notifications": {
-        "not_enough": "No tienes suficiente",
+        "not_enough": "You don't have enough %s (min. %sx)",
         "not_have": "No tienes",
         "not_materials": "No hay suficientes materiales en el almacén",
         "rep_canceled": "Reparación cancelada",
         "repaired": "¡ha sido reparado/a!",
-        "uknown": "Estado desconocido",
+        "unknown": "Estado desconocido",
         "not_valid": "Vehículo no válido",
         "not_close": "No estás lo suficientemente cerca del vehículo",
         "veh_first": "Primero debes estar dentro del vehículo",

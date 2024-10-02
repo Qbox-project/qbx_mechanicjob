@@ -1,7 +1,7 @@
 {
     "labels": {
         "engine": "Motor",
-        "bodsy": "Caroserie",
+        "body": "Caroserie",
         "radiator": "Radiator",
         "axle": "Cutie de viteze",
         "brakes": "Sistem de franare",
@@ -14,10 +14,15 @@
         "g_vehicle": "[E] Foloseste vehicul",
         "o_menu": "[E] Deschide meniul",
         "work_v": "[E] Lucreaza la vehicul",
-        "progress_bar": "Reparam ...",
+        "progress_bar": "Repairing %s...",
         "veh_status": "Status vehicul:",
-        "job_blip": "Mecanic auto"
+        "job_blip": "Mecanic auto",
+        "stash": "Mechanic Stash",
+        "status": "Status",
+        "vehicle_title": "Vehicle: %s",
+        "vehicle_list": "Vehicle List"
     },
+
     "lift_menu": {
         "header_menu": "Optiuni vehicul",
         "header_vehdc": "Deconecteaza vehicul",
@@ -28,27 +33,30 @@
         "desc_parts": "Repara componente",
         "c_menu": "⬅ Inchide meniul"
     },
+
     "parts_menu": {
-        "status": "Statut: ",
+        "status": "Statut: %s%% / 100.0%%",
         "menu_header": "Meniu componente",
-        "repair_op": "Repara:",
+        "repair_op": "Repara: %s %sx",
         "b_menu": "⬅ Inapoi",
         "d_menu": "Inapoi la componente",
         "c_menu": "⬅ Inchide meniul"
     },
+
     "nodamage_menu": {
         "header": "No Damage",
         "bh_menu": "Back Menu",
         "bd_menu": "There Is No Damage To This Part!",
         "c_menu": "⬅ Close Menu"
     },
+
     "notifications": {
-        "not_enough": "Nu ai suficient",
+        "not_enough": "You don't have enough %s (min. %sx)",
         "not_have": "Nu ai",
         "not_materials": "Nu ai suficiente materiale in depozit",
         "rep_canceled": "Reparare anulata",
         "repaired": "a fost reparat!",
-        "uknown": "Statut necunoscut",
+        "unknown": "Statut necunoscut",
         "not_valid": "Nu este un vehicul valid",
         "not_close": "Nu esti suficient de aproape de vehicul",
         "veh_first": "Trebuie sa fi in vehicul mai intai",
