@@ -1,0 +1,71 @@
+{
+    "labels": {
+        "engine": "Motor",
+        "body": "Karosserie",
+        "radiator": "Kühler",
+        "axle": "Antriebswelle",
+        "brakes": "Bremsen",
+        "clutch": "Kupplung",
+        "fuel": "Kraftstofftank",
+        "sign_in": "Anmelden",
+        "sign_off": "Abmelden",
+        "o_stash": "[E] Versteck öffnen",
+        "h_vehicle": "[E] Fahrzeug verstecken",
+        "g_vehicle": "[E] Fahrzeug holen",
+        "o_menu": "[E] Menü öffnen",
+        "work_v": "[E] Am Fahrzeug arbeiten",
+        "progress_bar": "Repariere %s...",
+        "veh_status": "Fahrzeugstatus:",
+        "job_blip": "Mechaniker für Autopflege",
+        "stash": "Mechaniker-Versteck",
+        "status": "Status",
+        "vehicle_title": "Fahrzeug: %s",
+        "vehicle_list": "Fahrzeugliste"
+    },
+
+    "lift_menu": {
+        "header_menu": "Fahrzeugoptionen",
+        "header_vehdc": "Fahrzeug trennen",
+        "desc_vehdc": "Fahrzeug von der Hebebühne trennen",
+        "header_stats": "Status prüfen",
+        "desc_stats": "Fahrzeugstatus überprüfen",
+        "header_parts": "Fahrzeugteile",
+        "desc_parts": "Fahrzeugteile reparieren",
+        "c_menu": "⬅ Menü schließen"
+    },
+
+    "parts_menu": {
+        "status": "Status: %s%% / 100.0%%",
+        "menu_header": "Teilemenü",
+        "repair_op": "Reparieren: %s %sx",
+        "b_menu": "⬅ Zurück zum Menü",
+        "d_menu": "Zurück zum Teilemenü",
+        "c_menu": "⬅ Menü schließen"
+    },
+
+    "nodamage_menu": {
+        "header": "Kein Schaden",
+        "bh_menu": "Zurück zum Menü",
+        "bd_menu": "Es gibt keinen Schaden an diesem Teil!",
+        "c_menu": "⬅ Menü schließen"
+    },
+
+    "notifications": {
+        "not_enough": "Du hast nicht genug %s (min. %sx)",
+        "not_have": "Du hast nicht",
+        "not_materials": "Es sind nicht genug Materialien im Tresor",
+        "rep_canceled": "Reparatur abgebrochen",
+        "repaired": "wurde repariert!",
+        "unknown": "Status unbekannt",
+        "not_valid": "Ungültiges Fahrzeug",
+        "not_close": "Du bist nicht nah genug am Fahrzeug",
+        "veh_first": "Du musst zuerst im Fahrzeug sein",
+        "outside": "Du musst außerhalb des Fahrzeugs sein",
+        "wrong_seat": "Du bist nicht der Fahrer oder auf einem Fahrrad",
+        "not_vehicle": "Du bist nicht in einem Fahrzeug",
+        "progress_bar": "Fahrzeug wird repariert...",
+        "process_canceled": "Vorgang abgebrochen",
+        "not_part": "Kein gültiges Teil",
+        "partrep": "Das %s wurde repariert!"
+    }
+}
