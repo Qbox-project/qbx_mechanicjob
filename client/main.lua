@@ -460,18 +460,6 @@ local function spawnListVehicle(model)
     SetVehicleEngineOn(veh, true, true, false)
 end
 
-local function createBlip()
-    local blip = AddBlipForCoord(sharedConfig.locations.exit.x, sharedConfig.locations.exit.y, sharedConfig.locations.exit.z)
-    SetBlipSprite(blip, 446)
-    SetBlipDisplay(blip, 4)
-    SetBlipScale(blip, 0.7)
-    SetBlipColour(blip, 0)
-    SetBlipAsShortRange(blip, true)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString(locale('labels.job_blip'))
-    EndTextCommandSetBlipName(blip)
-end
-
 -- Events
 
 AddEventHandler('onResourceStart', function(resource)
