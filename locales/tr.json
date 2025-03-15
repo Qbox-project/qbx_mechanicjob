@@ -1,0 +1,67 @@
+{
+  "labels": {
+    "engine": "Motor",
+    "body": "Gövde",
+    "radiator": "Radyatör",
+    "axle": "Tahrik Mili",
+    "brakes": "Frenler",
+    "clutch": "Debriyaj",
+    "fuel": "Yakıt Tankı",
+    "sign_in": "Giriş Yap",
+    "sign_off": "Çıkış Yap",
+    "o_stash": "[E] Depoyu Aç",
+    "h_vehicle": "[E] Aracı Gizle",
+    "g_vehicle": "[E] Aracı Al",
+    "o_menu": "[E] Menüyü Aç",
+    "work_v": "[E] Araç Üzerinde Çalış",
+    "progress_bar": "Tamir ediliyor %s...",
+    "veh_status": "Araç Durumu:",
+    "job_blip": "Oto Tamircisi",
+    "stash": "Tamirci Deposu",
+    "status": "Durum",
+    "vehicle_title": "Araç: %s",
+    "vehicle_list": "Araç Listesi"
+  },
+  "lift_menu": {
+    "header_menu": "Araç Seçenekleri",
+    "header_vehdc": "Aracın Bağlantısını Kes",
+    "desc_vehdc": "Aracı kaldırmadan ayır",
+    "header_stats": "Durumu Kontrol Et",
+    "desc_stats": "Araç Durumunu Kontrol Et",
+    "header_parts": "Araç Parçaları",
+    "desc_parts": "Araç Parçalarını Tamir Et",
+    "c_menu": "⬅ Menüyü Kapat"
+  },
+  "parts_menu": {
+    "status": "Durum: %s%% / 100.0%%",
+    "menu_header": "Parça Menüsü",
+    "repair_op": "Tamir: %s %sx",
+    "b_menu": "⬅ Geri Dön",
+    "d_menu": "Parça menüsüne geri dön",
+    "c_menu": "⬅ Menüyü Kapat"
+  },
+  "nodamage_menu": {
+    "header": "Hasar Yok",
+    "bh_menu": "Geri Menü",
+    "bd_menu": "Bu parçaya hasar yok!",
+    "c_menu": "⬅ Menüyü Kapat"
+  },
+  "notifications": {
+    "not_enough": "Yeterli %s'in yok (en az %sx)",
+    "not_have": "Sahip değilsin",
+    "not_materials": "Kasada yeterli malzeme yok",
+    "rep_canceled": "Tamir iptal edildi",
+    "repaired": "tamir edildi!",
+    "unknown": "Durum bilinmiyor",
+    "not_valid": "Geçerli bir araç değil",
+    "not_close": "Araca yeterince yakın değilsin",
+    "veh_first": "Önce araçta olmalısın",
+    "outside": "Araç dışında olmalısın",
+    "wrong_seat": "Sürücü ya da bisiklet sürücüsü değilsin",
+    "not_vehicle": "Araçta değilsin",
+    "progress_bar": "Araç tamir ediliyor..",
+    "process_canceled": "İşlem iptal edildi",
+    "not_part": "Geçerli bir parça değil",
+    "partrep": "%s tamir edildi!"
+  }
+}
