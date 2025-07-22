@@ -461,6 +461,8 @@ local function spawnListVehicle(model)
 end
 
 local function createBlip()
+    if not sharedConfig.locations.exit then return end
+
     local blip = AddBlipForCoord(sharedConfig.locations.exit.x, sharedConfig.locations.exit.y, sharedConfig.locations.exit.z)
     SetBlipSprite(blip, 446)
     SetBlipDisplay(blip, 4)
@@ -482,7 +484,7 @@ AddEventHandler('onResourceStart', function(resource)
     registerDutyTarget()
     registerStashTarget()
     setVehiclePlateZones()
-    if QBX.PlayerData.job.onduty and QBX.PlayerData.type == 'mechanic' then
+    if QBX.PlayerData.job.onduty and QBX.PlayerData.job.type == 'mechanic' then
         TriggerServerEvent("QBCore:ToggleDuty")
     end
 
@@ -503,7 +505,7 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     registerDutyTarget()
     registerStashTarget()
     setVehiclePlateZones()
-    if QBX.PlayerData.job.onduty and QBX.PlayerData.type == 'mechanic' then
+    if QBX.PlayerData.job.onduty and QBX.PlayerData.job.type == 'mechanic' then
         TriggerServerEvent("QBCore:ToggleDuty")
     end
 
