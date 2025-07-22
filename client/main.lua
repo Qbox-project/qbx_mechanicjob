@@ -60,8 +60,7 @@ local function registerDutyTarget()
         return
     end
 
-    local label = QBX.PlayerData.job.onduty and locale('labels.sign_off') or locale('labels.sign_in')
-
+    local label = QBX.PlayerData.job.onduty and locale('labels.sign_in') or locale('labels.sign_off')
     if config.useTarget then
         dutyTargetBoxId = exports.ox_target:addBoxZone({
             coords = coords,
@@ -294,6 +293,8 @@ local function sendStatusMessage(statusList)
             qbx.math.round(statusList.radiator) .. "/" .. sharedConfig.maxStatusValues.radiator .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.radiator].label..")",
             qbx.math.round(statusList.axle) .. "/" .. sharedConfig.maxStatusValues.axle .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.axle].label..")",
             qbx.math.round(statusList.brakes) .. "/" .. sharedConfig.maxStatusValues.brakes .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.brakes].label..")",
+            
+            print(statusList.clutch),
             qbx.math.round(statusList.clutch) .. "/" .. sharedConfig.maxStatusValues.clutch .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.clutch].label..")",
             qbx.math.round(statusList.fuel) .. "/" .. sharedConfig.maxStatusValues.fuel .. ".0 ("..exports.ox_inventory:Items()[sharedConfig.repairCost.fuel].label..")"
         }
@@ -461,6 +462,8 @@ local function spawnListVehicle(model)
 end
 
 local function createBlip()
+    if not sharedConfig.locations.exit then return end
+
     local blip = AddBlipForCoord(sharedConfig.locations.exit.x, sharedConfig.locations.exit.y, sharedConfig.locations.exit.z)
     SetBlipSprite(blip, 446)
     SetBlipDisplay(blip, 4)
@@ -482,7 +485,7 @@ AddEventHandler('onResourceStart', function(resource)
     registerDutyTarget()
     registerStashTarget()
     setVehiclePlateZones()
-    if QBX.PlayerData.job.onduty and QBX.PlayerData.type == 'mechanic' then
+    if QBX.PlayerData.job.onduty and QBX.PlayerData.job.type == 'mechanic' then
         TriggerServerEvent("QBCore:ToggleDuty")
     end
 
@@ -522,8 +525,7 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
     deleteTarget(dutyTargetBoxId)
     deleteTarget(stashTargetBoxId)
 
-    if QBX.PlayerData.type ~= 'mechanic' then return end
-
+    if QBX.PlayerData.job.type ~= 'mechanic' then return end
     registerDutyTarget()
 
     if not QBX.PlayerData.job.onduty then return end
@@ -533,8 +535,7 @@ end)
 RegisterNetEvent('QBCore:Client:SetDuty', function()
     deleteTarget(dutyTargetBoxId)
     deleteTarget(stashTargetBoxId)
-
-    if QBX.PlayerData.type == 'mechanic' then
+    if QBX.PlayerData.job.type == 'mechanic' then
     registerDutyTarget()
 
     if not QBX.PlayerData.job.onduty then return end
