@@ -522,7 +522,8 @@ local function updateJobActions()
     deleteTarget(dutyTargetBoxId)
     deleteTarget(stashTargetBoxId)
     
-
+     Wait(2000) -- wait 2s to preventing bug on zone creation interator
+    
     if QBX.PlayerData.job.type == 'mechanic' then
         registerDutyTarget()
     
