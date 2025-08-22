@@ -518,28 +518,25 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     end)
 end)
 
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
+local function updateJobActions()
     deleteTarget(dutyTargetBoxId)
     deleteTarget(stashTargetBoxId)
+    
 
-    if QBX.PlayerData.type ~= 'mechanic' then return end
+    if QBX.PlayerData.job.type == 'mechanic' then
+        registerDutyTarget()
+    
+        if not QBX.PlayerData.job.onduty then return end
+        registerStashTarget()
+    end
+end
 
-    registerDutyTarget()
-
-    if not QBX.PlayerData.job.onduty then return end
-    registerStashTarget()
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
+   updateJobActions()
 end)
 
 RegisterNetEvent('QBCore:Client:SetDuty', function()
-    deleteTarget(dutyTargetBoxId)
-    deleteTarget(stashTargetBoxId)
-
-    if QBX.PlayerData.type == 'mechanic' then
-    registerDutyTarget()
-
-    if not QBX.PlayerData.job.onduty then return end
-    registerStashTarget()
-    end
+    updateJobActions()
 end)
 
 RegisterNetEvent('qb-vehicletuning:client:SetAttachedVehicle', function(veh, key)
