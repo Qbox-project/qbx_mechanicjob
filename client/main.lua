@@ -532,9 +532,7 @@ local function updateJobActions()
     end
 end
 
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
-   updateJobActions()
-end)
+RegisterNetEvent('QBCore:Client:OnJobUpdate', updateJobActions)
 
 RegisterNetEvent('QBCore:Client:SetDuty', function()
     updateJobActions()
