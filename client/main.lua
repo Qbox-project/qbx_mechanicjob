@@ -534,9 +534,7 @@ end
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', updateJobActions)
 
-RegisterNetEvent('QBCore:Client:SetDuty', function()
-    updateJobActions()
-end)
+RegisterNetEvent('QBCore:Client:SetDuty', updateJobActions)
 
 RegisterNetEvent('qb-vehicletuning:client:SetAttachedVehicle', function(veh, key)
     sharedConfig.plates[key].AttachedVehicle = veh
