@@ -1,0 +1,71 @@
+{
+    "labels": {
+        "engine": "Silnik",
+        "body": "Nadwozie",
+        "radiator": "Chłodnica",
+        "axle": "Wału napędowego",
+        "brakes": "Hamulce",
+        "clutch": "Sprzęgło",
+        "fuel": "Zbiornik paliwa",
+        "sign_in": "Zaczynaj pracę",
+        "sign_off": "Kończ pracę",
+        "o_stash": "[E] Otwórz schowek",
+        "h_vehicle": "[E] Schowaj pojazd",
+        "g_vehicle": "[E] Pobierz pojazd",
+        "o_menu": "[E] Otwórz menu",
+        "work_v": "[E] Napraw pojazd",
+        "progress_bar": "Naprawa %s...",
+        "veh_status": "Stan pojazdu:",
+        "job_blip": "Mechanik samochodowy",
+        "stash": "Schowek mechanika",
+        "status": "Status",
+        "vehicle_title": "Pojazd: %s",
+        "vehicle_list": "Lista pojazdów"
+    },
+
+    "lift_menu": {
+        "header_menu": "Opcje pojazdu",
+        "header_vehdc": "Odłącz pojazd",
+        "desc_vehdc": "Odłącz pojazd z podnośnika",
+        "header_stats": "Sprawdź stan",
+        "desc_stats": "Sprawdź stan pojazdu",
+        "header_parts": "Części pojazdu",
+        "desc_parts": "Napraw części pojazdu",
+        "c_menu": "⬅ Zamknij menu"
+    },
+
+    "parts_menu": {
+        "status": "Stan: %s%% / 100%%",
+        "menu_header": "Menu części",
+        "repair_op": "Napraw: %s %sx",
+        "b_menu": "⬅ Wróć do menu",
+        "d_menu": "Wróć do części",
+        "c_menu": "⬅ Zamknij menu"
+    },
+
+    "nodamage_menu": {
+        "header": "Brak uszkodzeń",
+        "bh_menu": "Wróć do menu",
+        "bd_menu": "Ta część nie jest uszkodzona!",
+        "c_menu": "⬅ Zamknij menu"
+    },
+
+    "notifications": {
+        "not_enough": "Masz za mało %s (wymagane min. %sx)",
+        "not_have": "Nie posiadasz",
+        "not_materials": "W sejfie brakuje materiałów",
+        "rep_canceled": "Naprawa przerwana",
+        "repaired": "zostało naprawione!",
+        "unknown": "Stan nieznany",
+        "not_valid": "Nieprawidłowy pojazd",
+        "not_close": "Jesteś za daleko od pojazdu",
+        "veh_first": "Najpierw musisz być w pojeździe",
+        "outside": "Musisz być na zewnątrz pojazdu",
+        "wrong_seat": "Nie jesteś kierowcą ani na rowerze",
+        "not_vehicle": "Nie jesteś w pojeździe",
+        "progress_bar": "Naprawa pojazdu...",
+        "process_canceled": "Proces przerwany",
+        "not_part": "Nieprawidłowa część",
+        "partrep": "Część %s została naprawiona!"
+    }
+}
