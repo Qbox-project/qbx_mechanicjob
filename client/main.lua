@@ -518,29 +518,23 @@ AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     end)
 end)
 
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
+local function updateJobActions()
     deleteTarget(dutyTargetBoxId)
     deleteTarget(stashTargetBoxId)
-
-    if QBX.PlayerData.type ~= 'mechanic' then return end
-
-    registerDutyTarget()
-
-    if not QBX.PlayerData.job.onduty then return end
-    registerStashTarget()
-end)
-
-RegisterNetEvent('QBCore:Client:SetDuty', function()
-    deleteTarget(dutyTargetBoxId)
-    deleteTarget(stashTargetBoxId)
-
-    if QBX.PlayerData.type == 'mechanic' then
-    registerDutyTarget()
-
-    if not QBX.PlayerData.job.onduty then return end
-    registerStashTarget()
+    
+     Wait(2000) -- wait 2s to preventing bug on zone creation interator
+    
+    if QBX.PlayerData.job.type == 'mechanic' then
+        registerDutyTarget()
+    
+        if not QBX.PlayerData.job.onduty then return end
+        registerStashTarget()
     end
-end)
+end
+
+RegisterNetEvent('QBCore:Client:OnJobUpdate', updateJobActions)
+
+RegisterNetEvent('QBCore:Client:SetDuty', updateJobActions)
 
 RegisterNetEvent('qb-vehicletuning:client:SetAttachedVehicle', function(veh, key)
     sharedConfig.plates[key].AttachedVehicle = veh
