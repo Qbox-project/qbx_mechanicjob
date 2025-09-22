@@ -1,0 +1,71 @@
+{
+    "labels": {
+        "engine": "Moteur",
+        "body": "Carrosserie",
+        "radiator": "Radiateur",
+        "axle": "Arbre de transmission",
+        "brakes": "Freins",
+        "clutch": "Embrayage",
+        "fuel": "Réservoir de carburant",
+        "sign_in": "Prendre son service",
+        "sign_off": "Finir son service",
+        "o_stash": "[E] Ouvrir le coffre",
+        "h_vehicle": "[E] Cacher le véhicule",
+        "g_vehicle": "[E] Récupérer le véhicule",
+        "o_menu": "[E] Ouvrir le menu",
+        "work_v": "[E] Travailler sur le véhicule",
+        "progress_bar": "Réparation de %s...",
+        "veh_status": "État du véhicule :",
+        "job_blip": "Mécanicien Autocare",
+        "stash": "Coffre du mécanicien",
+        "status": "État",
+        "vehicle_title": "Véhicule : %s",
+        "vehicle_list": "Liste des véhicules"
+    },
+
+    "lift_menu": {
+        "header_menu": "Options du véhicule",
+        "header_vehdc": "Descendre le véhicule",
+        "desc_vehdc": "Abaisser le véhicule du pont élévateur",
+        "header_stats": "Vérifier l'état",
+        "desc_stats": "Vérifier l'état du véhicule",
+        "header_parts": "Pièces du véhicule",
+        "desc_parts": "Réparer les pièces du véhicule",
+        "c_menu": "⬅ Fermer le menu"
+    },
+
+    "parts_menu": {
+        "status": "État : %s%% / 100.0%%",
+        "menu_header": "Menu des pièces",
+        "repair_op": "Réparer : %s %sx",
+        "b_menu": "⬅ Menu précédent",
+        "d_menu": "Retour au menu des pièces",
+        "c_menu": "⬅ Fermer le menu"
+    },
+
+    "nodamage_menu": {
+        "header": "Aucun dommage",
+        "bh_menu": "Menu précédent",
+        "bd_menu": "Il n'y a aucun dommage sur cette pièce !",
+        "c_menu": "⬅ Fermer le menu"
+    },
+
+    "notifications": {
+        "not_enough": "Vous n'avez pas assez de %s (min. %sx)",
+        "not_have": "Vous n'avez pas",
+        "not_materials": "Il n'y a pas assez de matériaux dans le coffre-fort",
+        "rep_canceled": "Réparation annulée",
+        "repaired": "a été réparé !",
+        "unknown": "État inconnu",
+        "not_valid": "Véhicule non valide",
+        "not_close": "Vous n'êtes pas assez proche du véhicule",
+        "veh_first": "Vous devez d'abord être dans le véhicule",
+        "outside": "Vous devez être à l'extérieur du véhicule",
+        "wrong_seat": "Vous n'êtes pas le conducteur ou sur un vélo",
+        "not_vehicle": "Vous n'êtes pas dans un véhicule",
+        "progress_bar": "Réparation du véhicule...",
+        "process_canceled": "Processus annulé",
+        "not_part": "Pièce non valide",
+        "partrep":"Le %s a été réparé !"
+    }
+}
