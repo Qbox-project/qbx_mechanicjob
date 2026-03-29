@@ -1,0 +1,67 @@
+{
+    "labels": {
+        "engine": "エンジン",
+        "body": "ボディ",
+        "radiator": "ラジエーター",
+        "axle": "ドライブシャフト",
+        "brakes": "ブレーキ",
+        "clutch": "クラッチ",
+        "fuel": "燃料タンク",
+        "sign_in": "出勤",
+        "sign_off": "退勤",
+        "o_stash": "[E] スタッシュを開く",
+        "h_vehicle": "[E] 車両を隠す",
+        "g_vehicle": "[E] 車両を取り出す",
+        "o_menu": "[E] メニューを開く",
+        "work_v": "[E] 車両を修理",
+        "progress_bar": "%s を修理中...",
+        "veh_status": "車両状態：",
+        "job_blip": "オートケアメカニック",
+        "stash": "メカニックスタッシュ",
+        "status": "状態",
+        "vehicle_title": "車両：%s",
+        "vehicle_list": "車両リスト"
+    },
+    "lift_menu": {
+        "header_menu": "車両オプション",
+        "header_vehdc": "車両を切り離す",
+        "desc_vehdc": "リフトから車両を切り離す",
+        "header_stats": "状態確認",
+        "desc_stats": "車両状態を確認",
+        "header_parts": "車両パーツ",
+        "desc_parts": "車両パーツを修理",
+        "c_menu": "⬅ メニューを閉じる"
+    },
+    "parts_menu": {
+        "status": "状態：%s%% / 100.0%%",
+        "menu_header": "パーツメニュー",
+        "repair_op": "修理：%s %s個",
+        "b_menu": "⬅ 戻る",
+        "d_menu": "パーツメニューに戻る",
+        "c_menu": "⬅ メニューを閉じる"
+    },
+    "nodamage_menu": {
+        "header": "ダメージなし",
+        "bh_menu": "戻る",
+        "bd_menu": "このパーツにダメージはありません！",
+        "c_menu": "⬅ メニューを閉じる"
+    },
+    "notifications": {
+        "not_enough": "%s が足りません（最低 %s 個必要）",
+        "not_have": "持っていません",
+        "not_materials": "金庫に素材が不足しています",
+        "rep_canceled": "修理がキャンセルされました",
+        "repaired": "修理されました！",
+        "unknown": "状態不明",
+        "not_valid": "有効な車両ではありません",
+        "not_close": "車両に近づいていません",
+        "veh_first": "先に車両に乗る必要があります",
+        "outside": "車両の外に出る必要があります",
+        "wrong_seat": "ドライバーシートまたは自転車に乗っていません",
+        "not_vehicle": "車両に乗っていません",
+        "progress_bar": "車両を修理中..",
+        "process_canceled": "処理がキャンセルされました",
+        "not_part": "有効なパーツではありません",
+        "partrep": "%s が修理されました！"
+    }
+}
