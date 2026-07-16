@@ -324,7 +324,9 @@ local function checkStatus()
 end
 
 local function repairPart(part)
-    local hasEnough = lib.callback.await('qbx_mechanicjob:server:checkForItems', false, part)
+    local veh = sharedConfig.plates[closestPlate].AttachedVehicle
+    local plate = qbx.getVehiclePlate(veh)
+    local hasEnough = lib.callback.await('qbx_mechanicjob:server:checkForItems', false, part, plate)
     if not hasEnough then
         local itemName = sharedConfig.repairCostAmount[part].item
         local amountRequired = sharedConfig.repairCostAmount[part].costs
@@ -344,8 +346,6 @@ local function repairPart(part)
         }
     }) then
         exports.scully_emotemenu:cancelEmote()
-        local veh = sharedConfig.plates[closestPlate].AttachedVehicle
-        local plate = qbx.getVehiclePlate(veh)
         if part == "engine" then
             SetVehicleEngineHealth(veh, sharedConfig.maxStatusValues[part])
             TriggerServerEvent("vehiclemod:server:updatePart", plate, "engine", sharedConfig.maxStatusValues[part])
