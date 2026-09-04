@@ -1,0 +1,67 @@
+{
+    "labels": {
+        "engine": "Motor",
+        "body": "Lichaam",
+        "radiator": "Radiator",
+        "axle": "Aandrijfas",
+        "brakes": "Remmen",
+        "clutch": "Koppeling",
+        "fuel": "Brandstoftank",
+        "sign_in": "Inloggen",
+        "sign_off": "Afmelden",
+        "o_stash": "[E] Open voorraad",
+        "h_vehicle": "[E] Voertuig verbergen",
+        "g_vehicle": "[E] Voertuig ophalen",
+        "o_menu": "[E] Menu openen",
+        "work_v": "[E] Werkzaamheden aan voertuig",
+        "progress_bar": "%srepareren ...",
+        "veh_status": "Voertuigstatus:",
+        "job_blip": "Autocare monteur",
+        "stash": "Monteur voorraad",
+        "status": "Status",
+        "vehicle_title": "Voertuig:%s",
+        "vehicle_list": "Voertuiglijst"
+    },
+    "lift_menu": {
+        "header_menu": "Voertuigopties",
+        "header_vehdc": "Koppel het voertuig los",
+        "desc_vehdc": "Maak het voertuig los van de lift",
+        "header_stats": "Controleer status",
+        "desc_stats": "Controleer de voertuigstatus",
+        "header_parts": "Voertuigonderdelen",
+        "desc_parts": "Reparatie voertuigonderdelen",
+        "c_menu": "⬅ Sluit menu"
+    },
+    "parts_menu": {
+        "status": "Status:%s%% / 100,0%%",
+        "menu_header": "Deelmenu",
+        "repair_op": "Reparatie:%s%sx",
+        "b_menu": "⬅ Terugmenu",
+        "d_menu": "Terug naar het onderdelenmenu",
+        "c_menu": "⬅ Sluit menu"
+    },
+    "nodamage_menu": {
+        "header": "Geen schade",
+        "bh_menu": "Terugmenu",
+        "bd_menu": "Er is geen schade aan dit onderdeel!",
+        "c_menu": "⬅ Sluit menu"
+    },
+    "notifications": {
+        "not_enough": "Je hebt niet genoeg%s(min.%sx)",
+        "not_have": "Dat heb je niet",
+        "not_materials": "Er zijn niet genoeg materialen in de kluis",
+        "rep_canceled": "Reparatie geannuleerd",
+        "repaired": "is gerepareerd!",
+        "unknown": "Status onbekend",
+        "not_valid": "Niet geldig voertuig",
+        "not_close": "U bent niet dicht genoeg bij het voertuig",
+        "veh_first": "U moet eerst in het voertuig zitten",
+        "outside": "U moet zich buiten het voertuig bevinden",
+        "wrong_seat": "Je bent niet de bestuurder of op de fiets",
+        "not_vehicle": "Je zit niet in een voertuig",
+        "progress_bar": "Voertuig repareren..",
+        "process_canceled": "Proces geannuleerd",
+        "not_part": "Geen geldig onderdeel",
+        "partrep": "De%sis gerepareerd!"
+    }
+}
