@@ -88,7 +88,7 @@ local function registerDutyTarget()
             rotation = 338.16,
             debug = config.debugPoly,
             inside = function()
-                if QBX.PlayerData.job.onduty then
+                if QBX.PlayerData.job.type == 'mechanic' then
                     if IsControlJustPressed(0, 38) then
                         TriggerServerEvent("QBCore:ToggleDuty")
                         Wait(500)
@@ -96,7 +96,7 @@ local function registerDutyTarget()
                 end
             end,
             onEnter = function()
-                if QBX.PlayerData.job.onduty then
+                if QBX.PlayerData.job.type == 'mechanic' then
                     lib.showTextUI("[E] " .. label, {position = 'left-center'})
                 end
             end,
